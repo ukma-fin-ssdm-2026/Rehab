@@ -50,6 +50,6 @@
 ## 9. Підписи
 
 - [ ] Анастасія (GitHub: @kyrychata)
-- [ ] Марія (GitHub: @maryxseee)
+- [х] Марія (GitHub: @maryxseee)
 - [ ] Софія (GitHub: @Sof222)
 - [x] Поліна (GitHub: @morozovap)
