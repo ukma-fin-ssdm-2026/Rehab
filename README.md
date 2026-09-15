@@ -5,13 +5,13 @@
 ---
 ## Команда
 
-**| Учасник | Роль |**
-  |---|---|
-  | Киричата Анастасія | Repo Maintainer |
-  | Мілевська Софія | CI Maintainer |
-  | Морозова Поліна | Documentation Lead |
-  | Колесник Марія | Issue Tracker Lead |
-  | Морозова Поліна | Project Brief Lead |
+| **Учасник** | **Роль** |
+|---|---|
+| *Киричата Анастасія* | Repo Maintainer |
+| *Мілевська Софія* | CI Maintainer |
+| *Морозова Поліна* | Documentation Lead |
+| *Колесник Марія* | Issue Tracker Lead |
+| *Морозова Поліна* | Project Brief Lead |
 
 ---
 ## Репозиторій
