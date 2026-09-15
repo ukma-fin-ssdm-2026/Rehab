@@ -51,5 +51,5 @@
 
 - [ ] Анастасія (GitHub: @kyrychata)
 - [x] Марія (GitHub: @maryxseee)
-- [ ] Софія (GitHub: @Sof222)
+- [x] Софія (GitHub: @Sof222)
 - [x] Поліна (GitHub: @morozovap)
