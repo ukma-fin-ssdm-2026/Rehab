@@ -49,7 +49,7 @@
 
 ## 9. Підписи
 
-- [ ] Анастасія (GitHub: @kyrychata)
+- [x] Анастасія (GitHub: @kyrychata)
 - [x] Марія (GitHub: @maryxseee)
 - [x] Софія (GitHub: @Sof222)
 - [x] Поліна (GitHub: @morozovap)
