@@ -1,7 +1,4 @@
 # Rehab
-<<<<<<< Updated upstream
-Expense Tracker project
-=======
 
 Наш застосунок **_Rehab_** - це дуже зручний, інтуїтивно зрозумілий та ходовий застосунок для відстежування днів тверезості
 
@@ -47,4 +44,3 @@ project-root/
 </pre>
 
 ---
->>>>>>> Stashed changes
