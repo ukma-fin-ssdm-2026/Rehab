@@ -31,11 +31,17 @@ project-root/
 │       └── <a href=".github/workflows/ci.yml">ci.yml</a>                  # CI/CD конфігурація
 ├── <a href="Lab01/">Lab01/</a>
 ├── docs/
-│   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог
-│   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>         # Функціональні (FR) та нефункціональні (NFR) вимоги
-│   │   ├── <a href="docs/requirements/user-stories.md">user-stories.md</a>         # Користувацькі історії з критеріями прийняття
-│   │   └── <a href="docs/requirements/rtm.md">rtm.md</a>                  # Матриця простежуваності (RTM)
-│   ├── <a href="docs/architecture/">architecture/</a>
+│   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог 
+│   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>
+│   │   ├── <a href="docs/requirements/user-stories.md">user-stories.md</a>
+│   │   └── <a href="docs/requirements/rtm.md">rtm.md</a>
+│   ├── <a href="docs/architecture/">architecture/</a>               # Архітектура
+│   │   ├── <a href="docs/architecture/decisions/">decisions/</a>
+│   │   ├── <a href="docs/architecture/uml/">uml/</a>                    
+│   │   ├── <a href="docs/architecture/high-level-design.md">high-level-design.md</a>
+│   │   ├── <a href="docs/architecture/traceability-matrix.md">traceability-matrix.md</a>
+│   │   ├── <a href="docs/architecture/data-model.md">data-model.md</a>
+│   │   └── <a href="docs/architecture/threat-model.md">threat-model.md</a>
 │   └── <a href="docs/api/">api/</a>
 ├── <a href="src/">src/</a>
 ├── <a href="tests/">tests/</a>                          # Тести
@@ -45,4 +51,23 @@ project-root/
 └── <a href=".gitignore">.gitignore</a>
 </pre>
 
----
+## Документація вимог
+
+<pre>
+<a href="docs/requirements/">requirements/</a>
+├── <a href="docs/requirements/user-stories.md">user-stories.md</a>         # Користувацькі історії (User Stories)
+├── <a href="docs/requirements/requirements.md">requirements.md</a>         # Вимоги до системи (FR та NFR)
+└── <a href="docs/requirements/rtm.md">rtm.md</a>                  # Матриця простежуваності вимог (RTM)
+</pre>
+
+## Архітектура
+
+<pre>
+<a href="docs/architecture/">architecture/</a>
+├── <a href="docs/architecture/decisions/">decisions/</a>              # Архітектурні рішення (ADR)
+├── <a href="docs/architecture/uml/">uml/</a>                    # Діаграми
+├── <a href="docs/architecture/high-level-design.md">high-level-design.md</a>    # Високорівневий дизайн (HLD)
+├── <a href="docs/architecture/traceability-matrix.md">traceability-matrix.md</a>  # Матриця простежуваності архітектури
+├── <a href="docs/architecture/data-model.md">data-model.md</a>           # Модель даних (ER)
+└── <a href="docs/architecture/threat-model.md">threat-model.md</a>         # Моделювання загроз (STRIDE)
+</pre>
