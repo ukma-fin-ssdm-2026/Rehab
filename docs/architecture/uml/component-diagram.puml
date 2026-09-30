@@ -1,1 +1,10 @@
-' діаграма компонентів 
+@startuml
+component "Frontend (Web/Mobile)" as Client
+component "Auth Service" as Auth
+component "Core API (Business Logic)" as Core
+database "PostgreSQL" as DB
+
+Client --> Auth : POST /login (REST)
+Client --> Core : GET/POST Data (JWT)
+Core --> DB : SQL Queries (Read/Write)
+@enduml
