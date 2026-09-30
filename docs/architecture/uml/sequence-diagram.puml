@@ -1,1 +1,15 @@
-' діаграма послідовності
+@startuml
+actor "Користувач" as User
+participant "Frontend" as Front
+participant "Backend" as Back
+database "PostgreSQL" as DB
+actor "Ментор" as Mentor
+
+User -> Front: Відмічає зрив
+Front -> Back: Надсилає дані про зрив
+Back -> DB: Зберігає запис
+DB --> Back: Запис збережено
+Back -> Mentor: Надсилає сповіщення
+Back --> Front: Підтверджує збереження
+Front --> User: Показує результат
+@enduml
