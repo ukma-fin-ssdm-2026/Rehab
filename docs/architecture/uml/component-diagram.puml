@@ -1,10 +1,20 @@
 @startuml
-component "Frontend (Web/Mobile)" as Client
-component "Auth Service" as Auth
-component "Core API (Business Logic)" as Core
-database "PostgreSQL" as DB
+title Діаграма компонентів системи "Рехаб"
 
-Client --> Auth : POST /login (REST)
-Client --> Core : GET/POST Data (JWT)
-Core --> DB : SQL Queries (Read/Write)
+component "Web Frontend\n(календар, статистика,\nцілі, менторство)" as Front
+
+package "Backend (Layered Monolith)" {
+  component "Controllers\n(REST API)" as Ctrl
+  component "Auth / RBAC\nMiddleware" as Auth
+  component "Services\n(бізнес-логіка, streak,\nсповіщення, модерація)" as Svc
+  component "Repositories\n(доступ до даних,\nConnection Pool)" as Repo
+}
+
+database "PostgreSQL\n(User, DayRecord, Goal,\nMentorRequest, Notification,\nComplaint)" as DB
+
+Front --> Ctrl : REST API / JSON\n(HTTPS, JWT)
+Ctrl --> Auth : перевірка JWT\nі ролі (user/mentor/admin)
+Ctrl --> Svc : виклик бізнес-логіки
+Svc --> Repo : операції з даними
+Repo --> DB : SQL
 @enduml
