@@ -12,13 +12,13 @@
 
 ## Команда
 
-| **Учасник**          | **Роль**           |
-| -------------------- | ------------------ |
-| _Киричата Анастасія_ | Repo Maintainer    |
-| _Мілевська Софія_    | CI Maintainer      |
-| _Морозова Поліна_    | Documentation Lead |
-| _Колесник Марія_     | Issue Tracker Lead |
-| _Морозова Поліна_    | Project Brief Lead |
+| **Учасник**          | **Роль Лаб1**                         |   **Роль Лаб2**           |  **Роль Лаб3**                 |
+| -------------------- | ------------------                    |------------------         |------------------              |
+| _Киричата Анастасія_ | Repo Maintainer                       |Traceability Lead          |Requirements-Architecture Mapper|
+| _Мілевська Софія_    | CI Maintainer                         |Requirements Lead+FR Lead  |UML Lead                        |
+| _Морозова Поліна_    | Documentation Lead+Project Brief Lead |Documentation Lead         |Architecture+Documentation Lead |
+| _Колесник Марія_     | Issue Tracker Lead                    |Quality Lead               |Data & Threat Modeler           |
+
 
 ---
 
@@ -30,6 +30,8 @@ project-root/
 │   └── workflows/
 │       └── <a href=".github/workflows/ci.yml">ci.yml</a>                  # CI/CD конфігурація
 ├── <a href="Lab01/">Lab01/</a>
+├── <a href="Lab02/">Lab02/</a>
+├── <a href="Lab02/">Lab03/</a>
 ├── docs/
 │   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог 
 │   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>
@@ -51,7 +53,7 @@ project-root/
 └── <a href=".gitignore">.gitignore</a>
 </pre>
 
-## Документація вимог
+## Артефакти вимог (Лабораторна 2)
 
 <pre>
 <a href="docs/requirements/">requirements/</a>
@@ -60,7 +62,7 @@ project-root/
 └── <a href="docs/requirements/rtm.md">rtm.md</a>                  # Матриця простежуваності вимог (RTM)
 </pre>
 
-## Архітектура
+## Архітектурна документація (Лабораторна 3)
 
 <pre>
 <a href="docs/architecture/">architecture/</a>
