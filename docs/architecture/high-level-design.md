@@ -25,10 +25,10 @@
 <!-- UML Lead: Вставить на пункти 4.1, 4.2, 4.3 посилання на відповідні діаграми -->
 
 ### 4.1. Діаграма компонентів
-![Component Diagram](uml/component-diagram.puml)
+![Component Diagram](uml/component-diagram.png)
 
 ### 4.2. Діаграма послідовності
-![Sequence Diagram](uml/sequence-diagram.puml)
+![Sequence Diagram](uml/sequence-diagram.png)
 
 ### 4.3. Діаграма розгортання
-![Deployment Diagram](uml/deployment-diagram.puml)
+![Deployment Diagram](uml/deployment-diagram.png)
