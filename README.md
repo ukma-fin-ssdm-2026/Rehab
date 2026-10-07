@@ -93,5 +93,5 @@ project-root/
 
 1. Встановити залежності: `pip install -r requirements.txt`
 2. Запустити сервер (з кореня репозиторію): `python -m uvicorn src.api.main:app --reload`
-3. Відкрити Swagger UI: http://127.0.0.1:8000/docs
+3. Відкрити Swagger UI: https://ukma-fin-ssdm-2026.github.io/Rehab/
 4. Згенерувати специфікацію: `python scripts/export_openapi.py`
