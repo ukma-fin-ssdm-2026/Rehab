@@ -33,6 +33,7 @@ project-root/
 ├── <a href="Lab01/">Lab01/</a>
 ├── <a href="Lab02/">Lab02/</a>
 ├── <a href="Lab03/">Lab03/</a>
+├── <a href="Lab04/">Lab04/</a>
 ├── docs/
 │   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог 
 │   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>
