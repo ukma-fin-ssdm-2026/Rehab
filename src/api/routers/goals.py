@@ -1,4 +1,5 @@
 """Ендпоінти цілей (ресурс Goal)."""
+
 from fastapi import APIRouter, Depends, Path, Request, Response
 
 from src.api import stubs
@@ -33,7 +34,10 @@ def _get_own_goal(goal_id: int, user: CurrentUser) -> GoalOut:
         201: {
             "description": "Ціль створено",
             "headers": {
-                "Location": {"description": "URL створеної цілі", "schema": {"type": "string"}}
+                "Location": {
+                    "description": "URL створеної цілі",
+                    "schema": {"type": "string"},
+                }
             },
         },
     },

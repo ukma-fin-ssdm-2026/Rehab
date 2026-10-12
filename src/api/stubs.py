@@ -5,6 +5,7 @@
   - запис №2: створений годину тому, редагувати можна
   - ціль №1: 30 днів
 """
+
 import datetime as dt
 from itertools import count
 
@@ -37,19 +38,27 @@ def reset() -> None:
 
     for rec in (
         EntryOut(
-            record_id=next_entry_id(), user_id=42, date=today - dt.timedelta(days=5),
-            status=DayStatus.sober, trigger_category=None,
+            record_id=next_entry_id(),
+            user_id=42,
+            date=today - dt.timedelta(days=5),
+            status=DayStatus.sober,
+            trigger_category=None,
             created_at=now - dt.timedelta(days=5),
         ),
         EntryOut(
-            record_id=next_entry_id(), user_id=42, date=today - dt.timedelta(days=1),
-            status=DayStatus.relapse, trigger_category=TriggerCategory.stress,
+            record_id=next_entry_id(),
+            user_id=42,
+            date=today - dt.timedelta(days=1),
+            status=DayStatus.relapse,
+            trigger_category=TriggerCategory.stress,
             created_at=now - dt.timedelta(hours=1),
         ),
     ):
         entries[rec.record_id] = rec
 
-    goal = GoalOut(goal_id=next_goal_id(), user_id=42, target_days=30, is_achieved=False)
+    goal = GoalOut(
+        goal_id=next_goal_id(), user_id=42, target_days=30, is_achieved=False
+    )
     goals[goal.goal_id] = goal
 
 
