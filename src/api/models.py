@@ -15,8 +15,8 @@ from pydantic import (
     model_validator,
 )
 
-
 # ---------- Перелічення ----------
+
 
 class DayStatus(str, Enum):
     """Статус дня в календарі (DayRecord.status)."""
@@ -36,6 +36,7 @@ class TriggerCategory(str, Enum):
 
 # ---------- Календар (DayRecord) ----------
 
+
 class EntryBase(BaseModel):
     """Базові поля відмітки дня."""
 
@@ -54,13 +55,8 @@ class EntryBase(BaseModel):
     def trigger_only_for_relapse(self):
         """Забороняє вказувати тригер для тверезого дня."""
 
-        if (
-            self.trigger_category is not None
-            and self.status != DayStatus.relapse
-        ):
-            raise ValueError(
-                "trigger_category можна вказувати лише для status=relapse"
-            )
+        if self.trigger_category is not None and self.status != DayStatus.relapse:
+            raise ValueError("trigger_category можна вказувати лише для status=relapse")
 
         return self
 
@@ -100,9 +96,7 @@ class EntryCreate(EntryBase):
         """Забороняє створення відмітки на майбутню дату."""
 
         if value > dt.date.today():
-            raise ValueError(
-                "Не можна відмічати майбутні дні (FR-002)"
-            )
+            raise ValueError("Не можна відмічати майбутні дні (FR-002)")
 
         return value
 
@@ -198,6 +192,7 @@ class EntryList(BaseModel):
 
 # ---------- Цілі (Goal) ----------
 
+
 class GoalCreate(BaseModel):
     """Тіло запиту на створення або повну заміну цілі (FR-004)."""
 
@@ -205,10 +200,7 @@ class GoalCreate(BaseModel):
         ...,
         ge=1,
         le=3650,
-        description=(
-            "Цільова кількість днів без алкоголю "
-            "(від 1 до 3650)."
-        ),
+        description=("Цільова кількість днів без алкоголю " "(від 1 до 3650)."),
         examples=[30],
     )
 
@@ -245,6 +237,7 @@ class GoalOut(BaseModel):
 
 # ---------- Помилки ----------
 
+
 class ErrorResponse(BaseModel):
     """Єдиний формат помилки для всіх ендпоінтів."""
 
@@ -262,8 +255,5 @@ class ErrorResponse(BaseModel):
 
     details: dict | list | None = Field(
         None,
-        description=(
-            "Додаткові подробиці "
-            "(наприклад, перелік полів з помилками)."
-        ),
+        description=("Додаткові подробиці " "(наприклад, перелік полів з помилками)."),
     )

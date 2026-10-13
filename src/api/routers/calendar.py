@@ -1,4 +1,5 @@
 """Ендпоінти календаря відміток (ресурс DayRecord)."""
+
 import datetime as dt
 
 from fastapi import APIRouter, Depends, Path, Query, Request, Response
@@ -45,11 +46,14 @@ def create_entry(
     user: CurrentUser = Depends(get_current_user),
 ):
     duplicate = any(
-        e.user_id == user.user_id and e.date == body.date for e in stubs.entries.values()
+        e.user_id == user.user_id and e.date == body.date
+        for e in stubs.entries.values()
     )
     if duplicate:
         raise api_error(
-            409, "ENTRY_ALREADY_EXISTS", f"Запис на дату {body.date} уже існує",
+            409,
+            "ENTRY_ALREADY_EXISTS",
+            f"Запис на дату {body.date} уже існує",
             {"date": str(body.date)},
         )
 
@@ -78,10 +82,14 @@ def create_entry(
 )
 def list_entries(
     date_from: dt.date | None = Query(
-        None, alias="from", description="Початок діапазону (включно), YYYY-MM-DD.",
+        None,
+        alias="from",
+        description="Початок діапазону (включно), YYYY-MM-DD.",
     ),
     date_to: dt.date | None = Query(
-        None, alias="to", description="Кінець діапазону (включно), YYYY-MM-DD.",
+        None,
+        alias="to",
+        description="Кінець діапазону (включно), YYYY-MM-DD.",
     ),
     limit: int = Query(30, ge=1, le=100, description="Розмір сторінки (1-100)."),
     offset: int = Query(0, ge=0, description="Скільки записів пропустити."),
@@ -89,7 +97,9 @@ def list_entries(
 ):
     if date_from and date_to and date_from > date_to:
         raise api_error(
-            422, "INVALID_DATE_RANGE", "Параметр `from` не може бути пізніше за `to`",
+            422,
+            "INVALID_DATE_RANGE",
+            "Параметр `from` не може бути пізніше за `to`",
         )
 
     items = [e for e in stubs.entries.values() if e.user_id == user.user_id]
@@ -100,7 +110,7 @@ def list_entries(
     items.sort(key=lambda e: e.date, reverse=True)
 
     return EntryList(
-        items=items[offset: offset + limit],
+        items=items[offset : offset + limit],
         total=len(items),
         limit=limit,
         offset=offset,
@@ -118,7 +128,10 @@ def list_entries(
     ),
     responses={
         **COMMON_RESPONSES,
-        403: {"model": ErrorResponse, "description": "Минуло 48 годин з моменту створення запису"},
+        403: {
+            "model": ErrorResponse,
+            "description": "Минуло 48 годин з моменту створення запису",
+        },
         404: {"model": ErrorResponse, "description": "Запис не знайдено"},
     },
 )
@@ -134,7 +147,9 @@ def update_entry(
     age = dt.datetime.now(dt.timezone.utc) - entry.created_at
     if age > EDIT_WINDOW:
         raise api_error(
-            403, "EDIT_WINDOW_EXPIRED", "Час на редагування цього запису минув (48 годин)",
+            403,
+            "EDIT_WINDOW_EXPIRED",
+            "Час на редагування цього запису минув (48 годин)",
         )
 
     updated = entry.model_copy(

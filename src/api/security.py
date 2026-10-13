@@ -6,6 +6,7 @@
 Механізм (схема Bearer, залежність get_current_user, перевірка ролей)
 залишається таким самим, тож заміна не змінює ендпоінти.
 """
+
 from dataclasses import dataclass
 
 from fastapi import Depends, HTTPException
@@ -25,6 +26,7 @@ bearer_scheme = HTTPBearer(
 @dataclass
 class CurrentUser:
     """Користувач, отриманий з токена."""
+
     user_id: int
     role: str
 
@@ -57,11 +59,15 @@ def require_role(*roles: str):
     Приклад: Depends(require_role("admin")). У цій лабораторній роботі
     адмінських ендпоінтів немає, але механізм готовий до розширення.
     """
+
     def checker(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
         if user.role not in roles:
             raise HTTPException(
                 status_code=403,
-                detail={"code": "FORBIDDEN", "message": "Недостатньо прав для цієї дії"},
+                detail={
+                    "code": "FORBIDDEN",
+                    "message": "Недостатньо прав для цієї дії",
+                },
             )
         return user
 
