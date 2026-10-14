@@ -13,6 +13,7 @@ OpenAPI JSON: http://127.0.0.1:8000/openapi.json
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.routers import calendar, goals
 
@@ -47,6 +48,17 @@ app = FastAPI(
     ),
     version="1.0.0",
     openapi_tags=tags_metadata,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8081",
+        "http://127.0.0.1:8081",
+    ],
+    allow_credentials=False,
+    allow_methods=["GET"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 
