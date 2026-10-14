@@ -12,6 +12,7 @@
 
 ## Команда
 
+<<<<<<< Updated upstream
 | **Учасник**          | **Роль**           |
 | -------------------- | ------------------ |
 | _Киричата Анастасія_ | Repo Maintainer    |
@@ -21,6 +22,14 @@
 | _Морозова Поліна_    | Project Brief Lead |
 
 ---
+=======
+| **Учасник**          | **Роль Лаб1**                           | **Роль Лаб2**               | **Роль Лаб3**                     | **Роль Лаб4**      | **Роль Лаб5**          |
+| -------------------- | --------------------------------------- | --------------------------- | --------------------------------- | ------------------ | ---------------------- |
+| _Киричата Анастасія_ | Repo Maintainer                         | Traceability Lead           | Requirements-Architecture Mapper  | Quality Lead       | Quality Lead           |
+| _Мілевська Софія_    | CI Maintainer                           | Requirements Lead + FR Lead | UML Lead                          | Integration Lead   | Code Reviewer          |
+| _Морозова Поліна_    | Documentation Lead + Project Brief Lead | Documentation Lead          | Architecture + Documentation Lead | Backend Lead       | **Documentation Lead** |
+| _Колесник Марія_     | Issue Tracker Lead                      | Quality Lead                | Data & Threat Modeler             | Documentation Lead | Security Analyst       |
+>>>>>>> Stashed changes
 
 ## Структура репозиторію
 
@@ -71,3 +80,68 @@ project-root/
 ├── <a href="docs/architecture/data-model.md">data-model.md</a>           # Модель даних (ER)
 └── <a href="docs/architecture/threat-model.md">threat-model.md</a>         # Моделювання загроз (STRIDE)
 </pre>
+<<<<<<< Updated upstream
+=======
+
+## Документація API (Лабораторна 4)
+
+- [Swagger UI на GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Rehab/)
+- [Специфікація OpenAPI (генерується з коду)](docs/api/openapi-generated.yaml)
+- [Проєктні рішення API](docs/api/api-design.md)
+- [Атрибути якості API](docs/api/quality-attributes.md)
+
+Специфікація не пишеться вручну: workflow [`docs.yml`](.github/workflows/docs.yml) на кожен push у `main` генерує її скриптом [`scripts/export_openapi.py`](scripts/export_openapi.py) з анотацій у `src/api/` і публікує на GitHub Pages.
+
+## Запуск API
+
+Для запуску серверної частини Rehab потрібен Python 3.10 або новіший.
+
+1. Клонувати репозиторій і перейти в кореневу папку проєкту.
+2. Встановити залежності:
+
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+
+3. Запустити FastAPI:
+
+   ```bash
+   python -m uvicorn src.api.main:app --reload
+   ```
+
+4. Після запуску відкрити:
+   - **Swagger UI:** http://127.0.0.1:8000/docs
+   - **OpenAPI JSON:** http://127.0.0.1:8000/openapi.json
+
+### Автоматична генерація OpenAPI
+
+Специфікація OpenAPI генерується безпосередньо з коду FastAPI.
+
+Для експорту документації використовується команда:
+
+```bash
+python scripts/export_openapi.py
+```
+
+Опублікована документація доступна на [GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Rehab/).
+
+Локальна Swagger UI та документація на GitHub Pages — два різні способи перегляду API.
+
+## Якість коду та документація (Лабораторна 5)
+
+У межах Лабораторної роботи 5 команда виконала перевірку
+якості Python-коду, статичний аналіз безпеки та налаштувала
+інструменти для автоматизації перевірок.
+
+Результати роботи:
+
+- [Прогрес розробки](docs/code-quality/progress.md) —
+  стан реалізації, перевірки та подальші кроки.
+- [Статичний аналіз](docs/code-quality/static-analysis.md) —
+  результати аналізу безпеки та виявлені ризики.
+- [Code Review](docs/code-quality/review-report.md) —
+  огляд коду іншої команди та рекомендації.
+- [Командний статут](TeamCharter.md) —
+  стандарти кодування, правила Code Review
+  та Definition of Done.
+>>>>>>> Stashed changes
