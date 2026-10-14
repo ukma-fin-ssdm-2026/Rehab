@@ -1,1 +1,34 @@
-' діаграма послідовності
+@startuml
+title Фіксація зриву (критичний сценарій)
+
+actor "Користувач" as User
+participant "Web Frontend" as Front
+participant "Backend API\n(Auth + Services)" as Back
+database "PostgreSQL" as DB
+actor "Ментор" as Mentor
+
+User -> Front : Відмічає зрив\n(статус, категорія тригера)
+Front -> Back : POST /day-records\n(JWT у заголовку)
+Back -> Back : Перевірка JWT і ролі
+
+alt токен недійсний
+  Back --> Front : 401 Unauthorized
+  Front --> User : Потрібно увійти знову
+else токен дійсний
+  Back -> Back : Валідація даних\n(перевірка 48 год за created_at)
+  Back -> DB : INSERT DayRecord
+  DB --> Back : Запис збережено
+  Back -> DB : INSERT Notification\n(для ментора підопічного)
+  DB --> Back : Сповіщення збережено
+  Back --> Front : 201 Created
+  Front --> User : Показує результат
+end
+
+... пізніше ...
+Mentor -> Front : Відкриває застосунок
+Front -> Back : GET /notifications (JWT)
+Back -> DB : SELECT Notification
+DB --> Back : Сповіщення
+Back --> Front : Список сповіщень
+Front --> Mentor : Показує сповіщення про зрив
+@enduml

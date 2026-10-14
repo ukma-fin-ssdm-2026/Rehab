@@ -1,0 +1,614 @@
+components:
+  schemas:
+    DayStatus:
+      description: Статус дня в календарі (DayRecord.status).
+      enum:
+      - sober
+      - relapse
+      title: DayStatus
+      type: string
+    EntryCreate:
+      description: Тіло запиту на створення відмітки дня (FR-001, FR-002).
+      examples:
+      - date: '2026-10-07'
+        status: sober
+      - date: '2026-10-07'
+        status: relapse
+        trigger_category: stress
+      properties:
+        date:
+          description: Дата відмітки у форматі YYYY-MM-DD. Не може бути в майбутньому
+            (FR-002).
+          examples:
+          - '2026-10-07'
+          format: date
+          title: Date
+          type: string
+        status:
+          $ref: '#/components/schemas/DayStatus'
+          description: 'Статус дня: `sober` (тверезий) або `relapse` (зрив).'
+          examples:
+          - sober
+        trigger_category:
+          anyOf:
+          - $ref: '#/components/schemas/TriggerCategory'
+          - type: 'null'
+          description: Категорія тригера. Дозволена лише для `status=relapse`.
+      required:
+      - status
+      - date
+      title: EntryCreate
+      type: object
+    EntryList:
+      description: Сторінка зі списком відміток.
+      properties:
+        items:
+          description: Записи поточної сторінки.
+          items:
+            $ref: '#/components/schemas/EntryOut'
+          title: Items
+          type: array
+        limit:
+          description: Розмір сторінки.
+          examples:
+          - 30
+          title: Limit
+          type: integer
+        offset:
+          description: Зміщення від початку.
+          examples:
+          - 0
+          title: Offset
+          type: integer
+        total:
+          description: Загальна кількість записів за фільтром.
+          examples:
+          - 120
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: EntryList
+      type: object
+    EntryOut:
+      description: Відмітка дня у відповіді API.
+      properties:
+        created_at:
+          description: Час створення запису (UTC). Від нього рахується вікно редагування
+            48 год (FR-008).
+          format: date-time
+          title: Created At
+          type: string
+        date:
+          description: Дата відмітки.
+          examples:
+          - '2026-10-07'
+          format: date
+          title: Date
+          type: string
+        record_id:
+          description: Ідентифікатор запису.
+          examples:
+          - 1
+          title: Record Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/DayStatus'
+          description: Статус дня.
+        trigger_category:
+          anyOf:
+          - $ref: '#/components/schemas/TriggerCategory'
+          - type: 'null'
+          description: Категорія тригера зриву.
+        user_id:
+          description: Власник запису.
+          examples:
+          - 42
+          title: User Id
+          type: integer
+      required:
+      - record_id
+      - user_id
+      - date
+      - status
+      - created_at
+      title: EntryOut
+      type: object
+    EntryUpdate:
+      description: 'Тіло запиту на зміну статусу дня (FR-008).
+
+
+        Дату змінити не можна.'
+      examples:
+      - status: sober
+      - status: relapse
+        trigger_category: stress
+      properties:
+        status:
+          $ref: '#/components/schemas/DayStatus'
+          description: 'Статус дня: `sober` (тверезий) або `relapse` (зрив).'
+          examples:
+          - sober
+        trigger_category:
+          anyOf:
+          - $ref: '#/components/schemas/TriggerCategory'
+          - type: 'null'
+          description: Категорія тригера. Дозволена лише для `status=relapse`.
+      required:
+      - status
+      title: EntryUpdate
+      type: object
+    ErrorResponse:
+      description: Єдиний формат помилки для всіх ендпоінтів.
+      properties:
+        code:
+          description: Машинозчитуваний код помилки.
+          examples:
+          - FUTURE_DATE_NOT_ALLOWED
+          title: Code
+          type: string
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Додаткові подробиці (наприклад, перелік полів з помилками).
+          title: Details
+        message:
+          description: Пояснення для людини.
+          examples:
+          - Не можна відмічати майбутні дні
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: ErrorResponse
+      type: object
+    GoalCreate:
+      description: Тіло запиту на створення або повну заміну цілі (FR-004).
+      properties:
+        target_days:
+          description: Цільова кількість днів без алкоголю (від 1 до 3650).
+          examples:
+          - 30
+          maximum: 3650.0
+          minimum: 1.0
+          title: Target Days
+          type: integer
+      required:
+      - target_days
+      title: GoalCreate
+      type: object
+    GoalOut:
+      description: Ціль у відповіді API.
+      properties:
+        goal_id:
+          description: Ідентифікатор цілі.
+          examples:
+          - 1
+          title: Goal Id
+          type: integer
+        is_achieved:
+          description: Чи досягнуто ціль. Виставляє система, коли серія доходить до
+            цілі (FR-005).
+          title: Is Achieved
+          type: boolean
+        target_days:
+          description: Цільова кількість днів.
+          examples:
+          - 30
+          title: Target Days
+          type: integer
+        user_id:
+          description: Власник цілі.
+          examples:
+          - 42
+          title: User Id
+          type: integer
+      required:
+      - goal_id
+      - user_id
+      - target_days
+      - is_achieved
+      title: GoalOut
+      type: object
+    TriggerCategory:
+      description: Категорія тригера зриву (DayRecord.trigger_category).
+      enum:
+      - stress
+      - holiday
+      - social
+      - other
+      title: TriggerCategory
+      type: string
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: JWT
+      description: Токен-заглушка у форматі `<роль>-<id>`, наприклад `user-42` або
+        `mentor-7`.
+      scheme: bearer
+      type: http
+info:
+  description: 'Code-First API: специфікація OpenAPI генерується автоматично з коду.
+
+
+    Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). У цій версії
+    замість БД використовуються дані-заглушки в пам''яті.'
+  summary: REST API застосунку для відстеження періоду тверезості.
+  title: Rehab API
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /api/v1/calendar/entries:
+    get:
+      description: Повертає відмітки поточного користувача, відсортовані від нових
+        до старих. Підтримує фільтр за діапазоном дат та пагінацію (`limit`, `offset`).
+      operationId: list_entries_api_v1_calendar_entries_get
+      parameters:
+      - description: Початок діапазону (включно), YYYY-MM-DD.
+        in: query
+        name: from
+        required: false
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Початок діапазону (включно), YYYY-MM-DD.
+          title: From
+      - description: Кінець діапазону (включно), YYYY-MM-DD.
+        in: query
+        name: to
+        required: false
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Кінець діапазону (включно), YYYY-MM-DD.
+          title: To
+      - description: Розмір сторінки (1-100).
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 30
+          description: Розмір сторінки (1-100).
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: Скільки записів пропустити.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Скільки записів пропустити.
+          minimum: 0
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryList'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Отримати список відміток
+      tags:
+      - Calendar
+    post:
+      description: Відмічає день як тверезий (`sober`) або зрив (`relapse`) для поточного
+        користувача. Майбутні дати заборонені (FR-002). На одну дату може бути лише
+        один запис. При зриві серія обнуляється, а ментор отримує сповіщення (FR-003);
+        у заглушці сповіщення не надсилається.
+      operationId: create_entry_api_v1_calendar_entries_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryCreate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+          description: Запис створено
+          headers:
+            Location:
+              description: URL створеного запису
+              schema:
+                type: string
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Запис на цю дату вже існує
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Створити відмітку дня
+      tags:
+      - Calendar
+  /api/v1/calendar/entries/{record_id}:
+    patch:
+      description: Змінює статус (і тригер) існуючого запису. Дату змінити не можна.
+        Редагування дозволене лише протягом 48 годин з моменту створення запису (FR-008),
+        після цього повертається 403.
+      operationId: update_entry_api_v1_calendar_entries__record_id__patch
+      parameters:
+      - description: Ідентифікатор запису.
+        in: path
+        name: record_id
+        required: true
+        schema:
+          description: Ідентифікатор запису.
+          examples:
+          - 2
+          minimum: 1
+          title: Record Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Минуло 48 годин з моменту створення запису
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Запис не знайдено
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Змінити статус відміченого дня
+      tags:
+      - Calendar
+  /api/v1/goals:
+    post:
+      description: Створює нову ціль тверезості (кількість днів від 1 до 3650). Нова
+        ціль завжди створюється з `is_achieved=false` (FR-004).
+      operationId: create_goal_api_v1_goals_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoalCreate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalOut'
+          description: Ціль створено
+          headers:
+            Location:
+              description: URL створеної цілі
+              schema:
+                type: string
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Створити ціль
+      tags:
+      - Goals
+  /api/v1/goals/{goal_id}:
+    delete:
+      description: Видаляє ціль поточного користувача. Відповідь без тіла.
+      operationId: delete_goal_api_v1_goals__goal_id__delete
+      parameters:
+      - description: Ідентифікатор цілі.
+        in: path
+        name: goal_id
+        required: true
+        schema:
+          description: Ідентифікатор цілі.
+          examples:
+          - 1
+          minimum: 1
+          title: Goal Id
+          type: integer
+      responses:
+        '204':
+          description: Ціль видалено
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Ціль не знайдено
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Видалити ціль
+      tags:
+      - Goals
+    get:
+      description: Повертає ціль поточного користувача та ознаку її досягнення (FR-004,
+        FR-005).
+      operationId: get_goal_api_v1_goals__goal_id__get
+      parameters:
+      - description: Ідентифікатор цілі.
+        in: path
+        name: goal_id
+        required: true
+        schema:
+          description: Ідентифікатор цілі.
+          examples:
+          - 1
+          minimum: 1
+          title: Goal Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Ціль не знайдено
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Отримати ціль
+      tags:
+      - Goals
+    put:
+      description: Повністю замінює цільову кількість днів. Ознака `is_achieved` керується
+        системою (FR-005) і через цей ендпоінт не змінюється.
+      operationId: replace_goal_api_v1_goals__goal_id__put
+      parameters:
+      - description: Ідентифікатор цілі.
+        in: path
+        name: goal_id
+        required: true
+        schema:
+          description: Ідентифікатор цілі.
+          examples:
+          - 1
+          minimum: 1
+          title: Goal Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoalCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Відсутній або недійсний Bearer-токен
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Ціль не знайдено
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Помилка валідації вхідних даних
+      security:
+      - BearerAuth: []
+      summary: Замінити ціль
+      tags:
+      - Goals
+tags:
+- description: 'Щоденні відмітки користувача (DayRecord): тверезий день або зрив.
+    FR-001, FR-002, FR-003, FR-008.'
+  name: Calendar
+- description: 'Цілі тверезості (Goal): цільова кількість днів і прогрес. FR-004,
+    FR-005.'
+  name: Goals

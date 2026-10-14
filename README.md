@@ -14,7 +14,7 @@
 | -------------------- | --------------------------------------- | --------------------------- | --------------------------------- | ------------------ | ---------------------- |
 | _Киричата Анастасія_ | Repo Maintainer                         | Traceability Lead           | Requirements-Architecture Mapper  | Quality Lead       | Quality Lead           |
 | _Мілевська Софія_    | CI Maintainer                           | Requirements Lead + FR Lead | UML Lead                          | Integration Lead   | Code Reviewer          |
-| _Морозова Поліна_    | Documentation Lead + Project Brief Lead | Documentation Lead          | Architecture + Documentation Lead | Backend Lead       | **Documentation Lead** |
+| _Морозова Поліна_    | Documentation Lead + Project Brief Lead | Documentation Lead          | Architecture + Documentation Lead | Backend Lead       | Documentation Lead     |
 | _Колесник Марія_     | Issue Tracker Lead                      | Quality Lead                | Data & Threat Modeler             | Documentation Lead | Security Analyst       |
 
 ## Структура репозиторію
@@ -23,8 +23,12 @@
 project-root/
 ├── .github/
 │   └── workflows/
-│       └── <a href=".github/workflows/ci.yml">ci.yml</a>                  # CI/CD конфігурація
+│       ├── <a href=".github/workflows/ci.yml">ci.yml</a>                  # CI (перевірка)
+│       └── <a href=".github/workflows/docs.yml">docs.yml</a>              # Публікація API-документації
 ├── <a href="Lab01/">Lab01/</a>
+├── <a href="Lab02/">Lab02/</a>
+├── <a href="Lab03/">Lab03/</a>
+├── <a href="Lab04/">Lab04/</a>
 ├── docs/
 │   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог 
 │   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>
@@ -37,7 +41,12 @@ project-root/
 │   │   ├── <a href="docs/architecture/traceability-matrix.md">traceability-matrix.md</a>
 │   │   ├── <a href="docs/architecture/data-model.md">data-model.md</a>
 │   │   └── <a href="docs/architecture/threat-model.md">threat-model.md</a>
-│   └── <a href="docs/api/">api/</a>
+│   └── <a href="docs/api/">api/</a>                         # Документація API
+│       ├── <a href="docs/api/api-design.md">api-design.md</a>               # Проєктні рішення API
+│       ├── <a href="docs/api/quality-attributes.md">quality-attributes.md</a>       # Атрибути якості
+│       ├── <a href="docs/api/openapi-generated.yaml">openapi-generated.yaml</a>      # Специфікація OpenAPI (автогенерація)
+│       └── <a href="docs/api/index.html">index.html</a>                    # Swagger UI
+├── <a href="scripts/">scripts/</a>                        # Скрипт генерації OpenAPI
 ├── <a href="src/">src/</a>
 ├── <a href="tests/">tests/</a>                          # Тести
 ├── <a href="Project-Description.md">Project-Description.md</a>          # Детальний опис проєкту
@@ -46,7 +55,7 @@ project-root/
 └── <a href=".gitignore">.gitignore</a>
 </pre>
 
-## Документація вимог
+## Артефакти вимог (Лабораторна 2)
 
 <pre>
 <a href="docs/requirements/">requirements/</a>
@@ -55,7 +64,7 @@ project-root/
 └── <a href="docs/requirements/rtm.md">rtm.md</a>                  # Матриця простежуваності вимог (RTM)
 </pre>
 
-## Архітектура
+## Архітектурна документація (Лабораторна 3)
 
 <pre>
 <a href="docs/architecture/">architecture/</a>
@@ -68,7 +77,6 @@ project-root/
 </pre>
 
 ## Документація API (Лабораторна 4)
-
 - [Swagger UI на GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Rehab/)
 - [Специфікація OpenAPI (генерується з коду)](docs/api/openapi-generated.yaml)
 - [Проєктні рішення API](docs/api/api-design.md)

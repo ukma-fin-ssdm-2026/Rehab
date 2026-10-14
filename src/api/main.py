@@ -16,7 +16,6 @@ from fastapi.responses import JSONResponse
 
 from src.api.routers import calendar, goals
 
-
 API_PREFIX = "/api/v1"
 
 
