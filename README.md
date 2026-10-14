@@ -8,28 +8,14 @@
 
 > _Rehab - кожен тверезий день у новий commit_
 
----
-
 ## Команда
 
-<<<<<<< Updated upstream
-| **Учасник**          | **Роль**           |
-| -------------------- | ------------------ |
-| _Киричата Анастасія_ | Repo Maintainer    |
-| _Мілевська Софія_    | CI Maintainer      |
-| _Морозова Поліна_    | Documentation Lead |
-| _Колесник Марія_     | Issue Tracker Lead |
-| _Морозова Поліна_    | Project Brief Lead |
-
----
-=======
 | **Учасник**          | **Роль Лаб1**                           | **Роль Лаб2**               | **Роль Лаб3**                     | **Роль Лаб4**      | **Роль Лаб5**          |
 | -------------------- | --------------------------------------- | --------------------------- | --------------------------------- | ------------------ | ---------------------- |
 | _Киричата Анастасія_ | Repo Maintainer                         | Traceability Lead           | Requirements-Architecture Mapper  | Quality Lead       | Quality Lead           |
 | _Мілевська Софія_    | CI Maintainer                           | Requirements Lead + FR Lead | UML Lead                          | Integration Lead   | Code Reviewer          |
 | _Морозова Поліна_    | Documentation Lead + Project Brief Lead | Documentation Lead          | Architecture + Documentation Lead | Backend Lead       | **Documentation Lead** |
 | _Колесник Марія_     | Issue Tracker Lead                      | Quality Lead                | Data & Threat Modeler             | Documentation Lead | Security Analyst       |
->>>>>>> Stashed changes
 
 ## Структура репозиторію
 
@@ -80,8 +66,6 @@ project-root/
 ├── <a href="docs/architecture/data-model.md">data-model.md</a>           # Модель даних (ER)
 └── <a href="docs/architecture/threat-model.md">threat-model.md</a>         # Моделювання загроз (STRIDE)
 </pre>
-<<<<<<< Updated upstream
-=======
 
 ## Документація API (Лабораторна 4)
 
@@ -144,4 +128,3 @@ python scripts/export_openapi.py
 - [Командний статут](TeamCharter.md) —
   стандарти кодування, правила Code Review
   та Definition of Done.
->>>>>>> Stashed changes
