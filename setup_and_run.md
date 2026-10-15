@@ -6,7 +6,7 @@
 
 **Операційна система команд:** Windows, PowerShell (термінал VS Code).
 
-**Звіт про виконану роботу:** [`PROGRESS.md`](PROGRESS.md).
+**Звіт про виконану роботу:** [PROGRESS.md](docs/code-quality/progress.md).
 
 > **Найважливіше.** Репозиторій розділено на **`backend/`** і **`frontend/`**. Старий FastAPI з `src/api/` перенесено й адаптовано до `backend/app/`. Тепер сервер слід запускати модулем `backend.app.main:app` із кореня `Rehab/`. Frontend — окремий Expo-проєкт у `frontend/`. Для прототипу використовуйте інтеграційну гілку `feature/rehab-prototype`, не `main`.
 
