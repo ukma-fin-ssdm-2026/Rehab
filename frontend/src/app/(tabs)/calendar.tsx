@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { getCalendarEntriesUrl } from "../../config/api";
 
 type CalendarEntry = {
   record_id: number;
@@ -18,7 +19,6 @@ type CalendarResponse = {
   offset: number;
 };
 
-const API_URL = 'http://172.20.10.3:8000/api/v1/calendar/entries';
 
 export default function CalendarScreen() {
   const [data, setData] = useState<CalendarResponse | null>(null);
@@ -28,7 +28,7 @@ export default function CalendarScreen() {
   useEffect(() => {
     async function loadEntries() {
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(getCalendarEntriesUrl(), {
           method: 'GET',
           headers: {
             Authorization: 'Bearer user-42',
