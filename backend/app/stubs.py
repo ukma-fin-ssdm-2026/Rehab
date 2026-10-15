@@ -1,6 +1,7 @@
 """Дані-заглушки в пам'яті замість PostgreSQL (ADR-002).
 
 Стартові дані (для користувача з id=42):
+  - початок відстеження: 6 днів тому
   - запис №1: створений 5 днів тому, редагувати вже не можна (FR-008 -> 403)
   - запис №2: створений годину тому, редагувати можна
   - ціль №1: 30 днів
@@ -13,6 +14,8 @@ from backend.app.models import DayStatus, EntryOut, GoalOut, TriggerCategory
 
 entries: dict[int, EntryOut] = {}
 goals: dict[int, GoalOut] = {}
+tracking_start_dates: dict[int, dt.date] = {}
+
 _entry_ids = count(1)
 _goal_ids = count(1)
 
@@ -27,14 +30,20 @@ def next_goal_id() -> int:
 
 def reset() -> None:
     """Скидає сховище до стартових даних (використовується в тестах)."""
+
     global _entry_ids, _goal_ids
+
     entries.clear()
     goals.clear()
+    tracking_start_dates.clear()
+
     _entry_ids = count(1)
     _goal_ids = count(1)
 
     now = dt.datetime.now(dt.timezone.utc)
     today = dt.date.today()
+
+    tracking_start_dates[42] = today - dt.timedelta(days=6)
 
     for rec in (
         EntryOut(
@@ -57,7 +66,10 @@ def reset() -> None:
         entries[rec.record_id] = rec
 
     goal = GoalOut(
-        goal_id=next_goal_id(), user_id=42, target_days=30, is_achieved=False
+        goal_id=next_goal_id(),
+        user_id=42,
+        target_days=30,
+        is_achieved=False,
     )
     goals[goal.goal_id] = goal
 

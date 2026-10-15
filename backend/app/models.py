@@ -6,6 +6,7 @@ DayRecord -> Entry*, Goal -> Goal*. Додатково описано єдини
 
 import datetime as dt
 from enum import Enum
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -32,6 +33,32 @@ class TriggerCategory(str, Enum):
     holiday = "holiday"
     social = "social"
     other = "other"
+
+
+class DrinkType(str, Enum):
+    """Тип алкогольного напою."""
+
+    beer = "beer"
+    wine = "wine"
+    spirits = "spirits"
+    cocktail = "cocktail"
+    other = "other"
+
+
+class Drink(BaseModel):
+    """Один напій у записі про вживання."""
+
+    type: DrinkType = Field(
+        ...,
+        description="Тип алкогольного напою.",
+    )
+
+    volume_ml: int = Field(
+        ...,
+        gt=0,
+        strict=True,
+        description="Об'єм напою в мілілітрах (додатне ціле число).",
+    )
 
 
 # ---------- Календар (DayRecord) ----------
@@ -89,6 +116,25 @@ class EntryCreate(EntryBase):
         ),
         examples=["2026-10-07"],
     )
+
+    drinks: list[Drink] = Field(
+        default_factory=list,
+        description="Список алкогольних напоїв у записі.",
+    )
+
+    comment: str | None = Field(
+        None,
+        description="Необов'язковий коментар до запису.",
+    )
+
+    @model_validator(mode="after")
+    def drinks_only_for_relapse(self):
+        """Забороняє алкогольні напої для тверезого дня."""
+
+        if self.status == DayStatus.sober and self.drinks:
+            raise ValueError("Напої можна додавати лише для status=relapse")
+
+        return self
 
     @field_validator("date")
     @classmethod
@@ -154,6 +200,16 @@ class EntryOut(BaseModel):
         description="Категорія тригера зриву.",
     )
 
+    drinks: list[Drink] = Field(
+        default_factory=list,
+        description="Список напоїв у записі.",
+    )
+
+    comment: str | None = Field(
+        None,
+        description="Коментар до запису.",
+    )
+
     created_at: dt.datetime = Field(
         ...,
         description=(
@@ -200,7 +256,7 @@ class GoalCreate(BaseModel):
         ...,
         ge=1,
         le=3650,
-        description=("Цільова кількість днів без алкоголю " "(від 1 до 3650)."),
+        description="Цільова кількість днів без алкоголю (від 1 до 3650).",
         examples=[30],
     )
 
@@ -235,6 +291,79 @@ class GoalOut(BaseModel):
     )
 
 
+# ---------- Статистика ----------
+
+
+class StatisticsOut(BaseModel):
+    """Статистика тверезості для головної, цілей та екрана статистики."""
+
+    period: Literal["all", "week", "month", "year"] = Field(
+        ...,
+        description="Період статистики.",
+    )
+
+    tracking_start_date: dt.date = Field(
+        ...,
+        description="Дата початку відстеження тверезості.",
+    )
+
+    period_start: dt.date = Field(
+        ...,
+        description="Початок вибраного періоду.",
+    )
+
+    period_end: dt.date = Field(
+        ...,
+        description="Кінець вибраного періоду.",
+    )
+
+    sober_days: int = Field(
+        ...,
+        ge=0,
+        description="Кількість тверезих днів у вибраному періоді.",
+    )
+
+    relapse_days: int = Field(
+        ...,
+        ge=0,
+        description="Кількість днів із вживанням у вибраному періоді.",
+    )
+
+    total_sober_days: int = Field(
+        ...,
+        ge=0,
+        description="Усі тверезі дні від початку відстеження.",
+    )
+
+    current_streak: int = Field(
+        ...,
+        ge=0,
+        description="Поточна безперервна серія тверезих днів.",
+    )
+
+    longest_streak: int = Field(
+        ...,
+        ge=0,
+        description="Найдовша безперервна серія тверезих днів.",
+    )
+
+    active_goal_days: int | None = Field(
+        ...,
+        description="Активна ціль: 7, 30 або null після виконання обох.",
+    )
+
+    completed_goal_days: list[int] = Field(
+        default_factory=list,
+        description="Виконані цілі у днях.",
+    )
+
+    goal_progress_days: int = Field(
+        ...,
+        ge=0,
+        description="Кількість тверезих днів для прогресу цілі.",
+    )
+
+
 # ---------- Помилки ----------
 
 
@@ -255,5 +384,5 @@ class ErrorResponse(BaseModel):
 
     details: dict | list | None = Field(
         None,
-        description=("Додаткові подробиці " "(наприклад, перелік полів з помилками)."),
+        description="Додаткові подробиці (наприклад, перелік полів з помилками).",
     )

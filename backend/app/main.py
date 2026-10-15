@@ -12,10 +12,10 @@ OpenAPI JSON: http://127.0.0.1:8000/openapi.json
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from backend.app.routers import calendar, goals
+from backend.app.routers import calendar, goals, statistics
 
 API_PREFIX = "/api/v1"
 
@@ -33,6 +33,13 @@ tags_metadata = [
         "description": (
             "Цілі тверезості (Goal): цільова кількість днів і прогрес. "
             "FR-004, FR-005."
+        ),
+    },
+    {
+        "name": "Statistics",
+        "description": (
+            "Статистика тверезості: кількість днів, серії "
+            "та автоматичні цілі на 7 і 30 днів."
         ),
     },
 ]
@@ -57,7 +64,7 @@ app.add_middleware(
         "http://127.0.0.1:8081",
     ],
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST", "PATCH"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
@@ -119,3 +126,4 @@ async def validation_exception_handler(
 
 app.include_router(calendar.router, prefix=API_PREFIX)
 app.include_router(goals.router, prefix=API_PREFIX)
+app.include_router(statistics.router, prefix=API_PREFIX)
