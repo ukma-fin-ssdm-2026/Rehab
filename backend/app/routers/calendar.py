@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Path, Query, Request, Response
 from backend.app import stubs
 from backend.app.errors import COMMON_RESPONSES, api_error
 from backend.app.models import (
+    DayStatus,
     EntryCreate,
     EntryList,
     EntryOut,
@@ -69,6 +70,8 @@ def create_entry(
         date=body.date,
         status=body.status,
         trigger_category=body.trigger_category,
+        drinks=body.drinks,
+        comment=body.comment,
         created_at=dt.datetime.now(dt.timezone.utc),
     )
     stubs.entries[entry.record_id] = entry
@@ -159,7 +162,11 @@ def update_entry(
         )
 
     updated = entry.model_copy(
-        update={"status": body.status, "trigger_category": body.trigger_category}
+        update={
+            "status": body.status,
+            "trigger_category": body.trigger_category,
+            "drinks": [] if body.status == DayStatus.sober else entry.drinks,
+        }
     )
     stubs.entries[record_id] = updated
     return updated
