@@ -29,6 +29,7 @@ project-root/
 ├── <a href="Lab02/">Lab02/</a>
 ├── <a href="Lab03/">Lab03/</a>
 ├── <a href="Lab04/">Lab04/</a>
+├── <a href="Lab05/">Lab05/</a>
 ├── docs/
 │   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог 
 │   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>
@@ -41,16 +42,26 @@ project-root/
 │   │   ├── <a href="docs/architecture/traceability-matrix.md">traceability-matrix.md</a>
 │   │   ├── <a href="docs/architecture/data-model.md">data-model.md</a>
 │   │   └── <a href="docs/architecture/threat-model.md">threat-model.md</a>
-│   └── <a href="docs/api/">api/</a>                         # Документація API
-│       ├── <a href="docs/api/api-design.md">api-design.md</a>               # Проєктні рішення API
-│       ├── <a href="docs/api/quality-attributes.md">quality-attributes.md</a>       # Атрибути якості
-│       ├── <a href="docs/api/openapi-generated.yaml">openapi-generated.yaml</a>      # Специфікація OpenAPI (автогенерація)
-│       └── <a href="docs/api/index.html">index.html</a>                    # Swagger UI
+│   ├── <a href="docs/api/">api/</a>                         # Документація API
+│   │   ├── <a href="docs/api/api-design.md">api-design.md</a>               # Проєктні рішення API
+│   │   ├── <a href="docs/api/quality-attributes.md">quality-attributes.md</a>       # Атрибути якості
+│   │   ├── <a href="docs/api/openapi-generated.yaml">openapi-generated.yaml</a>      # Специфікація OpenAPI (автогенерація)
+│   │   └── <a href="docs/api/index.html">index.html</a>                   # Swagger UI
+│   ├── <a href="docs/code-quality/">code-quality/</a>                # Документація якості коду (Lab 05)
+│   │   ├── <a href="docs/code-quality/progress.md">progress.md</a>               # Звіт Lab 05
+│   │   ├── <a href="docs/code-quality/static-analysis.md">static-analysis.md</a>      # Статичний аналіз
+│   │   └── <a href="docs/code-quality/review-report.md">review-report.md</a>        # Code Review
+│   └── <a href="docs/design/">design/</a>                     # Попередній UI/UX-дизайн
+│       ├── <a href="docs/design/design.md">design.md</a>                   # Опис дизайну та Figma
+│       └── <a href="docs/design/overview.png">overview.png</a>                # Загальний вигляд макетів
+
 ├── <a href="scripts/">scripts/</a>                        # Скрипт генерації OpenAPI
 ├── <a href="src/">src/</a>
 ├── <a href="tests/">tests/</a>                          # Тести
 ├── <a href="Project-Description.md">Project-Description.md</a>          # Детальний опис проєкту
 ├── <a href="README.md">README.md</a>                       # Головний опис проєкту
+├── <a href="PROGRESS.md">PROGRESS.md</a>                     # Прогрес розробки прототипу
+├── <a href="SETUP_AND_RUN.md">SETUP_AND_RUN.md</a>                # Інструкція з налаштування та запуску
 ├── <a href="TeamCharter.md">TeamCharter.md</a>                  # Командний статут
 └── <a href=".gitignore">.gitignore</a>
 </pre>
@@ -85,6 +96,7 @@ project-root/
 Специфікація не пишеться вручну: workflow [`docs.yml`](.github/workflows/docs.yml) на кожен push у `main` генерує її скриптом [`scripts/export_openapi.py`](scripts/export_openapi.py) з анотацій у `src/api/` і публікує на GitHub Pages.
 
 ## Запуск API
+Наведені нижче команди стосуються базової реалізації API в `src/api/`. Для запуску інтегрованого прототипу з окремими `backend/` і `frontend/` використовуйте [інструкцію з налаштування та запуску](SETUP_AND_RUN.md).
 
 Для запуску серверної частини Rehab потрібен Python 3.10 або новіший.
 
@@ -136,3 +148,21 @@ python scripts/export_openapi.py
 - [Командний статут](TeamCharter.md) —
   стандарти кодування, правила Code Review
   та Definition of Done.
+  
+## Документація прототипу (КТ-5)
+
+У межах подальшої розробки Rehab командою підготовлено функціональний прототип мобільного застосунку на React Native / Expo із серверною частиною FastAPI.
+
+Прототип містить 16 маршрутів, зокрема екрани календаря, статистики, цілей та профілю користувача. Частина екранів має демонстраційний характер і призначена для подальшої реалізації функціональності.
+
+Для документування виконаної роботи підготовлено такі матеріали:
+
+- [Звіт про прогрес розробки прототипу](PROGRESS.md) — опис реалізованої функціональності, архітектури, інтеграції Backend і Frontend, результатів тестування та обмежень поточної версії.
+- [Інструкція з налаштування та запуску](SETUP_AND_RUN.md) — встановлення залежностей, налаштування середовища, запуск FastAPI та Expo Web, перевірка роботи прототипу.
+- [Попередній UI/UX-дизайн](docs/design/design.md) — опис візуальної концепції застосунку, створеної у Figma, та макети основних екранів.
+- [Загальний огляд дизайн-макетів](docs/design/overview.png) — зображення підготовлених екранів застосунку.
+
+Інтегрована версія прототипу розроблялася в гілці `feature/rehab-prototype`.
+
+Макети Figma є попередньою концепцією майбутнього інтерфейсу Rehab та можуть відрізнятися від поточної функціональної реалізації застосунку.
+
