@@ -1,15 +1,33 @@
 
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { theme } from '../constants/theme';
 
 type Props = {
   title: string;
+  subtitle?: string;
 };
 
-export default function ScreenPlaceholder({ title }: Props) {
+export default function ScreenPlaceholder({
+  title,
+  subtitle = 'Функція буде доступна пізніше.',
+}: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>Твій шлях до змін починається тут.</Text>
+      <Pressable style={styles.back} onPress={() => router.replace('/(tabs)/profile')}>
+        <Text style={styles.backText}>← До профілю</Text>
+      </Pressable>
+
+      <View style={styles.card}>
+        <View style={styles.icon}>
+          <Text style={styles.iconText}>✦</Text>
+        </View>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>СКОРО</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -17,20 +35,66 @@ export default function ScreenPlaceholder({ title }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5FAF7',
+    backgroundColor: theme.colors.background,
     padding: 24,
   },
-  title: {
-    fontSize: 26,
+  back: {
+    position: 'absolute',
+    top: 28,
+    left: 24,
+    zIndex: 1,
+    paddingVertical: 10,
+  },
+  backText: {
+    color: theme.colors.primaryDark,
+    fontSize: 15,
     fontWeight: '700',
-    color: '#245C4A',
+  },
+  card: {
+    alignItems: 'center',
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 28,
+    gap: 14,
+  },
+  icon: {
+    width: 58,
+    height: 58,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.accent,
+  },
+  iconText: {
+    fontSize: 29,
+    color: theme.colors.primaryDark,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: '800',
+    color: theme.colors.primaryDark,
+    textAlign: 'center',
   },
   subtitle: {
-    marginTop: 10,
     fontSize: 15,
-    color: '#718078',
+    lineHeight: 22,
+    color: theme.colors.muted,
     textAlign: 'center',
+  },
+  badge: {
+    backgroundColor: theme.colors.accent,
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    marginTop: 4,
+  },
+  badgeText: {
+    fontSize: 11,
+    letterSpacing: 1.2,
+    fontWeight: '800',
+    color: theme.colors.primaryDark,
   },
 });
