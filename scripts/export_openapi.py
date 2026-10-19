@@ -1,4 +1,3 @@
-
 """Генерує docs/api/openapi-generated.yaml з FastAPI.
 
 Запуск із кореня репозиторію:
