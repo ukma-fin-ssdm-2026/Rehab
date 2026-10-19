@@ -1,6 +1,7 @@
-"""Генерує docs/api/openapi-generated.yaml з коду FastAPI-застосунку.
 
-Запуск з кореня репозиторію:
+"""Генерує docs/api/openapi-generated.yaml з FastAPI.
+
+Запуск із кореня репозиторію:
     python scripts/export_openapi.py
 """
 
@@ -12,15 +13,23 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.api.main import app  # noqa: E402
+from backend.app.main import app  # noqa: E402
 
 OUT = ROOT / "docs" / "api" / "openapi-generated.yaml"
 
 
 def main() -> None:
+    """Зберегти актуальну OpenAPI-специфікацію у YAML."""
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    with OUT.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(app.openapi(), f, allow_unicode=True)
+
+    with OUT.open("w", encoding="utf-8") as file:
+        yaml.safe_dump(
+            app.openapi(),
+            file,
+            allow_unicode=True,
+            sort_keys=False,
+        )
+
     print(f"OpenAPI записано в {OUT.relative_to(ROOT)}")
 
 
