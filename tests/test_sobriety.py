@@ -132,3 +132,13 @@ def test_relapse_on_last_day():
     )
 
     assert result == 6
+
+def test_invalid_period_error_message():
+    with pytest.raises(ValueError) as error:
+        count_sober_days(
+            dt.date(2026, 10, 7),
+            dt.date(2026, 10, 1),
+            [],
+        )
+
+    assert str(error.value) == "Кінцева дата не може бути раніше початкової"
