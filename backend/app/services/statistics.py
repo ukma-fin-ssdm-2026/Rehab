@@ -171,5 +171,12 @@ def calculate_statistics(
 
 
 def get_days_remaining(sober_days: int) -> int:
-    target = 7 if sober_days < 7 else 30
-    return max(0, target - sober_days)
+    first_goal_days = 7
+    second_goal_days = 30
+
+    target_days = (
+        first_goal_days if sober_days < first_goal_days else second_goal_days
+    )
+
+    days_remaining = target_days - sober_days
+    return max(0, days_remaining)
