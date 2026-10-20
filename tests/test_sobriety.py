@@ -123,3 +123,12 @@ def test_relapse_dates_from_generator():
     )
 
     assert result == 5
+
+def test_relapse_on_last_day():
+    result = count_sober_days(
+        dt.date(2026, 10, 1),
+        dt.date(2026, 10, 7),
+        [dt.date(2026, 10, 7)],
+    )
+
+    assert result == 6
