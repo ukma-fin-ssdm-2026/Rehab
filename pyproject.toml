@@ -2,3 +2,6 @@
 source_paths = ["backend/"]
 only_mutate = ["backend/app/services/sobriety.py"]
 pytest_add_cli_args_test_selection = ["tests/test_sobriety.py"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["mutants", "node_modules"]
