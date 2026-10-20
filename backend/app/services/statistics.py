@@ -170,6 +170,6 @@ def calculate_statistics(
     }
 
 
-"""повертає кількість решти днів до першої цілі"""
 def get_days_remaining(sober_days: int) -> int:
-    return max(0, 7 - sober_days)
+    target = 7 if sober_days < 7 else 30
+    return max(0, target - sober_days)
