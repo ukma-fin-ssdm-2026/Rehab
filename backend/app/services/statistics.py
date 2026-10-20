@@ -171,6 +171,8 @@ def calculate_statistics(
 
 
 def get_days_remaining(sober_days: int) -> int:
+    if sober_days < 0:
+                raise ValueError("Кількість тверезих днів не може бути від'ємною")
     first_goal_days = 7
     second_goal_days = 30
 
@@ -180,3 +182,4 @@ def get_days_remaining(sober_days: int) -> int:
 
     days_remaining = target_days - sober_days
     return max(0, days_remaining)
+    
