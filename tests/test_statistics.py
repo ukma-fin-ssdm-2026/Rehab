@@ -227,6 +227,14 @@ def test_streak_ends_on_relapse():
     assert current == 0
     assert longest == 3
 
+def test_streak_rejects_end_date_before_start_date():
+    with pytest.raises(ValueError, match="Кінцева дата не може бути раніше початкової"):
+        count_streaks(
+            start_date=dt.date(2026, 10, 15),
+            end_date=dt.date(2026, 10, 14),
+            relapse_dates=[],
+        )
+
 
 @pytest.mark.parametrize(
     "days, expected_goal, expected_completed",
