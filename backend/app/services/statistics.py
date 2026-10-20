@@ -168,3 +168,8 @@ def calculate_statistics(
         "completed_goal_days": completed_goal_days,
         "goal_progress_days": goal_progress_days,
     }
+
+
+"""повертає кількість решти днів до першої цілі"""
+def get_days_remaining(sober_days: int) -> int:
+    return max(0, 7 - sober_days)
