@@ -181,4 +181,3 @@ def get_days_remaining(sober_days: int) -> int:
             return goal - sober_days
 
     return 0
-    
