@@ -1,4 +1,5 @@
 
+from collections import defaultdict
 from collections.abc import Iterable
 from typing import TypedDict
 
@@ -15,12 +16,9 @@ def total_volume_ml(drinks: Iterable[Drink]) -> int:
 
 def volume_by_type_ml(drinks: Iterable[Drink]) -> dict[str, int]:
     """Повертає сумарний об'єм для кожного типу напоїв."""
-    result: dict[str, int] = {}
+    totals: defaultdict[str, int] = defaultdict(int)
 
     for drink in drinks:
-        drink_type = drink["type"]
-        volume = drink["volume_ml"]
+        totals[drink["type"]] += drink["volume_ml"]
 
-        result[drink_type] = result.get(drink_type, 0) + volume
-
-    return result
+    return dict(totals)
