@@ -18,3 +18,18 @@ def test_format_progress_days_many():
 def test_format_progress_days_rejects_negative():
     with pytest.raises(ValueError):
         format_progress_days(-1)
+
+@pytest.mark.parametrize(
+    ("days", "expected"),
+    [
+        (0, "0 днів"),
+        (4, "4 дні"),
+        (5, "5 днів"),
+        (11, "11 днів"),
+        (21, "21 день"),
+        (22, "22 дні"),
+        (25, "25 днів"),
+    ],
+)
+def test_format_progress_days_boundaries(days, expected):
+    assert format_progress_days(days) == expected
