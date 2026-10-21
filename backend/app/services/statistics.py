@@ -168,3 +168,17 @@ def calculate_statistics(
         "completed_goal_days": completed_goal_days,
         "goal_progress_days": goal_progress_days,
     }
+
+
+def get_days_remaining(sober_days: int) -> int:
+    if sober_days < 0:
+        raise ValueError("Кількість тверезих днів не може бути від'ємною")
+
+    goals = (7, 30)
+
+    for goal in goals:
+        if sober_days < goal:
+            return goal - sober_days
+
+    return 0
+    
