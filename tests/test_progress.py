@@ -33,3 +33,7 @@ def test_format_progress_days_rejects_negative():
 )
 def test_format_progress_days_boundaries(days, expected):
     assert format_progress_days(days) == expected
+
+def test_format_progress_days_rejects_string():
+    with pytest.raises(TypeError, match="days must be an integer"):
+        format_progress_days("3")("3")
