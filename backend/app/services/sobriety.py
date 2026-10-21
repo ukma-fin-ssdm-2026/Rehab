@@ -1,5 +1,3 @@
-"""Розрахунок тверезих днів за календарними датами."""
-
 import datetime as dt
 from collections.abc import Iterable
 
@@ -9,11 +7,6 @@ def count_sober_days(
     end_date: dt.date,
     relapse_dates: Iterable[dt.date],
 ) -> int:
-    """Рахує тверезі дні у включному діапазоні дат.
-
-    Дні без запису про вживання вважаються тверезими.
-    Дати вживання враховуються лише один раз.
-    """
 
     if end_date < start_date:
         raise ValueError("Кінцева дата не може бути раніше початкової")
