@@ -12,6 +12,7 @@ from backend.app.services.statistics import (
     calculate_statistics,
     count_streaks,
     get_goal_progress,
+    get_period_start,
 )
 
 client = TestClient(app)
@@ -141,6 +142,14 @@ def test_invalid_period_returns_422():
     )
 
     assert response.status_code == 422
+    """???"""
+def test_get_period_start_rejects_invalid_period():
+    with pytest.raises(ValueError, match="Невідомий період статистики"):
+        get_period_start(
+            period="decade",
+            tracking_start_date=dt.date(2026, 10, 1),
+            today=dt.date(2026, 10, 22),
+        )
 
 
 def test_month_boundaries():
@@ -335,6 +344,28 @@ def test_statistics_changes_after_new_entry():
     assert data["longest_streak"] == 5
     assert data["goal_progress_days"] == 5
 
+"""jrr"""
+def test_calculate_statistics_rejects_invalid_period():
+    with pytest.raises(ValueError, match="Невідомий період статистики"):
+        calculate_statistics(
+            tracking_start_date=dt.date(2026, 10, 1),
+            today=dt.date(2026, 10, 22),
+            entries=[],
+            period="decade",
+        )
+
+
+def test_calculate_statistics_rejects_future_tracking_start():
+    with pytest.raises(
+        ValueError,
+        match="Дата початку відстеження не може бути в майбутньому",
+    ):
+        calculate_statistics(
+            tracking_start_date=dt.date(2026, 10, 23),
+            today=dt.date(2026, 10, 22),
+            entries=[],
+            period="all",
+        )
 
 def test_statistics_without_tracking_start():
     """API повертає 404, якщо відстеження не розпочато."""
