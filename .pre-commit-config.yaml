@@ -1,5 +1,17 @@
 repos:
+  - repo: https://github.com/psf/black
+    rev: 26.10.1
+    hooks:
+      - id: black
+        files: ^(backend/|tests/|scripts/).*\.py$
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.4.1
+    hooks:
+      - id: flake8
+        files: ^(backend/|tests/|scripts/).*\.py$
+
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.2
     hooks:
-      - id: gitleaks 
+      - id: gitleaks

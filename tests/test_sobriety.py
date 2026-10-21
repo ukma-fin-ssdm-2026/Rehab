@@ -85,3 +85,60 @@ def test_end_date_before_start_date():
             dt.date(2026, 10, 1),
             [],
         )
+
+def test_relapse_on_first_day():
+    """Вживання в перший день періоду не рахується як тверезий день."""
+    result = count_sober_days(
+        dt.date(2026, 10, 1),
+        dt.date(2026, 10, 7),
+        [dt.date(2026, 10, 1)],
+    )
+
+    assert result == 6
+
+def test_leap_year_february():
+    """Враховує 29 лютого у високосному році."""
+    result = count_sober_days(
+        dt.date(2024, 2, 28),
+        dt.date(2024, 3, 1),
+        [dt.date(2024, 2, 29)],
+    )
+
+    assert result == 2
+
+def test_relapse_dates_from_generator():
+    """Коректно обробляє дати вживання, передані генератором."""
+    relapse_dates = (
+        day
+        for day in [
+            dt.date(2026, 10, 2),
+            dt.date(2026, 10, 4),
+        ]
+    )
+
+    result = count_sober_days(
+        dt.date(2026, 10, 1),
+        dt.date(2026, 10, 7),
+        relapse_dates,
+    )
+
+    assert result == 5
+
+def test_relapse_on_last_day():
+    result = count_sober_days(
+        dt.date(2026, 10, 1),
+        dt.date(2026, 10, 7),
+        [dt.date(2026, 10, 7)],
+    )
+
+    assert result == 6
+
+def test_invalid_period_error_message():
+    with pytest.raises(ValueError) as error:
+        count_sober_days(
+            dt.date(2026, 10, 7),
+            dt.date(2026, 10, 1),
+            [],
+        )
+
+    assert str(error.value) == "Кінцева дата не може бути раніше початкової"

@@ -19,7 +19,7 @@
 **SHA коміту, який перевірявся:** 
 
 - `src/api/main.py`: `75a324a`
-- `src/api/routers/listings.py`: `67a4c4b`
+- `src/api/routers/listings.py`: `6f487f0`
 - `src/api/schemas/listings.py`: `67a4c4b`
 
 **Використаний інструмент:** Claude 5.5 Sonnet 
