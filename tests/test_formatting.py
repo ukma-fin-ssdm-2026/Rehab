@@ -1,6 +1,8 @@
 import pytest
 
+
 from backend.app.services.formatting import format_days
+
 
 @pytest.mark.parametrize(
     "n, expected",
