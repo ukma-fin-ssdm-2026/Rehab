@@ -1,14 +1,7 @@
 def format_days(n: int) -> str:
-    return f"{n} день"
-
-def format_days(n: int) -> str:
-    if n == 1:
+    last = n % 10
+    if last == 1:
         return f"{n} день"
-    return f"{n} дні"
-
-def format_days(n: int) -> str:
-    if n == 1:
-        return f"{n} день"
-    if n <= 4:
+    if 2 <= last <= 4:
         return f"{n} дні"
     return f"{n} днів"
