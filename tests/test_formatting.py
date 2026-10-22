@@ -14,3 +14,6 @@ def test_five_days_use_dniv_form():
 
 def test_twenty_one_days_use_singular_form():
     assert format_days(21) == "21 день"
+
+def test_eleven_days_are_an_exception():
+    assert format_days(11) == "11 днів"
