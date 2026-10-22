@@ -7,4 +7,7 @@ def test_one_day_uses_singular_form():
     assert result == "1 день"
 
 def test_two_days_use_dni_form():
-    assert format_days(2) == "2 дні" 
+    assert format_days(2) == "2 дні"
+
+def test_five_days_use_dniv_form():
+    assert format_days(5) == "5 днів"
