@@ -1,19 +1,20 @@
+import pytest
+
 from backend.app.services.formatting import format_days
 
-
-def test_one_day_uses_singular_form():
-    days = 1
-    result = format_days(days)
-    assert result == "1 день"
-
-def test_two_days_use_dni_form():
-    assert format_days(2) == "2 дні"
-
-def test_five_days_use_dniv_form():
-    assert format_days(5) == "5 днів"
-
-def test_twenty_one_days_use_singular_form():
-    assert format_days(21) == "21 день"
-
-def test_eleven_days_are_an_exception():
-    assert format_days(11) == "11 днів"
+@pytest.mark.parametrize(
+    "n, expected",
+    [
+        (1, "1 день"),
+        (2, "2 дні"),
+        (5, "5 днів"),
+        (11, "11 днів"),
+        (12, "12 днів"),
+        (21, "21 день"),
+        (101, "101 день"),
+        (111, "111 днів"),
+    ],
+)
+def test_days_use_correct_ukrainian_form(n, expected):
+    result = format_days(n)
+    assert result == expected
