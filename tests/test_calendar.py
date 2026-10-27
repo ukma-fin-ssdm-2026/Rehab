@@ -87,7 +87,6 @@ def test_other_users_entry_cannot_be_updated():
 
 
 def test_update_requires_authorization():
-    """Для редагування запису потрібна авторизація."""
 
     response = client.patch(
         f"{API_URL}/2",
@@ -101,26 +100,71 @@ def test_update_requires_authorization():
 
 
 @pytest.mark.parametrize(
-    ("elapsed", "expected_status"),
+    ("elapsed", "headers", "payload", "expected_status"),
     [
-        (dt.timedelta(hours=47, minutes=59, seconds=59), 200),
-        (dt.timedelta(hours=48), 200),
-        (dt.timedelta(hours=48, seconds=1), 403),
+        (
+            dt.timedelta(hours=47, minutes=59, seconds=59),
+            AUTH_HEADERS,
+            {"status": "sober", "trigger_category": None},
+            200,
+        ),
+        (
+            dt.timedelta(hours=48),
+            AUTH_HEADERS,
+            {"status": "sober", "trigger_category": None},
+            200,
+        ),
+        (
+            dt.timedelta(hours=48, seconds=1),
+            AUTH_HEADERS,
+            {"status": "sober", "trigger_category": None},
+            403,
+        ),
+        (
+            dt.timedelta(hours=1),
+            {"Authorization": "Bearer user-43"},
+            {"status": "sober", "trigger_category": None},
+            404,
+        ),
+        (
+            dt.timedelta(hours=1),
+            None,
+            {"status": "sober", "trigger_category": None},
+            401,
+        ),
+        (
+            dt.timedelta(hours=1),
+            AUTH_HEADERS,
+            {
+                "status": "sober",
+                "trigger_category": None,
+                "created_at": "2026-10-27T12:00:00Z",
+            },
+            422,
+        ),
     ],
-    ids=["FR008-R1", "FR008-R2", "FR008-R3"],
+    ids=[
+        "FR008-R1",
+        "FR008-R2",
+        "FR008-R3",
+        "FR008-R4",
+        "FR008-R5",
+        "FR008-R6",
+    ],
 )
-def test_editing_at_48_hour_boundary(monkeypatch, elapsed, expected_status):
+def test_fr008_decision_table(monkeypatch, elapsed, headers, payload, expected_status):
 
     fixed_now = dt.datetime(2026, 10, 27, 12, 0, tzinfo=dt.timezone.utc)
     monkeypatch.setattr(calendar_router, "utc_now", lambda: fixed_now)
 
     original = stubs.entries[2]
     stubs.entries[2] = original.model_copy(update={"created_at": fixed_now - elapsed})
+    before_edit = stubs.entries[2].model_copy(deep=True)
 
     response = client.patch(
         f"{API_URL}/2",
-        headers=AUTH_HEADERS,
-        json={"status": "sober", "trigger_category": None},
+        headers=headers,
+        json=payload,
     )
 
     assert response.status_code == expected_status
@@ -128,9 +172,18 @@ def test_editing_at_48_hour_boundary(monkeypatch, elapsed, expected_status):
     if expected_status == 200:
         assert response.json()["status"] == "sober"
         assert stubs.entries[2].status.value == "sober"
+        assert stubs.entries[2].created_at == before_edit.created_at
     else:
-        assert response.json()["code"] == "EDIT_WINDOW_EXPIRED"
-        assert stubs.entries[2].status.value == "relapse"
+        assert stubs.entries[2] == before_edit
+
+        expected_error_codes = {
+            401: "UNAUTHORIZED",
+            403: "EDIT_WINDOW_EXPIRED",
+            404: "ENTRY_NOT_FOUND",
+            422: "VALIDATION_ERROR",
+        }
+
+        assert response.json()["code"] == expected_error_codes[expected_status]
 
 
 @pytest.mark.parametrize(
