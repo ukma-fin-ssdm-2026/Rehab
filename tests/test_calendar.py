@@ -107,6 +107,7 @@ def test_update_requires_authorization():
         (dt.timedelta(hours=48), 200),
         (dt.timedelta(hours=48, seconds=1), 403),
     ],
+    ids=["FR008-R1", "FR008-R2", "FR008-R3"],
 )
 def test_editing_at_48_hour_boundary(monkeypatch, elapsed, expected_status):
 
