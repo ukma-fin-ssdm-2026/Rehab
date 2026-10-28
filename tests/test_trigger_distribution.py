@@ -38,7 +38,7 @@ def make_entry(
         ),
         pytest.param(
             [
-                make_entry(day=dt.date(2026, 9, 29), category=TriggerCategory.stress),
+                make_entry(day=dt.date(2026, 9, 28), category=TriggerCategory.stress),
                 make_entry(day=dt.date(2026, 10, 29), category=TriggerCategory.social),
                 make_entry(day=dt.date(2026, 10, 28), status=DayStatus.sober),
                 make_entry(day=dt.date(2026, 10, 28), category=None),
