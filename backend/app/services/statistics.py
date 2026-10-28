@@ -183,45 +183,24 @@ def get_days_remaining(sober_days: int) -> int:
     return 0
 
 
-def calculate_trigger_distribution(
-    entries: Iterable[EntryOut],
-    *,
-    today: dt.date,
-) -> dict[str, object]:
-    """Return anonymous trigger-category totals for the trailing 30 days.
-
-    Only categorized relapse entries are counted. The returned data contains
-    category aggregates and dates, never user or record identifiers.
-    """
-
+def calculate_trigger_distribution(entries: Iterable[EntryOut], *, today: dt.date) -> dict[str, object]:
+    """Повертає анонімний розподіл категорій зривів за останні 30 днів."""
     if today > dt.date.today():
         raise ValueError("Дата звіту не може бути в майбутньому")
 
     period_start = today - dt.timedelta(days=29)
     counts = {category.value: 0 for category in TriggerCategory}
-
     for entry in entries:
-        if (
-            entry.status == DayStatus.relapse
-            and entry.trigger_category is not None
-            and period_start <= entry.date <= today
-        ):
+        if entry.status == DayStatus.relapse and entry.trigger_category is not None and period_start <= entry.date <= today:
             counts[entry.trigger_category.value] += 1
 
     total = sum(counts.values())
-    categories = [
-        {
-            "category": category,
-            "count": count,
-            "percentage": round(count * 100 / total, 1) if total else 0.0,
-        }
-        for category, count in counts.items()
-    ]
-
     return {
         "period_start": period_start,
         "period_end": today,
         "total": total,
-        "categories": categories,
+        "categories": [
+            {"category": category, "count": count, "percentage": round(count * 100 / total, 1) if total else 0.0}
+            for category, count in counts.items()
+        ],
     }
-
