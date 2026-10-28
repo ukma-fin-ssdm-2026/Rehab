@@ -1,0 +1,27 @@
+name: Lab07 Traceability
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  traceability:
+    name: RTM and test IDs
+    runs-on: [self-hosted, linux]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check requirement-to-test traceability
+        run: python scripts/check_traceability.py
