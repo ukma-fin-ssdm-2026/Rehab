@@ -1,116 +1,140 @@
 #!/usr/bin/env python3
-"""Перевірка простежуваності Лаб 07: вимога RTM ↔ виконуваний тест у коді.
+"""Бонус №1 Lab07: двостороння перевірка вимог і кейсів тест-плану.
 
-Перед кожним тестом вказується коментар `# REQ: FR-001` (можна кілька ID
-через кому). Перевіряються функції pytest із назвою test_* і задача Locust.
-Тести, позначені skip/xfail, рахуються як описані, але НЕ як виконані:
-для підтвердження реалізації необхідний окремий успішний запуск тестів.
+Перевіряємо три джерела:
+1. docs/requirements/requirements.md — справжні ID FR/NFR;
+2. docs/validation/test-plan.md — кейси №N з ID вимоги;
+3. docs/requirements/rtm.md — таблиця «Простежуваність тест-кейсів Лаб 7».
+
+Зв'язок «вимога ↔ кейс» означає заплановане покриття, НЕ виконаний
+автоматизований тест. Запуски та статус реалізації перевіряються окремо.
 """
 
 from __future__ import annotations
 
-import ast
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RTM = ROOT / "docs" / "requirements" / "rtm.md"
-TESTS = ROOT / "tests"
-REQUIREMENT = re.compile(r"\b(?:FR|PERF|SEC|REL|USAB)-\d{3}\b")
-MARKER = re.compile(r"^\s*#\s*REQ:\s*(.+?)\s*$")
+REQUIREMENTS = ROOT / "docs/requirements/requirements.md"
+PLAN = ROOT / "docs/validation/test-plan.md"
+RTM = ROOT / "docs/requirements/rtm.md"
+
+REQ_ID = re.compile(r"(?:FR|PERF|SEC|REL|USAB)-\d{3}")
+REQ_DEFINITION = re.compile(r"^\s*[-*]\s+\*\*((?:FR|PERF|SEC|REL|USAB)-\d{3})\*\*", re.M)
+CASE_CELL = re.compile(r"^\d+$")
+CASE_REF = re.compile(r"№\s*(\d+)")
 
 
-def declared_requirements() -> set[str]:
-    """Усі ID вимог, що зазначені в RTM (не вигадуємо окремий каталог)."""
-    return set(REQUIREMENT.findall(RTM.read_text(encoding="utf-8")))
+def table_cells(line: str) -> list[str]:
+    """Розібрати звичайний рядок Markdown-таблиці."""
+    if not line.startswith("|") or not line.endswith("|"):
+        return []
+    return [cell.strip() for cell in line.strip("|").split("|")]
 
 
-def requirement_marker(lines: list[str], line_number: int) -> set[str]:
-    """Зчитати однорядковий коментар безпосередньо перед def тесту."""
-    if line_number <= 1:
-        return set()
-    match = MARKER.fullmatch(lines[line_number - 2])
-    if not match:
-        return set()
-    raw = match.group(1)
-    items = [item.strip() for item in raw.split(",")]
-    if not items or any(REQUIREMENT.fullmatch(item) is None for item in items):
-        raise ValueError(f"Некоректний маркер вимог: {raw!r}")
-    return set(items)
+def defined_requirements(text: str) -> set[str]:
+    return set(REQ_DEFINITION.findall(text))
 
 
-def is_locust_task(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
-    """Враховуємо тільки методи, позначені @task / @task(...)."""
-    for decorator in node.decorator_list:
-        if isinstance(decorator, ast.Name) and decorator.id == "task":
-            return True
-        if (
-            isinstance(decorator, ast.Call)
-            and isinstance(decorator.func, ast.Name)
-            and decorator.func.id == "task"
-        ):
-            return True
-    return False
+def plan_cases(text: str) -> tuple[dict[int, str], list[str]]:
+    cases: dict[int, str] = {}
+    issues: list[str] = []
+    for line in text.splitlines():
+        cells = table_cells(line)
+        if len(cells) != 7 or not CASE_CELL.fullmatch(cells[0]):
+            continue
+        number = int(cells[0])
+        req = cells[-1].replace("`", "").strip()
+        if number in cases:
+            issues.append(f"Дубль кейсу №{number} у тест-плані")
+        elif not REQ_ID.fullmatch(req):
+            issues.append(f"Кейс №{number} без коректного одиничного ID вимоги: {req!r}")
+        else:
+            cases[number] = req
+    if not cases:
+        issues.append("У тест-плані не знайдено таблиці кейсів із 7 колонками")
+    return cases, issues
+
+
+def rtm_links(text: str) -> tuple[dict[str, set[int]], list[str]]:
+    heading = "## Простежуваність тест-кейсів Лаб 7"
+    issues: list[str] = []
+    if heading not in text:
+        return {}, [f"RTM не містить розділу {heading!r}"]
+    section = text.split(heading, 1)[1].split("\n## ", 1)[0]
+    links: dict[str, set[int]] = {}
+    for line in section.splitlines():
+        cells = table_cells(line)
+        if len(cells) != 2:
+            continue
+        req = cells[0].replace("`", "").strip()
+        if not REQ_ID.fullmatch(req):
+            continue
+        if req in links:
+            issues.append(f"Дубль вимоги {req} у таблиці RTM")
+            continue
+        numbers = {int(n) for n in CASE_REF.findall(cells[1])}
+        if not numbers:
+            issues.append(f"{req}: немає ID тест-кейсів у RTM")
+        links[req] = numbers
+    return links, issues
+
+
+def validate(requirements: str, plan: str, rtm: str) -> list[str]:
+    defined = defined_requirements(requirements)
+    cases, problems = plan_cases(plan)
+    links, rtm_problems = rtm_links(rtm)
+    problems.extend(rtm_problems)
+
+    if not defined:
+        problems.append("У requirements.md не знайдено FR/NFR")
+    for number, req in sorted(cases.items()):
+        if req not in defined:
+            problems.append(f"Кейс №{number}: {req} не визначено в requirements.md")
+
+    for req in sorted(defined - set(links)):
+        problems.append(f"{req}: вимога відсутня в таблиці простежуваності RTM")
+    for req in sorted(set(links) - defined):
+        problems.append(f"{req}: RTM посилається на неіснуючу вимогу")
+
+    inverse: dict[int, set[str]] = {}
+    for req, numbers in links.items():
+        for number in numbers:
+            inverse.setdefault(number, set()).add(req)
+            if number not in cases:
+                problems.append(f"RTM: {req} посилається на відсутній кейс №{number}")
+            elif cases[number] != req:
+                problems.append(
+                    f"RTM: кейс №{number} віднесено до {req}, "
+                    f"але в тест-плані вказано {cases[number]}"
+                )
+
+    for number, req in sorted(cases.items()):
+        if req not in inverse.get(number, set()):
+            problems.append(f"Кейс №{number} ({req}) не внесено в RTM")
+
+    for req in sorted(defined):
+        if req not in {value for value in cases.values()}:
+            problems.append(f"{req}: немає жодного кейсу в тест-плані")
+
+    return problems
 
 
 def main() -> int:
-    requirements = declared_requirements()
-    used: set[str] = set()
-    problems: list[str] = []
-    test_count = 0
-    files = sorted(TESTS.glob("test_*.py"))
-    locust = TESTS / "performance" / "locustfile.py"
-    if locust.exists():
-        files.append(locust)
-
-    for path in files:
-        source = path.read_text(encoding="utf-8")
-        lines = source.splitlines()
-        tree = ast.parse(source, filename=str(path))
-        relative = path.relative_to(ROOT)
-
-        for node in ast.walk(tree):
-            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                continue
-            is_pytest = path != locust and node.name.startswith("test_")
-            is_load_test = path == locust and is_locust_task(node)
-            if not (is_pytest or is_load_test):
-                continue
-
-            test_count += 1
-            location = f"{relative}:{node.lineno} ({node.name})"
-            try:
-                ids = requirement_marker(lines, node.lineno)
-            except ValueError as exc:
-                problems.append(f"{location}: {exc}")
-                continue
-
-            if not ids:
-                problems.append(f"{location}: немає коментаря # REQ: <ID>")
-                continue
-
-            for req in sorted(ids):
-                if req not in requirements:
-                    problems.append(f"{location}: {req} відсутня в RTM")
-                else:
-                    used.add(req)
-
-    for req in sorted(requirements - used):
-        problems.append(f"{req}: вимога є в RTM, але не має тесту в коді")
-
-    if not requirements:
-        problems.append("RTM не містить жодної вимоги")
-    if not test_count:
-        problems.append("Не знайдено жодного тесту")
-
-    print(f"Простежуваність: {len(used)}/{len(requirements)} вимог, {test_count} визначень тестів.")
+    problems = validate(
+        REQUIREMENTS.read_text(encoding="utf-8"),
+        PLAN.read_text(encoding="utf-8"),
+        RTM.read_text(encoding="utf-8"),
+    )
     if problems:
-        print("ПОМИЛКИ простежуваності:")
-        for problem in problems:
-            print(f"  - {problem}")
+        print(f"FAIL: {len(problems)} розбіжностей у простежуваності:")
+        for issue in problems:
+            print(f" - {issue}")
         return 1
-    print("OK: кожен тест має ID вимоги, кожна вимога RTM має хоча б один тест.")
+    print("PASS: усі FR/NFR і тест-кейси узгоджені між requirements, plan і RTM.")
+    print("Примітка: це перевірка плану, а не фактичного виконання тестів.")
     return 0
 
 
