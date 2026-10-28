@@ -2,167 +2,432 @@
 
 # Rehab
 
-Наш застосунок **_Rehab_** - це дуже зручний, інтуїтивно зрозумілий та ходовий застосунок для відстежування днів тверезості
+**Rehab** — застосунок для відстеження тверезості, аналізу особистого прогресу та підтримки користувачів на шляху до здоровіших звичок.
 
-Він допомагає відмічати дні без вживання, дивитися статистику, ставити цілі та звичайно отримувати допомогу у разі потреби
+Мета проєкту — створити зручний та інтуїтивно зрозумілий інструмент, який допомагає користувачам відстежувати дні без вживання алкоголю, вести календар, аналізувати статистику та контролювати особисті цілі.
 
-> _Rehab - кожен тверезий день у новий commit_
+Проєкт розробляється командою студенток НаУКМА в межах курсу **«Методи розробки програмних систем» (SSDM 2026)**.
 
-## Команда
+> *Rehab — кожен тверезий день у новий commit.*
 
-| **Учасник**          | **Роль Лаб1**                           | **Роль Лаб2**               | **Роль Лаб3**                     | **Роль Лаб4**      | **Роль Лаб5**          |
-| -------------------- | --------------------------------------- | --------------------------- | --------------------------------- | ------------------ | ---------------------- |
-| _Киричата Анастасія_ | Repo Maintainer                         | Traceability Lead           | Requirements-Architecture Mapper  | Quality Lead       | Quality Lead           |
-| _Мілевська Софія_    | CI Maintainer                           | Requirements Lead + FR Lead | UML Lead                          | Integration Lead   | Code Reviewer          |
-| _Морозова Поліна_    | Documentation Lead + Project Brief Lead | Documentation Lead          | Architecture + Documentation Lead | Backend Lead       | Documentation Lead     |
-| _Колесник Марія_     | Issue Tracker Lead                      | Quality Lead                | Data & Threat Modeler             | Documentation Lead | Security Analyst       |
+## 1. Команда
 
-## Структура репозиторію
+Над проєктом працюють чотири учасниці, які розподіляють відповідальність за вимоги, архітектуру, реалізацію, тестування, інтеграцію та документацію.
 
-<pre>
-project-root/
+### Розподіл ролей за лабораторними роботами
+
+| Лабораторна | Киричата Анастасія | Мілевська Софія | Морозова Поліна | Колесник Марія |
+|---|---|---|---|---|
+| **Lab 01** | Repo Maintainer | CI Maintainer | Documentation Lead + Project Brief Lead | Issue Tracker Lead |
+| **Lab 02** | Traceability Lead | Requirements Lead + FR Lead | Documentation Lead | Quality Lead |
+| **Lab 03** | Requirements-Architecture Mapper | UML Lead | Architecture + Documentation Lead | Data & Threat Modeler |
+| **Lab 04** | Quality Lead | Integration Lead | Backend Lead + API Design Lead | Documentation Lead |
+| **Lab 05** | Quality Lead + Prototype Lead | Code Reviewer | Documentation Lead | Security Analyst |
+| **Lab 06** | Debugging Lead | Testing Strategist | Integration Lead | Testing Lead + Test stand manager |
+
+Командні домовленості, правила співпраці, стандарти кодування, Code Review та Definition of Done описано в [TeamCharter.md](TeamCharter.md).
+
+Історія внесків також доступна через [Pull Requests](https://github.com/ukma-fin-ssdm-2026/Rehab/pulls), [Issues](https://github.com/ukma-fin-ssdm-2026/Rehab/issues) та [історію комітів](https://github.com/ukma-fin-ssdm-2026/Rehab/commits/main).
+
+## 2. Поточний стан проєкту
+
+На поточному етапі Rehab представлений інтегрованим прототипом, який складається із серверної частини **FastAPI** та клієнтського застосунку **React Native / Expo**.
+
+### Основна функціональність
+
+- **Календар тверезості:** створення та перегляд щоденних записів, відображення статусу дня.
+- **Деталізація записів:** зазначення статусу тверезості, типів і об'ємів напоїв, тригерів та коментарів.
+- **Статистика:** перегляд показників прогресу, сформованих на основі записів користувача.
+- **Цілі:** відображення прогресу та етапів досягнення тверезості.
+- **Головний екран:** перегляд узагальнених показників користувача.
+- **Навігація:** перехід між основними розділами застосунку.
+
+### Обмеження поточного MVP
+
+Rehab перебуває на етапі прототипування та не є завершеною production-системою.
+
+- Вхід, реєстрація та onboarding реалізовані як демонстраційні користувацькі сценарії.
+- Backend використовує демонстраційні токени замість повноцінної автентифікації користувачів.
+- Зберігання даних здійснюється через тимчасове in-memory сховище; після перезапуску сервера дані можуть втрачатися.
+- Частина екранів профілю, налаштувань і підтримки представлена UI-заглушками.
+- Повноцінна система адміністрування, чати, push-повідомлення та інтеграції з пристроями не входять до підтвердженої функціональності поточного прототипу.
+
+Детальніший опис інтеграції, реалізованих сценаріїв та обмежень наведено в [PROGRESS.md](PROGRESS.md).
+
+## 3. Технологічний стек та архітектура
+
+| Компонент | Технології |
+|---|---|
+| Backend | Python, FastAPI, Pydantic |
+| Frontend | React Native, Expo, TypeScript |
+| API | REST, HTTP, OpenAPI, Swagger UI |
+| Зберігання даних | In-memory storage (поточний MVP) |
+| Тестування Backend | pytest |
+| Перевірка Frontend | TypeScript |
+| Якість коду | Black, Flake8, статичний аналіз |
+| CI/CD | GitHub Actions |
+| Документація | Markdown, UML, ADR, OpenAPI |
+| UI/UX-дизайн | Figma |
+
+Архітектура Rehab побудована на розділенні клієнтської та серверної частин.
+
+```text
+Користувач
+    |
+    v
+Frontend (React Native / Expo)
+    |
+    | HTTP / REST API
+    v
+Backend (FastAPI)
+    |
+    +-- API Routers
+    +-- Business Logic / Services
+    +-- Data Models
+    |
+    v
+In-memory Storage
+```
+
+Frontend відповідає за інтерфейс, навігацію та взаємодію з користувачем.
+
+Backend обробляє HTTP-запити, перевіряє дані, реалізує бізнес-логіку та надає API для роботи з календарем, цілями й статистикою.
+
+Поточна реалізація використовує in-memory storage, тоді як архітектурна документація також розглядає подальший розвиток системи зі сталою базою даних.
+
+Деталі описані в [High-Level Design](docs/architecture/high-level-design.md).
+
+## 4. Структура репозиторію
+
+Основні каталоги та файли проєкту:
+
+```text
+Rehab/
 ├── .github/
 │   └── workflows/
-│       ├── <a href=".github/workflows/ci.yml">ci.yml</a>                  # CI (перевірка)
-│       └── <a href=".github/workflows/docs.yml">docs.yml</a>              # Публікація API-документації
-├── <a href="Lab01/">Lab01/</a>
-├── <a href="Lab02/">Lab02/</a>
-├── <a href="Lab03/">Lab03/</a>
-├── <a href="Lab04/">Lab04/</a>
-├── <a href="Lab05/">Lab05/</a>
+│       ├── ci.yml
+│       └── docs.yml
+│
+├── backend/
+│   └── app/
+│       ├── main.py
+│       ├── routers/
+│       ├── services/
+│       ├── models.py
+│       └── stubs.py
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   └── config/
+│   │       └── api.ts
+│   ├── package.json
+│   └── package-lock.json
+│
 ├── docs/
-│   ├── <a href="docs/requirements/">requirements/</a>               # Документація вимог 
-│   │   ├── <a href="docs/requirements/requirements.md">requirements.md</a>
-│   │   ├── <a href="docs/requirements/user-stories.md">user-stories.md</a>
-│   │   └── <a href="docs/requirements/rtm.md">rtm.md</a>
-│   ├── <a href="docs/architecture/">architecture/</a>               # Архітектура
-│   │   ├── <a href="docs/architecture/decisions/">decisions/</a>
-│   │   ├── <a href="docs/architecture/uml/">uml/</a>                    
-│   │   ├── <a href="docs/architecture/high-level-design.md">high-level-design.md</a>
-│   │   ├── <a href="docs/architecture/traceability-matrix.md">traceability-matrix.md</a>
-│   │   ├── <a href="docs/architecture/data-model.md">data-model.md</a>
-│   │   └── <a href="docs/architecture/threat-model.md">threat-model.md</a>
-│   ├── <a href="docs/api/">api/</a>                         # Документація API
-│   │   ├── <a href="docs/api/api-design.md">api-design.md</a>               # Проєктні рішення API
-│   │   ├── <a href="docs/api/quality-attributes.md">quality-attributes.md</a>       # Атрибути якості
-│   │   ├── <a href="docs/api/openapi-generated.yaml">openapi-generated.yaml</a>      # Специфікація OpenAPI (автогенерація)
-│   │   └── <a href="docs/api/index.html">index.html</a>                   # Swagger UI
-│   ├── <a href="docs/code-quality/">code-quality/</a>                # Документація якості коду (Lab 05)
-│   │   ├── <a href="docs/code-quality/progress.md">progress.md</a>               # Звіт Lab 05
-│   │   ├── <a href="docs/code-quality/static-analysis.md">static-analysis.md</a>      # Статичний аналіз
-│   │   └── <a href="docs/code-quality/review-report.md">review-report.md</a>        # Code Review
-│   └── <a href="docs/design/">design/</a>                     # Попередній UI/UX-дизайн
-│       ├── <a href="docs/design/design.md">design.md</a>                   # Опис дизайну та Figma
-│       └── <a href="docs/design/overview.png">overview.png</a>                # Загальний вигляд макетів
+│   ├── requirements/
+│   │   ├── user-stories.md
+│   │   ├── requirements.md
+│   │   └── rtm.md
+│   │
+│   ├── architecture/
+│   │   ├── decisions/
+│   │   ├── uml/
+│   │   ├── high-level-design.md
+│   │   ├── traceability-matrix.md
+│   │   ├── data-model.md
+│   │   └── threat-model.md
+│   │
+│   ├── api/
+│   │   ├── api-design.md
+│   │   ├── quality-attributes.md
+│   │   ├── openapi-generated.yaml
+│   │   └── index.html
+│   │
+│   ├── code-quality/
+│   │   ├── progress.md
+│   │   ├── static-analysis.md
+│   │   └── review-report.md
+│   │
+│   ├── testing/
+│   │   ├── testing-strategy.md
+│   │   └── debugging-log.md
+│   │
+│   └── design/
+│       ├── design.md
+│       └── overview.png
+│
+├── Labs/
+├── scripts/
+│   └── export_openapi.py
+├── tests/
+├── requirements.txt
+├── Project-Description.md
+├── TeamCharter.md
+├── PROGRESS.md
+├── setup_and_run.md
+├── README.md
+└── .gitignore
+```
 
-├── <a href="scripts/">scripts/</a>                        # Скрипт генерації OpenAPI
-├── <a href="src/">src/</a>
-├── <a href="tests/">tests/</a>                          # Тести
-├── <a href="Project-Description.md">Project-Description.md</a>          # Детальний опис проєкту
-├── <a href="README.md">README.md</a>                       # Головний опис проєкту
-├── <a href="PROGRESS.md">PROGRESS.md</a>                     # Прогрес розробки прототипу
-├── <a href="SETUP_AND_RUN.md">SETUP_AND_RUN.md</a>                # Інструкція з налаштування та запуску
-├── <a href="TeamCharter.md">TeamCharter.md</a>                  # Командний статут
-└── <a href=".gitignore">.gitignore</a>
-</pre>
+Документація організована за окремими напрямами: вимоги, архітектура, API, якість коду та тестування. Такий підхід забезпечує простежуваність між проєктними рішеннями, реалізацією й перевірками.
 
-## Артефакти вимог (Лабораторна 2)
+## 5. Документація лабораторних робіт (Labs 1–6)
 
-<pre>
-<a href="docs/requirements/">requirements/</a>
-├── <a href="docs/requirements/user-stories.md">user-stories.md</a>         # Користувацькі історії (User Stories)
-├── <a href="docs/requirements/requirements.md">requirements.md</a>         # Вимоги до системи (FR та NFR)
-└── <a href="docs/requirements/rtm.md">rtm.md</a>                  # Матриця простежуваності вимог (RTM)
-</pre>
+У таблиці зібрано основні результати лабораторних робіт і відповідні матеріали репозиторію.
 
-## Архітектурна документація (Лабораторна 3)
+| Лабораторна | Основні артефакти |
+|---|---|
+| **Lab 01 — Організація команди** | [Team Charter](TeamCharter.md), [README](README.md), [CI Pipeline](.github/workflows/ci.yml) |
+| **Lab 02 — Вимоги** | [User Stories](docs/requirements/user-stories.md), [FR/NFR](docs/requirements/requirements.md), [RTM](docs/requirements/rtm.md), [Опис проєкту](Project-Description.md) |
+| **Lab 03 — Архітектура** | [HLD](docs/architecture/high-level-design.md), [UML](docs/architecture/uml/), [ADR](docs/architecture/decisions/), [Data Model](docs/architecture/data-model.md), [STRIDE](docs/architecture/threat-model.md), [Architecture Traceability](docs/architecture/traceability-matrix.md) |
+| **Lab 04 — API** | [API Design](docs/api/api-design.md), [OpenAPI](docs/api/openapi-generated.yaml), [Quality Attributes](docs/api/quality-attributes.md), [Swagger UI](https://ukma-fin-ssdm-2026.github.io/Rehab/) |
+| **Lab 05 — Якість коду** | [Progress Report](docs/code-quality/progress.md), [Static Analysis](docs/code-quality/static-analysis.md), [Code Review](docs/code-quality/review-report.md) |
+| **Lab 06 — Тестування та налагодження** | [Testing Strategy](docs/testing/testing-strategy.md), [Debugging Log](docs/testing/debugging-log.md), [Tests](tests/), [CI Results](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
 
-<pre>
-<a href="docs/architecture/">architecture/</a>
-├── <a href="docs/architecture/decisions/">decisions/</a>              # Архітектурні рішення (ADR)
-├── <a href="docs/architecture/uml/">uml/</a>                    # Діаграми
-├── <a href="docs/architecture/high-level-design.md">high-level-design.md</a>    # Високорівневий дизайн (HLD)
-├── <a href="docs/architecture/traceability-matrix.md">traceability-matrix.md</a>  # Матриця простежуваності архітектури
-├── <a href="docs/architecture/data-model.md">data-model.md</a>           # Модель даних (ER)
-└── <a href="docs/architecture/threat-model.md">threat-model.md</a>         # Моделювання загроз (STRIDE)
-</pre>
+Матеріали лабораторних робіт та посилання на індивідуальні демонстраційні відео розміщуються в каталозі [Labs/](Labs/).
 
-## Документація API (Лабораторна 4)
-- [Swagger UI на GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Rehab/)
-- [Специфікація OpenAPI (генерується з коду)](docs/api/openapi-generated.yaml)
-- [Проєктні рішення API](docs/api/api-design.md)
-- [Атрибути якості API](docs/api/quality-attributes.md)
+Основні артефакти взаємопов'язані:
 
-Специфікація не пишеться вручну: workflow [`docs.yml`](.github/workflows/docs.yml) на кожен push у `main` генерує її скриптом [`scripts/export_openapi.py`](scripts/export_openapi.py) з анотацій у `src/api/` і публікує на GitHub Pages.
+**User Stories → FR/NFR → RTM → Architecture → API → Implementation → Tests → CI**
 
-## Запуск API
-Наведені нижче команди стосуються базової реалізації API в `src/api/`. Для запуску інтегрованого прототипу з окремими `backend/` і `frontend/` використовуйте [інструкцію з налаштування та запуску](SETUP_AND_RUN.md).
+Ця структура дозволяє відстежувати шлях від користувацьких потреб до реалізації та перевірки відповідної функціональності.
 
-Для запуску серверної частини Rehab потрібен Python 3.10 або новіший.
+## 6. Артефакти вимог (Лабораторна 2)
 
-1. Клонувати репозиторій і перейти в кореневу папку проєкту.
-2. Встановити залежності:
+Документація вимог визначає функціональні можливості Rehab, нефункціональні характеристики системи та критерії прийняття.
 
-   ```bash
-   python -m pip install -r requirements.txt
-   ```
+### Основні документи
 
-3. Запустити FastAPI:
+- [User Stories](docs/requirements/user-stories.md) — користувацькі історії, що відображають потреби користувачів і містять критерії прийняття.
+- [Requirements](docs/requirements/requirements.md) — функціональні вимоги (FR) та нефункціональні вимоги (NFR), пов'язані з характеристиками якості системи відповідно до ISO/IEC 25010.
+- [Requirements Traceability Matrix](docs/requirements/rtm.md) — матриця простежуваності між вимогами та їх перевіркою.
+- [Project Description](Project-Description.md) — опис проблеми, мети, концепції, функціональних можливостей та обмежень проєкту.
 
-   ```bash
-   python -m uvicorn src.api.main:app --reload
-   ```
+RTM забезпечує зв'язок між вимогами та відповідними артефактами розробки й тестування.
 
-4. Після запуску відкрити:
-   - **Swagger UI:** http://127.0.0.1:8000/docs
-   - **OpenAPI JSON:** http://127.0.0.1:8000/openapi.json
+Це дозволяє оцінювати не лише наявність функціональності, але і її відповідність початковим вимогам.
 
-### Автоматична генерація OpenAPI
+## 7. Архітектурна документація (Лабораторна 3)
 
-Специфікація OpenAPI генерується безпосередньо з коду FastAPI.
+Архітектурна документація описує структуру Rehab, взаємодію компонентів, модель даних і прийняті проєктні рішення.
 
-Для експорту документації використовується команда:
+### Основні документи
 
-```bash
+- [High-Level Design](docs/architecture/high-level-design.md) — загальна архітектура, компоненти та архітектурний стиль.
+- [UML-діаграми](docs/architecture/uml/) — візуальне представлення архітектури й взаємодій.
+- [Architecture Decision Records](docs/architecture/decisions/) — архітектурні рішення та їх обґрунтування.
+- [Data Model](docs/architecture/data-model.md) — модель предметної області та структура даних.
+- [Architecture Traceability Matrix](docs/architecture/traceability-matrix.md) — зв'язок між вимогами й компонентами системи.
+- [Threat Model](docs/architecture/threat-model.md) — аналіз загроз за методологією STRIDE та запропоновані контрзаходи.
+
+Документи архітектури пов'язані з вимогами та API, що дозволяє простежити вплив проєктних рішень на реалізацію системи.
+
+## 8. Документація API (Лабораторна 4)
+
+Серверна частина Rehab реалізована на FastAPI та надає REST API для взаємодії з клієнтським застосунком.
+
+Основні групи API охоплюють:
+
+- роботу із записами календаря;
+- роботу з цілями користувача;
+- отримання статистики.
+
+### Основні документи та ресурси
+
+- [API Design](docs/api/api-design.md) — структура API, маршрути, моделі запитів і відповідей, правила обробки помилок.
+- [OpenAPI Specification](docs/api/openapi-generated.yaml) — машинозчитувана специфікація API.
+- [Quality Attributes](docs/api/quality-attributes.md) — атрибути якості та їх зв'язок із нефункціональними вимогами.
+- [Swagger UI на GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Rehab/) — опублікована API-документація.
+- [GitHub Actions — docs.yml](.github/workflows/docs.yml) — workflow генерації та публікації документації.
+
+### Генерація OpenAPI
+
+Специфікація OpenAPI формується автоматично на основі FastAPI за допомогою скрипта [export_openapi.py](scripts/export_openapi.py).
+
+Для локальної генерації з кореня проєкту використовується команда:
+
+```powershell
 python scripts/export_openapi.py
 ```
 
-Опублікована документація доступна на [GitHub Pages](https://ukma-fin-ssdm-2026.github.io/Rehab/).
+Після запуску Backend актуальні маршрути API доступні через локальний Swagger UI:
 
-Локальна Swagger UI та документація на GitHub Pages — два різні способи перегляду API.
+http://127.0.0.1:8000/docs
 
-## Якість коду та документація (Лабораторна 5)
+**Примітка:** GitHub Pages використовується для публікації API-документації та не є окремим публічним розгортанням повного застосунку Rehab.
 
-У межах Лабораторної роботи 5 команда виконала перевірку
-якості Python-коду, статичний аналіз безпеки та налаштувала
-інструменти для автоматизації перевірок.
+## 9. Налаштування та локальний запуск
 
-Результати роботи:
+Повна інструкція з налаштування середовища, запуску Backend і Frontend, перевірки API та основних сценаріїв:
 
-- [Прогрес розробки](docs/code-quality/progress.md) —
-  стан реалізації, перевірки та подальші кроки.
-- [Статичний аналіз](docs/code-quality/static-analysis.md) —
-  результати аналізу безпеки та виявлені ризики.
-- [Code Review](docs/code-quality/review-report.md) —
-  огляд коду іншої команди та рекомендації.
-- [Командний статут](TeamCharter.md) —
-  стандарти кодування, правила Code Review
-  та Definition of Done.
-  
-## Документація прототипу (КТ-5)
+**[setup_and_run.md — Налаштування та запуск Rehab](setup_and_run.md)**
 
-У межах подальшої розробки Rehab командою підготовлено функціональний прототип мобільного застосунку на React Native / Expo із серверною частиною FastAPI.
+Нижче наведено короткий спосіб запуску інтегрованого прототипу на Windows / PowerShell.
 
-Прототип містить 16 маршрутів, зокрема екрани календаря, статистики, цілей та профілю користувача. Частина екранів має демонстраційний характер і призначена для подальшої реалізації функціональності.
+### 9.1. Клонування репозиторію
 
-Для документування виконаної роботи підготовлено такі матеріали:
+```powershell
+git clone https://github.com/ukma-fin-ssdm-2026/Rehab.git
+cd Rehab
+git switch main
+```
 
-- [Звіт про прогрес розробки прототипу](PROGRESS.md) — опис реалізованої функціональності, архітектури, інтеграції Backend і Frontend, результатів тестування та обмежень поточної версії.
-- [Інструкція з налаштування та запуску](SETUP_AND_RUN.md) — встановлення залежностей, налаштування середовища, запуск FastAPI та Expo Web, перевірка роботи прототипу.
-- [Попередній UI/UX-дизайн](docs/design/design.md) — опис візуальної концепції застосунку, створеної у Figma, та макети основних екранів.
-- [Загальний огляд дизайн-макетів](docs/design/overview.png) — зображення підготовлених екранів застосунку.
+### 9.2. Запуск Backend
 
-Інтегрована версія прототипу розроблялася в гілці `feature/rehab-prototype`.
+Із кореня `Rehab/`:
 
-Макети Figma є попередньою концепцією майбутнього інтерфейсу Rehab та можуть відрізнятися від поточної функціональної реалізації застосунку.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
+Після успішного запуску доступні:
+
+- **Swagger UI:** http://127.0.0.1:8000/docs
+- **OpenAPI JSON:** http://127.0.0.1:8000/openapi.json
+
+### 9.3. Налаштування Frontend
+
+Відкрийте другий термінал і перейдіть до каталогу `frontend/`:
+
+```powershell
+cd frontend
+npm ci
+```
+
+Для локального підключення до Backend можна використовувати файл `frontend/.env.local`:
+
+```dotenv
+EXPO_PUBLIC_API_URL=http://127.0.0.1:8000
+```
+
+Адреса API використовується відповідно до конфігурації клієнта в `frontend/src/config/api.ts`.
+
+### 9.4. Запуск Expo Web
+
+Із каталогу `frontend/`:
+
+```powershell
+npx expo start --web
+```
+
+Expo виведе адресу локального застосунку. Зазвичай це:
+
+http://localhost:8081
+
+Для коректної взаємодії між Frontend і Backend обидва процеси мають працювати одночасно.
+
+### 9.5. Перевірка роботи
+
+Основний демонстраційний сценарій охоплює:
+
+1. Відкриття Rehab у браузері.
+2. Проходження демонстраційного входу.
+3. Створення запису в календарі.
+4. Перегляд збереженого запису.
+5. Перевірку статистики та прогресу цілей.
+6. Навігацію між основними екранами.
+
+Для захищених API-запитів у прототипі використовується демонстраційний Bearer-токен `user-42`.
+
+Детальні запити, приклади JSON, типові проблеми та опис сценаріїв доступні у [setup_and_run.md](setup_and_run.md).
+
+## 10. Якість коду (Лабораторна 5)
+
+У межах Lab 05 команда працювала над якістю програмного коду, автоматизацією перевірок, статичним аналізом і проведенням Code Review.
+
+### Основні артефакти
+
+- [Progress Report](docs/code-quality/progress.md) — опис реалізованих компонентів, перевірок та стану розробки.
+- [Static Analysis](docs/code-quality/static-analysis.md) — результати статичного аналізу коду та перевірок безпеки.
+- [Code Review](docs/code-quality/review-report.md) — результати огляду коду та рекомендації.
+- [Team Charter](TeamCharter.md) — домовленості щодо стандартів розробки, перегляду коду та Definition of Done.
+
+Для автоматизації перевірок використовується GitHub Actions.
+
+[Переглянути CI Pipeline](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml)
+
+## 11. Тестування та налагодження (Лабораторна 6)
+
+Тестування Rehab спрямоване на перевірку коректності бізнес-логіки, API, обробки помилок та взаємодії компонентів.
+
+### Основні артефакти
+
+- [Testing Strategy](docs/testing/testing-strategy.md) — підходи до тестування, використані інструменти, рівні тестів і цілі покриття.
+- [Debugging Log](docs/testing/debugging-log.md) — документування процесу виявлення, аналізу та виправлення помилок.
+- [Automated Tests](tests/) — автоматизовані тести Backend.
+- [CI Pipeline](.github/workflows/ci.yml) — конфігурація автоматичного запуску перевірок.
+- [GitHub Actions Results](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) — результати виконання CI та доступні артефакти тестування.
+
+### Запуск тестів Backend
+
+Із кореня `Rehab/`, після встановлення Python-залежностей:
+
+```powershell
+python -m pytest -q
+```
+
+### Перевірка Frontend
+
+Із каталогу `frontend/`:
+
+```powershell
+npx tsc --noEmit
+```
+
+Тестова документація описує стратегію перевірок, процес налагодження та взаємозв'язок тестування з вимогами системи.
+
+Актуальні результати автоматизованих перевірок відображаються у GitHub Actions.
+
+## 12. UI/UX-дизайн та документація прототипу
+
+Для Rehab розроблено попередню візуальну концепцію користувацького інтерфейсу у Figma.
+
+### Матеріали дизайну
+
+- [UI/UX Design](docs/design/design.md) — опис концепції, структури інтерфейсу та дизайн-рішень.
+- [Design Overview](docs/design/overview.png) — загальний вигляд підготовлених макетів.
+
+Дизайн охоплює основні сценарії взаємодії користувача із застосунком: головний екран, календар, статистику, цілі та профіль.
+
+Макети відображають дизайн-концепцію та можуть мати відмінності від поточної функціональної реалізації.
+
+### Документація інтегрованого прототипу
+
+- [PROGRESS.md](PROGRESS.md) — прогрес розробки, інтеграція Backend і Frontend, реалізовані можливості та обмеження.
+- [setup_and_run.md](setup_and_run.md) — встановлення залежностей, запуск застосунку та перевірка роботи.
+- [Labs/](Labs/) — матеріали лабораторних робіт і демонстраційні відео.
+
+## 13. CI/CD та доступні ресурси
+
+У проєкті використовується GitHub Actions для автоматизації тестування, перевірок якості коду та публікації API-документації.
+
+### GitHub Actions
+
+- [CI Pipeline](.github/workflows/ci.yml) — автоматизовані перевірки проєкту.
+- [API Documentation Workflow](.github/workflows/docs.yml) — генерація та публікація OpenAPI-документації.
+
+### Корисні посилання
+
+| Ресурс | Посилання |
+|---|---|
+| Репозиторій Rehab | [GitHub](https://github.com/ukma-fin-ssdm-2026/Rehab) |
+| CI Pipeline | [GitHub Actions](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| API-документація | [Swagger UI](https://ukma-fin-ssdm-2026.github.io/Rehab/) |
+| Інструкція запуску | [setup_and_run.md](setup_and_run.md) |
+| Командний статут | [TeamCharter.md](TeamCharter.md) |
+| Документація проєкту | [docs/](docs/) |
+| Матеріали лабораторних | [Labs/](Labs/) |
+
+## 14. Використання ШІ
+
+У процесі розробки Rehab команда використовує інструменти штучного інтелекту як допоміжні засоби для аналізу, вдосконалення та документування окремих частин проєкту.
+
+Під час оновлення цього README **ChatGPT використовувався для структурування матеріалів, покращення формулювань, виявлення застарілих посилань та узгодження опису проєкту з наявною документацією**.
+
+Основою README є матеріали, вимоги, архітектурні рішення та реалізація, створені учасницями команди Rehab. Використання ШІ доповнює роботу команди, але не замінює технічний аналіз, Code Review, тестування та перевірку коректності інформації.
+
+Відповідальність за технічні рішення, перевірку результатів і кінцеву якість документації залишається за командою Rehab.
