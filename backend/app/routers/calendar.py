@@ -21,6 +21,10 @@ router = APIRouter(prefix="/calendar/entries", tags=["Calendar"])
 EDIT_WINDOW = dt.timedelta(hours=48)
 
 
+def utc_now() -> dt.datetime:
+    return dt.datetime.now(dt.timezone.utc)
+
+
 @router.post(
     "",
     status_code=201,
@@ -153,7 +157,7 @@ def update_entry(
     if entry is None or entry.user_id != user.user_id:
         raise api_error(404, "ENTRY_NOT_FOUND", f"Запис {record_id} не знайдено")
 
-    age = dt.datetime.now(dt.timezone.utc) - entry.created_at
+    age = utc_now() - entry.created_at
     if age > EDIT_WINDOW:
         raise api_error(
             403,
