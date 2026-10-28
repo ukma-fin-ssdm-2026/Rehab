@@ -22,7 +22,7 @@ PLAN = ROOT / "docs/validation/test-plan.md"
 RTM = ROOT / "docs/requirements/rtm.md"
 
 REQ_ID = re.compile(r"(?:FR|PERF|SEC|REL|USAB)-\d{3}")
-REQ_DEFINITION = re.compile(r"^\s*[-*]\s+\*\*((?:FR|PERF|SEC|REL|USAB)-\d{3})\*\*", re.M)
+REQ_DEFINITION = re.compile(r"^\s*[-*]\s+\*\*((?:FR|PERF|SEC|REL|USAB)-\d{3})(?=\s|\*\*)", re.M)
 CASE_CELL = re.compile(r"^\d+$")
 CASE_REF = re.compile(r"№\s*(\d+)")
 
