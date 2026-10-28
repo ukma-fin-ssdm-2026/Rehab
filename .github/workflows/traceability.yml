@@ -23,5 +23,8 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Test traceability validator
+        run: python -m unittest discover -s scripts -p 'test_check_traceability.py' -v
+
       - name: Check requirement-to-test traceability
         run: python scripts/check_traceability.py
