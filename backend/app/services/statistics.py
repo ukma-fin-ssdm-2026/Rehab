@@ -183,7 +183,9 @@ def get_days_remaining(sober_days: int) -> int:
     return 0
 
 
-def calculate_trigger_distribution(entries: Iterable[EntryOut], *, today: dt.date) -> dict[str, object]:
+def calculate_trigger_distribution(
+    entries: Iterable[EntryOut], *, today: dt.date
+) -> dict[str, object]:
     """Повертає анонімний розподіл категорій зривів за останні 30 днів."""
     if today > dt.date.today():
         raise ValueError("Дата звіту не може бути в майбутньому")
@@ -191,16 +193,24 @@ def calculate_trigger_distribution(entries: Iterable[EntryOut], *, today: dt.dat
     period_start = today - dt.timedelta(days=29)
     counts = {category.value: 0 for category in TriggerCategory}
     for entry in entries:
-        if entry.status == DayStatus.relapse and entry.trigger_category is not None and period_start <= entry.date <= today:
+        if (
+            entry.status == DayStatus.relapse
+            and entry.trigger_category is not None
+            and period_start <= entry.date <= today
+        ):
             counts[entry.trigger_category.value] += 1
 
     total = sum(counts.values())
+    categories = []
+    for category, count in counts.items():
+        percentage = round(count * 100 / total, 1) if total else 0.0
+        categories.append(
+            {"category": category, "count": count, "percentage": percentage}
+        )
+
     return {
         "period_start": period_start,
         "period_end": today,
         "total": total,
-        "categories": [
-            {"category": category, "count": count, "percentage": round(count * 100 / total, 1) if total else 0.0}
-            for category, count in counts.items()
-        ],
+        "categories": categories,
     }
