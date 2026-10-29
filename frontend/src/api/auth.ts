@@ -30,7 +30,7 @@ export interface AccessTokenResponse {
 }
 
 export function registerUser(data: RegistrationData): Promise<UserAccount> {
-  return apiRequest('/auth/register', {
+  return apiRequest<UserAccount>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -40,16 +40,16 @@ export function loginUser(
   email: string,
   password: string,
 ): Promise<AccessTokenResponse> {
-  return apiRequest('/auth/login', {
+  return apiRequest<AccessTokenResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
 }
 
 export function getMyAccount(): Promise<UserSession> {
-  return apiRequest('/auth/me');
+  return apiRequest<UserSession>('/auth/me');
 }
 
 export function logoutUser(): Promise<void> {
-  return apiRequest('/auth/logout', { method: 'POST' });
+  return apiRequest<void>('/auth/logout', { method: 'POST' });
 }
