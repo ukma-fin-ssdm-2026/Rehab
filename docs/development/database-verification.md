@@ -26,6 +26,41 @@
 регресійні тести перевіряють відхилення таких параметрів і різні назви dev/test.
 Після виправлення важливих зауважень до цього блоку огляд не виявив.
 
+## Оновлення після інтеграції авторизації з develop
+
+Гілку Поліни оновлено з develop 01d9a36, локальний merge 637db66; спільні
+develop/main не змінювалися. Новий прогін загального набору: **194 passed,
+32 failed**, одне попередження Starlette/httpx. Попередні 172 passed вище —
+результат початкового коміту 86dd4a5 до інтеграції авторизації.
+
+Усі залишкові помилки належать старим tests/test_goals.py (11),
+tests/test_statistics.py (11), tests/test_security.py (10): вони ще
+використовують demo-токени або стару сигнатуру auth. Їх не видалено і не
+пропущено. Потрібне узгоджене оновлення власницями модулів; загальний CI
+ще не можна вважати зеленим.
+
+Календарні сценарії tests/test_calendar.py та test_entry_details.py збережені
+та адаптовані до PostgreSQL і справжніх JWT. test_calendar_auth_postgres.py
+додає 10 перевірок реальної авторизації/БД; без підміни auth. Для успішних
+POST/PATCH контрактний набір явно підміняє тільки відсутній progress callback.
+Це не доказ коректності справжнього перерахунку Марії. Окремо перевірено
+відмову 503 без збереження за відсутності справжнього progress_sync.
+
+Вибраний набір нашої частини: **83 passed**, одне попередження Starlette/httpx.
+Команда:
+
+```powershell
+python -m pytest tests/test_calendar.py tests/test_entry_details.py tests/test_calendar_auth_postgres.py tests/test_calendar_postgres_api.py tests/test_calendar_schema_contract.py tests/test_database_config.py tests/test_database_migrations.py tests/test_postgres_entries.py -q
+```
+
+Black/Flake8 змінених тестів, pip check, git diff --check та 4 тести
+валідатора простежуваності пройшли. Незалежний огляд змінених fixtures і тестів
+не виявив важливих/критичних зауважень.
+
+Порядок запуску unit auth → calendar також перевірений: **21 passed**.
+Виправлено успадкування тимчасових fake imports між наборами тестів: справжній
+auth router завантажується до підмін unit-тестів, без підключення до БД.
+
 ## Як повторити
 
 Запустити PostgreSQL за [postgres-local.md](postgres-local.md), установити
@@ -42,8 +77,9 @@ python scripts/check_traceability.py
 ## Що цим ще не підтверджено
 
 - Головний app усе ще реєструє старі prototype-маршрути.
-- Новий PostgreSQL-router тестується в окремому FastAPI app; auth і progress — явні
-  тестові підміни цих двох командних меж. Це не доказ реальної JWT-інтеграції.
+- Новий PostgreSQL-router тестується в окремому FastAPI app зі справжньою
+  авторизацією. Основний app, реальний progress і публічне середовище разом
+  ще не перевірені.
 - Реальний recompute_progress Марії ще не інтегровано. За його відсутності новий
   router відхиляє записи з 503, а не зберігає дані без оновлення статистики.
 - Повна вебзбірка, телефон і зовнішнє розгортання цього блоку ще не перевірені.
