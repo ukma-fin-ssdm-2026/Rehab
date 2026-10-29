@@ -1,4 +1,3 @@
-"""Account ORM model; the shared Base and migrations belong to the DB workstream."""
 from datetime import date, datetime, timezone
 
 from sqlalchemy import Boolean, Date, DateTime, Integer, String
