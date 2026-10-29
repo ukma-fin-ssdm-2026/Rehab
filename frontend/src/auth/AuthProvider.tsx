@@ -1,5 +1,5 @@
 import {
-  createContext, useCallback, useContext, useEffect, useState,
+  createContext, useCallback, useContext, useEffect, useRef, useState,
   type ReactNode,
 } from 'react';
 import { Platform } from 'react-native';
@@ -42,8 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [restoreError, setRestoreError] = useState(false);
   const [onboardingPending, setOnboardingPending] = useState(false);
+  const sessionVersion = useRef(0);
 
   const clear = useCallback(() => {
+    sessionVersion.current += 1;
     setAccessToken(null);
     saveToken(null);
     setUser(null);
@@ -57,10 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clear();
       return;
     }
+    const version = sessionVersion.current;
     setAccessToken(saved);
     const account = await getMyAccount();
-    setUser(account);
-    setRestoreError(false);
+    if (version === sessionVersion.current && getSavedToken() === saved) {
+      setUser(account);
+      setRestoreError(false);
+    }
   }, [clear]);
 
   const retryRestore = useCallback(async () => {
@@ -82,11 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionInvalidHandler(clear);
     const saved = getSavedToken();
     if (saved) {
+      const version = sessionVersion.current;
       setAccessToken(saved);
       getMyAccount().then(account => {
-        if (active) setUser(account);
+        if (active && version === sessionVersion.current && getSavedToken() === saved) {
+          setUser(account);
+        }
       }).catch(cause => {
-        if (active && !(cause instanceof ApiError &&
+        if (active && version === sessionVersion.current &&
+          !(cause instanceof ApiError &&
           (cause.status === 401 || cause.code === 'ACCOUNT_BLOCKED'))) {
           setRestoreError(true);
         }
@@ -118,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     const result = await loginUser(email, password);
+    sessionVersion.current += 1;
     setAccessToken(result.access_token);
     saveToken(result.access_token);
     setRestoreError(false);
@@ -134,8 +144,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [signIn]);
 
   const signOut = useCallback(async () => {
-    try { await logoutUser(); }
-    finally { clear(); }
+    const logoutRequest = logoutUser();
+    clear();
+    await logoutRequest;
   }, [clear]);
 
   return (
