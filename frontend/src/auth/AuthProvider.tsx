@@ -8,6 +8,7 @@ import {
   loginUser, logoutUser, registerUser,
 } from '../api/auth';
 import { ApiError, setAccessToken, setSessionInvalidHandler } from '../api/client';
+import { isOnboardingPending, saveOnboardingPending } from './onboardingSession';
 
 const KEY = 'rehab.auth.token';
 
@@ -37,6 +38,17 @@ function saveToken(value: string | null): void {
   else window.sessionStorage.removeItem(KEY);
 }
 
+function pendingForUser(userId: number): boolean {
+  return Platform.OS === 'web' && typeof window !== 'undefined'
+    ? isOnboardingPending(window.sessionStorage, userId) : false;
+}
+
+function persistPendingUser(userId: number | null): void {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    saveOnboardingPending(window.sessionStorage, userId);
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserAccount | null>(null);
   const [loading, setLoading] = useState(() => getSavedToken() !== null);
@@ -48,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionVersion.current += 1;
     setAccessToken(null);
     saveToken(null);
+    persistPendingUser(null);
     setUser(null);
     setRestoreError(false);
     setOnboardingPending(false);
@@ -64,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const account = await getMyAccount();
     if (version === sessionVersion.current && getSavedToken() === saved) {
       setUser(account);
+      setOnboardingPending(pendingForUser(account.user_id));
       setRestoreError(false);
     }
   }, [clear]);
@@ -92,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getMyAccount().then(account => {
         if (active && version === sessionVersion.current && getSavedToken() === saved) {
           setUser(account);
+          setOnboardingPending(pendingForUser(account.user_id));
         }
       }).catch(cause => {
         if (active && version === sessionVersion.current &&
@@ -132,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveToken(result.access_token);
     setRestoreError(false);
     setOnboardingPending(false);
+    persistPendingUser(null);
     setUser(result.user);
     return result.user;
   }, []);
@@ -139,9 +155,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = useCallback(async (data: RegistrationData) => {
     await registerUser(data);
     const account = await signIn(data.email, data.password);
+    persistPendingUser(account.user_id);
     setOnboardingPending(true);
     return account;
   }, [signIn]);
+
+  const finishOnboarding = useCallback(() => {
+    persistPendingUser(null);
+    setOnboardingPending(false);
+  }, []);
 
   const signOut = useCallback(async () => {
     const logoutRequest = logoutUser();
@@ -152,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Context.Provider value={{
       user, loading, restoreError, onboardingPending,
-      finishOnboarding: () => setOnboardingPending(false),
+      finishOnboarding,
       signIn, signUp, signOut, refresh, retryRestore,
     }}>
       {children}
