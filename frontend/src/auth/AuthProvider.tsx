@@ -126,8 +126,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, refresh]);
 
   const signIn = useCallback(async (email: string, password: string) => {
+    const version = ++sessionVersion.current;
     const result = await loginUser(email, password);
-    sessionVersion.current += 1;
+    if (version !== sessionVersion.current) {
+      throw new Error('Спробу входу перервано через зміну сесії.');
+    }
     setAccessToken(result.access_token);
     saveToken(result.access_token);
     setRestoreError(false);
@@ -137,7 +140,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (data: RegistrationData) => {
+    const version = ++sessionVersion.current;
     await registerUser(data);
+    if (version !== sessionVersion.current) {
+      throw new Error('Реєстрацію перервано через зміну сесії.');
+    }
     const account = await signIn(data.email, data.password);
     setOnboardingPending(true);
     return account;
