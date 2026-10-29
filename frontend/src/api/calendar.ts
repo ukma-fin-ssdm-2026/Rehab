@@ -1,3 +1,4 @@
+import { notifyProgressChanged } from '../progress/changes';
 import { apiRequest } from './client';
 
 export type DayStatus = 'sober' | 'relapse';
@@ -22,7 +23,13 @@ export type EntryUpdate = Pick<EntryCreate, 'status' | 'trigger_category'>;
 export const listEntries = (from: string, to: string): Promise<EntryPage> =>
   apiRequest(`/calendar/entries?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&limit=100&offset=0`);
 export const getEntry = (id: number): Promise<CalendarEntry> => apiRequest(`/calendar/entries/${id}`);
-export const createEntry = (data: EntryCreate): Promise<CalendarEntry> =>
-  apiRequest('/calendar/entries', { method: 'POST', body: JSON.stringify(data) });
-export const updateEntry = (id: number, data: EntryUpdate): Promise<CalendarEntry> =>
-  apiRequest(`/calendar/entries/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+export async function createEntry(data: EntryCreate): Promise<CalendarEntry> {
+  const entry = await apiRequest<CalendarEntry>('/calendar/entries', { method: 'POST', body: JSON.stringify(data) });
+  notifyProgressChanged();
+  return entry;
+}
+export async function updateEntry(id: number, data: EntryUpdate): Promise<CalendarEntry> {
+  const entry = await apiRequest<CalendarEntry>(`/calendar/entries/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+  notifyProgressChanged();
+  return entry;
+}
