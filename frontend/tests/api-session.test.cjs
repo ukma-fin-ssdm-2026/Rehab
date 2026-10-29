@@ -64,6 +64,7 @@ test('expired session invokes invalidation and displays the server message', asy
     code: 'UNAUTHORIZED', message: 'Сесія завершилася', details: null,
   }), { status: 401, headers: { 'Content-Type': 'application/json' } }));
   let invalidated = 0;
+  client.setAccessToken('expired-signed-session');
   client.setSessionInvalidHandler(() => invalidated++);
   await assert.rejects(client.apiRequest('/calendar/entries'), error =>
     error.status === 401 && error.code === 'UNAUTHORIZED' && error.message === 'Сесія завершилася',
@@ -76,6 +77,7 @@ test('a role restriction does not clear an otherwise valid session', async () =>
     status: 403, headers: { 'Content-Type': 'application/json' },
   }));
   let invalidated = 0;
+  client.setAccessToken('valid-signed-session');
   client.setSessionInvalidHandler(() => invalidated++);
   await assert.rejects(client.apiRequest('/admin/users'), error => error.status === 403);
   assert.equal(invalidated, 0);
