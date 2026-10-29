@@ -1,8 +1,3 @@
-"""Перевірка JWT-залежності на захищеному маршруті FastAPI.
-
-Це модульна перевірка із підставленим репозиторієм, а НЕ інтеграційний
-тест календаря, цілей, статистики чи PostgreSQL.
-"""
 import sys
 import types
 from types import SimpleNamespace
@@ -29,6 +24,10 @@ def protected_client(monkeypatch):
     def protected(user: security.CurrentUser = Depends(security.get_current_user)):
         return {"user_id": user.user_id, "role": user.role}
 
+    @app.get("/admin")
+    def admin(user: security.CurrentUser = Depends(security.require_role("admin"))):
+        return {"user_id": user.user_id}
+
     with TestClient(app) as client:
         yield client
 
@@ -48,3 +47,16 @@ def test_old_demo_token_is_not_accepted(protected_client):
 def test_missing_token_is_rejected(protected_client):
     response = protected_client.get("/protected")
     assert response.status_code == 401
+
+def test_token_subject_cannot_be_overridden_by_query(protected_client):
+    token = security.create_access_token(42, 0)
+    response = protected_client.get("/protected?user_id=999", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["user_id"] == 42
+
+
+def test_admin_route_rejects_regular_user(protected_client):
+    token = security.create_access_token(42, 0)
+    response = protected_client.get("/admin", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "FORBIDDEN"
