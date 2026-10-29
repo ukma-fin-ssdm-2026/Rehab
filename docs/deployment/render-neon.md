@@ -27,7 +27,7 @@ flowchart LR
 
 | Змінна | Де | Значення |
 |---|---|---|
-| `DATABASE_URL` | API | `postgresql+psycopg://…` з Neon і `?sslmode=require` |
+| `DATABASE_URL` | API | рядок з Neon (Connect), у якому початок `postgresql://` замінено на `postgresql+psycopg://`; `?sslmode=require` залишити. Інший префікс `backend/app/core/config.py` відхиляє |
 | `JWT_SECRET` | API | випадковий, ≥ 32 символи (Render генерує через `generateValue`) |
 | `CORS_ORIGINS` | API | точна HTTPS-адреса frontend, без `/` в кінці; кілька адрес через кому |
 | `EXPO_PUBLIC_API_URL` | Frontend | HTTPS-адреса API **без** `/api/v1`; після зміни потрібна нова збірка |
@@ -44,6 +44,7 @@ CORS: дозволені методи `GET, POST, PATCH, PUT, DELETE, OPTIONS`, 
    ```bash
    python -m alembic upgrade head
    ```
+   Для міграцій брати прямий рядок Neon (Connect → вимкнути Connection pooling, хост без `-pooler`); для API на Render — pooled.
    На Free немає окремого release-кроку, тому міграції запускаються вручну перед відповідною версією API. Тести й очищення даних виконуються лише в тестовій БД, онлайн-БД для pytest не використовується.
 3. **Render API:** Blueprint із `render.yaml` або вручну; задати `DATABASE_URL`, `CORS_ORIGINS`.
 4. **Render Static Site:** задати `EXPO_PUBLIC_API_URL` адресою API, запустити збірку.

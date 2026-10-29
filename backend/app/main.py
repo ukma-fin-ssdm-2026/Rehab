@@ -17,7 +17,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.app.routers import admin, auth, calendar, goals, health, statistics
+from backend.app.routers import admin, auth, goals, health, statistics
+
+# AI-GENERATED START
+# KT-1: календар на PostgreSQL (Поліна) замість in-memory stubs.
+from backend.app.routers import calendar_postgres as calendar
+
+# AI-GENERATED END
 
 API_PREFIX = "/api/v1"
 
