@@ -66,3 +66,37 @@ jobs:
           name: backend-coverage-report
           path: htmlcov/
           if-no-files-found: warn
+
+  # AI-GENERATED START
+  frontend-checks:
+    name: Frontend lint, types and web export
+    runs-on: [self-hosted, linux]
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Web export
+        env:
+          EXPO_PUBLIC_API_URL: http://localhost:8000
+        run: npm run export:web
+  # AI-GENERATED END

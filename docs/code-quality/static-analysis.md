@@ -108,3 +108,22 @@ Detect hardcoded secrets..............Passed
 Усі три інструменти успішно пройшли перевірку. Black виправив форматування двох Python-файлів, Flake8 не виявив порушень у перевірених файлах, а Gitleaks не повідомив про знайдені секрети.
 
 Таким чином, pre-commit налаштовано для автоматичної перевірки форматування, стилю коду та секретів перед комітами.
+
+<!-- AI-GENERATED START -->
+## Повторна перевірка актуального backend (КТ2, 29.10.2026)
+
+Розділи вище описують перевірку старого прототипу `src`. Робоча реалізація тепер у `backend/app`, тому аналіз повторено для неї на гілці `develop`.
+
+| Інструмент | Команда | Результат |
+|---|---|---|
+| Black 26.10.1 | `python -m black --check backend` | 38 файлів без змін |
+| Flake8 7.4.1 | `python -m flake8 backend` | 0 зауважень |
+| Bandit 1.9.4 | `python -m bandit -r backend` | `No issues identified.`, 1939 рядків, 0 пропущених (`#nosec`) |
+| pip-audit 2.10.1 | `python -m pip_audit -r requirements.txt` | `No known vulnerabilities found` |
+
+**Статус SEC-01:** демонстраційні токени в `backend/app` замінено на JWT (PyJWT) з перевіркою підпису, алгоритму, терміну дії та `token_version`; роль і блокування перевіряються за акаунтом у БД. Старий `src/api` не використовується як сервер.
+
+**CI:** Bandit для `backend` додано до workflow `code-quality.yml`; Black і Flake8 там уже були, pip-audit виконує `dependency-audit.yml`.
+
+Як і раніше, відсутність знахідок не доводить повної безпеки: права доступу й авторизацію перевіряють автоматизовані тести (`tests/test_auth*.py`, `tests/test_admin.py`).
+<!-- AI-GENERATED END -->
