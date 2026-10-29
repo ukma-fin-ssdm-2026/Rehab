@@ -88,7 +88,7 @@ Rehab/
 │       ├── routers/               # API-маршрути
 │       ├── services/              # бізнес-логіка
 │       ├── models.py              # моделі даних
-│       └── stubs.py               # демонстраційне in-memory сховище
+│       └── stubs.py               # застаріле in-memory сховище прототипу; маршрути його не використовують
 ├── frontend/
 │   ├── src/
 │   │   ├── app/                   # екрани Expo Router
@@ -135,6 +135,22 @@ python -m pip install -r requirements.txt
 
 ### 4.2. Запуск Backend
 
+<!-- AI-GENERATED START -->
+Backend зберігає дані в PostgreSQL. Перед першим запуском підготуйте локальну БД за [docs/development/postgres-local.md](docs/development/postgres-local.md): `.env` з `.env.example`, `docker compose up -d --wait`, потім міграції:
+
+```powershell
+python -m alembic upgrade head
+```
+
+`JWT_SECRET` читається лише зі змінної середовища (не з `.env`); задайте будь-який локальний рядок від 32 символів у тому ж терміналі:
+
+```powershell
+$env:JWT_SECRET="local-dev-secret-change-me-at-least-32-chars"
+```
+
+Демоакаунти (необов'язково): задайте `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD`, `SEED_USER_EMAIL`/`SEED_USER_PASSWORD`, `SEED_BLOCK_EMAIL`/`SEED_BLOCK_PASSWORD` і виконайте `python -m scripts.seed_demo`.
+<!-- AI-GENERATED END -->
+
 За активованого `.venv`:
 
 ```powershell
@@ -159,14 +175,14 @@ python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 
 Фактичний перелік маршрутів беріть із **запущеного Swagger**, а не зі старого збереженого YAML: у документації можуть бути відставання від коду.
 
-Для захищених маршрутів використовується демонстраційний токен `user-42`. У Swagger натисніть **Authorize**, уведіть значення у форматі, який очікує форма (зазвичай без повторного `Bearer`), та спробуйте:
+<!-- AI-GENERATED START -->Для захищених маршрутів потрібен JWT: зареєструйтеся через `POST /api/v1/auth/register`, увійдіть через `POST /api/v1/auth/login` і скопіюйте `access_token`. У Swagger натисніть **Authorize**, вставте токен (без повторного `Bearer`) та спробуйте:<!-- AI-GENERATED END -->
 
 - `GET /api/v1/calendar/entries`
 - `GET /api/v1/statistics?period=all`
 
 За коректного запиту очікується `200 OK`. Якщо отримано `401`, перевірте заголовок авторизації.
 
-> `user-42` — **демонстраційний ідентифікатор, а не справжня JWT-авторизація**. Не використовуйте реальні персональні дані, облікові записи, паролі або секрети в цьому прототипі.
+> <!-- AI-GENERATED START -->Токен діє 60 хвилин; після `POST /api/v1/auth/logout` або блокування акаунта старий токен не приймається. Не використовуйте реальні персональні дані.<!-- AI-GENERATED END -->
 
 ## 5. Термінал № 2: залежності Frontend
 
@@ -220,7 +236,7 @@ npx expo start --web
 
 ### 8.1. Основний наскрізний сценарій (smoke test)
 
-1. Відкрийте Rehab в Expo Web і пройдіть **демонстраційний** екран входу.
+1. <!-- AI-GENERATED START -->Відкрийте Rehab в Expo Web, зареєструйтеся або увійдіть демоакаунтом і пройдіть onboarding.<!-- AI-GENERATED END -->
 2. Перейдіть на головний екран та відкрийте додавання запису.
 3. Виберіть **не майбутню** дату, для якої в поточного демокористувача ще немає запису.
 4. Оберіть статус `relapse`; якщо форма дозволяє, додайте напої `beer` (330 мл) і `wine` (150 мл), тригер і коментар.
@@ -230,7 +246,7 @@ npx expo start --web
 8. Перевірте навігацію між наявними екранами, зокрема профілем та сторінками-заглушками.
 9. Зафіксуйте результат перевірки (дата, гілка / commit, середовище, що працює і що не працює). Сам факт наявності інструкції **не доводить**, що smoke test пройдено.
 
-**Зберігання даних:** поточний демонстраційний Backend використовує in-memory storage. Після перезапуску сервера збережені дані можуть зникнути, а демодані — повернутися до початкового стану. Це не поведінка постійної бази даних.
+<!-- AI-GENERATED START -->**Зберігання даних:** акаунти, записи календаря й прогрес зберігаються в PostgreSQL і залишаються після перезапуску сервера. Запуск API не скидає й не засіває БД автоматично.<!-- AI-GENERATED END -->
 
 ### 8.2. Приклад JSON-запиту до календаря
 
@@ -238,7 +254,7 @@ npx expo start --web
 
 ```http
 POST /api/v1/calendar/entries
-Authorization: Bearer user-42
+Authorization: Bearer <access_token з POST /api/v1/auth/login>
 Content-Type: application/json
 ```
 
@@ -342,18 +358,18 @@ npm audit
 | `ModuleNotFoundError` під час запуску Uvicorn | Чи відкрито корінь `Rehab/`, чи активоване правильне `.venv`, чи встановлені залежності |
 | `404` для `/api/v1/statistics` | Чи оновлена `main`, чи запущено `backend.app.main:app`, чи є маршрут у `/docs` |
 | `OPTIONS → 400` або `Failed to fetch` | Перевірте Expo origin, `EXPO_PUBLIC_API_URL`, порт Backend і CORS; за іншого порту Expo може знадобитися конфігурація Backend |
-| `401 Unauthorized` | Для захищених маршрутів потрібен `Authorization: Bearer user-42` у демонстраційному API |
+| `401 Unauthorized` | <!-- AI-GENERATED START -->Потрібен чинний `Authorization: Bearer <access_token>`; токен прострочений (60 хв) або анульований виходом — увійдіть знову<!-- AI-GENERATED END --> |
 | `409 Conflict` | На цю дату запис уже існує; використайте іншу допустиму дату |
 | `422 Unprocessable Entity` | Перевірте дату, статус, поля JSON, тригер, додатне `volume_ml`; для `sober` не надсилайте напої |
 | Expo відкривається, але не завантажує дані | Чи працює FastAPI, чи URL без подвоєння `/api/v1`, чи перезапущено Expo після зміни `.env.local` |
 | Порт 8000 або 8081 зайнятий | Зупиніть зайвий процес; за зміни порту перевірте API URL та CORS |
-| Дані зникли після перезапуску | Це очікувана поведінка in-memory сховища |
+| Дані зникли після перезапуску | <!-- AI-GENERATED START -->Перевірте, що `DATABASE_URL` вказує на ту саму БД і `docker compose` не запускали з `down -v`<!-- AI-GENERATED END --> |
 | PowerShell блокує `Activate.ps1` | Викликайте `.\.venv\Scripts\python.exe` напряму |
 | `npm audit` повідомляє про вразливості | Перегляньте поточний звіт; не запускайте `--force` без командного рішення |
 
 ## 12. Межі поточного MVP і матеріали для оцінювання
 
-На задокументованому етапі Rehab **не є production-системою**: немає підтверджених повноцінної авторизації та реєстрації, постійної бази даних, справжніх акаунтів друзів, чатів, push-повідомлень, зміни пароля, інтеграцій з Apple Watch / Mi Band і завершеного адміністраторського кабінету. Частина екранів є демонстраційною або реалізована як заглушки. Після нових злиттів ці твердження потрібно звіряти з актуальним кодом.
+<!-- AI-GENERATED START -->Реалізовано: реєстрація й вхід із JWT, вихід і блокування, PostgreSQL, календар (sober/relapse, тригери, редагування до 48 год), фіксовані етапи 7 і 30 днів, статистика, адмінка (список акаунтів, блокування, анонімна діаграма тригерів за 30 днів). Rehab **не є production-системою**: немає менторства, друзів і чатів, push- та email-сповіщень, зміни пароля, інтеграцій з Apple Watch / Mi Band; частина екранів профілю й підтримки — заглушки.<!-- AI-GENERATED END -->
 
 Для проміжного оцінювання викладач перевіряє **узгодженість README, документації та коду, відтворюваність запуску, а також демонстрацію функцій**. Основні критерії: https://ssdm-2026.cs-courses.org/midterm-evaluation.html
 
@@ -373,7 +389,7 @@ npm audit
 - [ ] Команди `git --version`, `python --version`, `node --version`, `npm --version` виконуються.
 - [ ] `python -m pip install -r requirements.txt` завершується успішно.
 - [ ] FastAPI запускається через `backend.app.main:app`; `/docs` відкривається.
-- [ ] Swagger показує актуальні маршрути, захищений демозапит працює.
+- [ ] Swagger показує актуальні маршрути; вхід через `/api/v1/auth/login` і захищений запит з токеном працюють.
 - [ ] `npm ci` і `npx expo start --web` запускають Frontend.
 - [ ] Expo Web звертається до локального API без CORS-помилок.
 - [ ] Створення запису, календар і статистика проходять ручний smoke test.
@@ -399,7 +415,7 @@ npm audit
 - **Термінал № 2, `Rehab/frontend/`:** `npm ci` → `npx expo start --web`.
 - **Swagger:** http://127.0.0.1:8000/docs.
 - **Expo Web:** адреса з виводу Expo, зазвичай http://localhost:8081.
-- **Демо Bearer-токен:** `user-42` (не справжня JWT-авторизація).
+- <!-- AI-GENERATED START -->**БД і секрет:** `docker compose up -d --wait` → `python -m alembic upgrade head`; `$env:JWT_SECRET="…"` (≥ 32 символи) перед запуском API; токен — з `POST /api/v1/auth/login`.<!-- AI-GENERATED END -->
 - **Тести:** `python -m pytest -q` із кореня `Rehab/`.
 
 <!-- AI-GENERATED START -->
