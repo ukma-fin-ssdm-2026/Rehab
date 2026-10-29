@@ -1,0 +1,45 @@
+@startuml
+title Rehab: implemented initial database schema (before API integration)
+entity users {
+  * user_id : integer <<identity, PK>>
+  --
+  email : varchar(254) <<unique>>
+  name : varchar(100)
+  nickname : varchar(50)
+  password_hash : varchar(512)
+  role : user / mentor / admin
+  is_blocked : boolean
+  token_version : integer
+  tracking_start_date : date
+  best_streak : integer
+  created_at : timestamptz
+}
+entity day_records {
+  * record_id : integer <<identity, PK>>
+  --
+  user_id : integer <<FK>>
+  date : date
+  status : sober / relapse
+  trigger_category : nullable varchar(16)
+  drinks : JSONB array
+  comment : nullable varchar(2000)
+  created_at : timestamptz
+  updated_at : timestamptz
+  unique(user_id, date)
+}
+entity goals {
+  * goal_id : integer <<identity, PK>>
+  --
+  user_id : integer <<FK>>
+  target_days : integer [1..3650]
+  is_achieved : boolean
+  created_at : timestamptz
+  updated_at : timestamptz
+}
+users ||--o{ day_records
+users ||--o{ goals
+note bottom
+Mentorship, notifications and complaints are planned, not created by this migration.
+User and Goal ORM models are owned by Anastasiia and Mariia respectively.
+end note
+@enduml
