@@ -49,8 +49,8 @@
 
 | Історія | Пов'язані чинні вимоги | Код та перевірки | Фактичний стан на 29.10.2026 |
 |---|---|---|---|
-| US-009 | SEC-002, FR-011 | `backend/app/routers/auth.py`, `schemas/auth.py`, `services/auth.py`; `tests/test_auth.py`, `tests/test_auth_schema_contract.py`, `tests/test_auth_schema_boundaries.py`, `tests/test_auth_routes_unit.py` | Реєстрація, валідація й вхід покриті модульними/HTTP-тестами; маршрути ще не підключено до спільного `main.py`, інтеграція PostgreSQL не перевірена |
-| US-010 | SEC-001, FR-010, FR-011 | `backend/app/security.py`, `repositories/users.py`, `frontend/src/auth/AuthProvider.tsx`; `tests/test_auth_revocation.py`, `tests/test_security_dependency.py` | JWT, ролі, блокування й вихід покриті ізольованими тестами; браузерні сценарії входу/виходу з реальною БД, блокування через адмінку й перевірка чужих даних поки не виконані |
+| US-009 | SEC-002, FR-011 | `backend/app/routers/auth.py`, `backend/app/schemas/auth.py`, `backend/app/services/auth.py`; `tests/test_auth.py`, `tests/test_auth_schema_contract.py`, `tests/test_auth_schema_boundaries.py`, `tests/test_auth_routes_unit.py` | Реєстрація, валідація й вхід покриті модульними/HTTP-тестами; маршрути ще не підключено до спільного `main.py`, інтеграція PostgreSQL не перевірена |
+| US-010 | SEC-001, FR-010, FR-011 | `backend/app/security.py`, `backend/app/repositories/users.py`, `frontend/src/auth/AuthProvider.tsx`; `tests/test_auth_revocation.py`, `tests/test_security_dependency.py` | JWT, ролі, блокування й вихід покриті ізольованими тестами; браузерні сценарії входу/виходу з реальною БД, блокування через адмінку й перевірка чужих даних поки не виконані |
 
 Шість файлів тестів авторизації з локального Windows-середовища: **44 passed, 1 warning**, включно з Argon2 через `pwdlib`. TypeScript (`tsc --noEmit`), Expo web export і ESLint файлів авторизації пройшли. Повний Expo lint має три помилки у вкладках цілей, головної і статистики та два попередження календаря; ці файли належать іншим модулям.
 
