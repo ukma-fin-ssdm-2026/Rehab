@@ -27,8 +27,7 @@ flowchart LR
 
 | Змінна | Де | Значення |
 |---|---|---|
-| `DATABASE_URL` | API | pooled-рядок Neon (хост із `-pooler`), `?sslmode=require`; приймається і `postgresql://…` від Neon, драйвер `psycopg` додається в `backend/app/core/config.py` |
-| `DATABASE_URL_UNPOOLED` | лише міграції | прямий рядок Neon без `-pooler`; Alembic бере його замість `DATABASE_URL`, якщо задано |
+| `DATABASE_URL` | API | `postgresql+psycopg://…` з Neon і `?sslmode=require` |
 | `JWT_SECRET` | API | випадковий, ≥ 32 символи (Render генерує через `generateValue`) |
 | `CORS_ORIGINS` | API | точна HTTPS-адреса frontend, без `/` в кінці; кілька адрес через кому |
 | `EXPO_PUBLIC_API_URL` | Frontend | HTTPS-адреса API **без** `/api/v1`; після зміни потрібна нова збірка |
@@ -45,7 +44,6 @@ CORS: дозволені методи `GET, POST, PATCH, PUT, DELETE, OPTIONS`, 
    ```bash
    python -m alembic upgrade head
    ```
-   `neon deploy` записує `DATABASE_URL` і `DATABASE_URL_UNPOOLED` у `.env.local` (або `.env`, якщо він є); обидва файли в `.gitignore`, а `config.py` читає їх у цьому порядку. Для pooled-хоста вимкнено серверні prepared statements psycopg (PgBouncer у transaction mode).
    На Free немає окремого release-кроку, тому міграції запускаються вручну перед відповідною версією API. Тести й очищення даних виконуються лише в тестовій БД, онлайн-БД для pytest не використовується.
 3. **Render API:** Blueprint із `render.yaml` або вручну; задати `DATABASE_URL`, `CORS_ORIGINS`.
 4. **Render Static Site:** задати `EXPO_PUBLIC_API_URL` адресою API, запустити збірку.

@@ -7,7 +7,6 @@ from collections.abc import Iterator
 from functools import lru_cache
 
 from sqlalchemy import Engine, create_engine
-from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_database_url
@@ -15,12 +14,7 @@ from backend.app.core.config import get_database_url
 
 @lru_cache(maxsize=4)
 def _engine_for_url(url: str) -> Engine:
-    connect_args = {"connect_timeout": 5}
-    # Neon "-pooler" hosts run PgBouncer in transaction mode: avoid psycopg
-    # server-side prepared statements that can outlive a pooled connection.
-    if "-pooler" in (make_url(url).host or ""):
-        connect_args["prepare_threshold"] = None
-    return create_engine(url, pool_pre_ping=True, connect_args=connect_args)
+    return create_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 5})
 
 
 def get_engine() -> Engine:

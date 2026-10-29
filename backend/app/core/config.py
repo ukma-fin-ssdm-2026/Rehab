@@ -11,32 +11,17 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
 
 ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
-# `neon deploy` writes `.env.local` when `.env` does not exist.
-ENV_FILES = (ENV_FILE, ENV_FILE.with_name(".env.local"))
-# Neon and most hosts publish plain libpq URLs; SQLAlchemy needs the driver.
-PLAIN_SCHEMES = ("postgres://", "postgresql://")
 
 
 def _value(name: str) -> str:
     if name in os.environ:
         return os.environ[name].strip()
-    for env_file in ENV_FILES:
-        value = (dotenv_values(env_file, interpolate=False).get(name) or "").strip()
-        if value:
-            return value
-    return ""
-
-
-def _with_driver(value: str) -> str:
-    for scheme in PLAIN_SCHEMES:
-        if value.startswith(scheme):
-            return "postgresql+psycopg://" + value[len(scheme) :]
-    return value
+    return (dotenv_values(ENV_FILE, interpolate=False).get(name) or "").strip()
 
 
 def _parse(value: str, name: str):
     try:
-        url = make_url(_with_driver(value))
+        url = make_url(value)
         valid = (
             url.drivername == "postgresql+psycopg"
             and url.host
@@ -81,15 +66,7 @@ def get_database_url(*, test: bool = False) -> str:
             raise ValueError("Test and development database names must be different")
         if not url.database.endswith("_test"):
             raise ValueError("TEST_DATABASE_URL database name must end with _test")
-    return _with_driver(value)
-
-
-def get_migration_database_url() -> str:
-    """Alembic needs a direct connection; Neon's pooled one is transaction-mode."""
-    if not _value("DATABASE_URL_UNPOOLED"):
-        return get_database_url()
-    _parse(_value("DATABASE_URL_UNPOOLED"), "DATABASE_URL_UNPOOLED")
-    return _with_driver(_value("DATABASE_URL_UNPOOLED"))
+    return value
 
 
 # AI-GENERATED END
