@@ -1,4 +1,3 @@
-"""Unit tests for session revocation/blocking with a fake repository, no DB writes."""
 from types import SimpleNamespace
 
 import pytest
@@ -59,7 +58,6 @@ def test_unknown_account(monkeypatch):
     assert error.value.status_code == 401
 
 def test_blocking_takes_precedence_over_revocation(monkeypatch):
-    """A blocked account must return 403 even after token_version is raised."""
     user = SimpleNamespace(user_id=7, role="user", is_blocked=True, token_version=1)
     with pytest.raises(HTTPException) as error:
         check_token(monkeypatch, user, security.create_access_token(7, 0))
