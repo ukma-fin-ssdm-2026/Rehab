@@ -39,7 +39,7 @@ function saveToken(value: string | null): void {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserAccount | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => getSavedToken() !== null);
   const [restoreError, setRestoreError] = useState(false);
   const [onboardingPending, setOnboardingPending] = useState(false);
   const sessionVersion = useRef(0);
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }).finally(() => {
         if (active) setLoading(false);
       });
-    } else setLoading(false);
+    }
     return () => {
       active = false;
       setSessionInvalidHandler(null);
