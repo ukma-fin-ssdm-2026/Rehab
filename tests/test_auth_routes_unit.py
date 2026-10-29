@@ -1,8 +1,3 @@
-"""HTTP contract tests for the auth router without Polina's database layer.
-
-These use an in-memory fake repository only as a unit-test double, never as a
-production database. A real PostgreSQL integration test is still required.
-"""
 import datetime as dt
 import importlib
 import sys
