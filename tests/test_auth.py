@@ -1,4 +1,3 @@
-"""Tests independent of PostgreSQL; DB integration follows Polina's foundation."""
 import datetime as dt
 import os
 
