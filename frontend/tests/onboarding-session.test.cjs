@@ -77,7 +77,7 @@ test('finishing onboarding removes the pending flag', () => {
   assert.equal(isOnboardingPending(storage, 42), false);
 });
 
-test('private calendar details survive session restoration and stay protected', () => {
+test('private calendar details and onboarding have separate access rules', () => {
   const layoutFile = path.join(__dirname, '..', 'src', 'app', '_layout.tsx');
   const layoutSource = fs.readFileSync(layoutFile, 'utf8');
   const output = ts.transpileModule(layoutSource, {
@@ -92,7 +92,7 @@ test('private calendar details survive session restoration and stay protected', 
   Stack.Protected = function Protected() {};
   function ScreenState() {}
   const jsx = (type, props) => ({ type, props });
-  let auth = { user: null, loading: true, restoreError: false };
+  let auth = { user: null, loading: true, restoreError: false, onboardingPending: false };
   const exports = {};
   vm.runInNewContext(output, {
     module: { exports },
@@ -113,23 +113,29 @@ test('private calendar details survive session restoration and stay protected', 
   assert.equal(waiting.type, ScreenState);
   assert.equal(waiting.props.state, 'loading');
 
-  auth = { user: { user_id: 42, role: 'user' }, loading: false, restoreError: false };
-  const root = navigation();
-  assert.equal(root.type, Stack);
-  const privateRoutes = root.props.children.find(child =>
-    child.type === Stack.Protected && child.props.guard === true
-  );
-  const names = privateRoutes.props.children.map(child => child.props.name);
-  assert.ok(names.includes('entry/[record_id]'));
-  assert.ok(names.includes('onboarding'));
+  function routeGroup(name) {
+    const root = navigation();
+    assert.equal(root.type, Stack);
+    return root.props.children.find(child =>
+      child.type === Stack.Protected &&
+      (Array.isArray(child.props.children) ? child.props.children : [child.props.children])
+        .some(route => route.props.name === name)
+    );
+  }
 
-  auth = { user: null, loading: false, restoreError: false };
-  const loggedOut = navigation();
-  assert.equal(loggedOut.type, Stack);
-  const privateGroup = loggedOut.props.children.find(child =>
-    child.type === Stack.Protected && child.props.children.some(route =>
-      route.props.name === 'entry/[record_id]'
-    )
-  );
-  assert.equal(privateGroup.props.guard, false);
+  auth = { user: { user_id: 42, role: 'user' }, loading: false,
+    restoreError: false, onboardingPending: true };
+  assert.equal(routeGroup('onboarding').props.guard, true);
+  assert.equal(routeGroup('entry/[record_id]').props.guard, false);
+
+  auth = { ...auth, onboardingPending: false };
+  assert.equal(routeGroup('onboarding').props.guard, false);
+  assert.equal(routeGroup('entry/[record_id]').props.guard, true);
+
+  auth = { user: null, loading: false, restoreError: false, onboardingPending: false };
+  assert.equal(routeGroup('entry/[record_id]').props.guard, false);
+
+  auth = { user: { user_id: 1, role: 'admin' }, loading: false,
+    restoreError: false, onboardingPending: false };
+  assert.equal(routeGroup('entry/[record_id]').props.guard, false);
 });

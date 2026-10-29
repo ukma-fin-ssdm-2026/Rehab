@@ -3,14 +3,13 @@ import { AuthProvider, useAuth } from '../auth/AuthProvider';
 import { ScreenState } from '../components/ui/ScreenState';
 
 function ProtectedNavigation() {
-  const { user, loading, restoreError, retryRestore } = useAuth();
-  // Keep the requested URL until session restore finishes; otherwise protected
-  // detail routes are removed before the saved JWT can be checked.
+  const { user, loading, restoreError, retryRestore, onboardingPending } = useAuth();
   if (loading) return <ScreenState state="loading" />;
   if (restoreError && !user) {
     return <ScreenState state="error" message="Не вдалося перевірити сесію. Перевір підключення."
       onRetry={() => { void retryRestore(); }} />;
   }
+  const isUser = !!user && user.role !== 'admin';
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
@@ -18,18 +17,18 @@ function ProtectedNavigation() {
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
       </Stack.Protected>
-      <Stack.Protected guard={!loading && !!user && user.role !== 'admin'}>
+      <Stack.Protected guard={!loading && isUser && onboardingPending}>
         <Stack.Screen name="onboarding" />
+      </Stack.Protected>
+      <Stack.Protected guard={!loading && isUser && !onboardingPending}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="add-entry" />
         <Stack.Screen name="entry/[record_id]" />
         <Stack.Screen name="placeholders" />
       </Stack.Protected>
-      {/* AI-GENERATED START */}
       <Stack.Protected guard={!loading && !!user && user.role === 'admin'}>
         <Stack.Screen name="admin" />
       </Stack.Protected>
-      {/* AI-GENERATED END */}
     </Stack>
   );
 }
