@@ -31,7 +31,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "export:web": "expo export --platform web"
+    "export:web": "expo export --platform web",
+    "test:api": "node --test tests/*.test.cjs"
   },
   "private": true
 }
