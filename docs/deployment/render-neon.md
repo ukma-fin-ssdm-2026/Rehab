@@ -57,7 +57,7 @@ CORS: дозволені методи `GET, POST, PATCH, PUT, DELETE, OPTIONS`, 
 3. **Render API:** Blueprint із `render.yaml` або вручну; задати `DATABASE_URL`, `CORS_ORIGINS`.
 4. **Render Static Site:** задати `EXPO_PUBLIC_API_URL` адресою API, запустити збірку.
 5. Після появи адреси frontend повернутися до кроку 3 і вказати її в `CORS_ORIGINS`.
-6. Створити адміна й демо-дані: `scripts/seed_demo.py` (паролі лише зі змінних `SEED_*`, див. заголовок скрипта).
+6. Створити адміна й демо-дані: `python -m scripts.seed_demo` з кореня репозиторію, з прямим (без `-pooler`) рядком Neon у `DATABASE_URL` (паролі лише зі змінних `SEED_*`, див. заголовок скрипта).
 
 ## 4. Обмеження Free
 
