@@ -94,7 +94,7 @@ jobs:
 
       - run: npm ci --ignore-scripts
       - run: npm run lint
-      - run: npx tsc --noEmit
-      - run: npx expo export --platform web
+      - run: npm run typecheck
+      - run: npm run export:web
 
 # AI-GENERATED END
