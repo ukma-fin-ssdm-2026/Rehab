@@ -11,6 +11,65 @@
 - `frontend/src/api/client.ts`: `apiRequest<T>('/calendar/entries', options)` сам додає `/api/v1`, Bearer й форматує помилки. `AuthProvider` дає `user`, `signIn`, `signUp`, `signOut`, `refresh`.
 - `Button`, `FormField`, `ScreenState` — спільні компоненти для екранів.
 
+## Короткий приклад спільного frontend-контракту
+
+Приклад для файлу в `frontend/src/app/` (у вкладених папках відносні імпорти відрізнятимуться). Для запитів достатньо передавати шлях **без** `/api/v1`: `apiRequest` сам додає адресу API, префікс і чинний Bearer-токен; не читати токен у компонентах вручну.
+
+```tsx
+import { useState } from 'react';
+import { useAuth } from '../auth/AuthProvider';
+import { apiRequest } from '../api/client';
+import { Button } from '../components/ui/Button';
+import { FormField } from '../components/ui/FormField';
+import { ScreenState } from '../components/ui/ScreenState';
+
+export function CalendarAccessExample() {
+  const { user } = useAuth();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  async function loadOwnEntries() {
+    setLoading(true);
+    setError(false);
+    try {
+      return await apiRequest<{ items: unknown[]; total: number }>(
+        '/calendar/entries',
+      );
+    } catch {
+      setError(true);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <FormField label="Email" value={email} onChangeText={setEmail} />
+      {!user ? (
+        <ScreenState state="empty" message="Увійдіть для доступу" />
+      ) : (
+        <Button
+          title="Завантажити мої записи"
+          loading={loading}
+          onPress={() => { void loadOwnEntries(); }}
+        />
+      )}
+      {error ? (
+        <ScreenState
+          state="error"
+          message="Не вдалося отримати календар"
+          onRetry={() => { void loadOwnEntries(); }}
+        />
+      ) : null}
+    </>
+  );
+}
+```
+
+Це **приклад інтеграції**, не окремий екран застосунку і не доказ проходження онлайн-сценарію. `AuthProvider` вже підключено в кореневому `frontend/src/app/_layout.tsx`. Для виходу викликати `useAuth().signOut()`, а не очищати лише стан екрана. Інші учасниці додають власні обробники показу результату та помилок.
+
 ## Поліна — основа, вже інтегрована у `develop`
 
 - Надано `backend.app.db.base.Base` і `backend.app.db.session.get_db()` з окремою сесією на запит та rollback.
