@@ -83,11 +83,10 @@ def test_main_app_register_calendar_goal_stats_and_logout(main_api):
     assert entries.json()["total"] == 1
     assert entries.json()["items"][0]["user_id"] == account["user_id"]
 
-    goal = main_api.post(
-        f"{API}/goals", headers=headers, json={"target_days": 7}
-    )
-    assert goal.status_code == 201, goal.text
-    assert goal.json()["user_id"] == account["user_id"]
+    goals = main_api.get(f"{API}/goals", headers=headers)
+    assert goals.status_code == 200, goals.text
+    assert [item["target_days"] for item in goals.json()["items"]] == [7, 30]
+    assert goals.json()["items"][0]["is_achieved"] is False
     stats = main_api.get(f"{API}/statistics", headers=headers)
     assert stats.status_code == 200, stats.text
 
