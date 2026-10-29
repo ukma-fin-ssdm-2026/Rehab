@@ -9,6 +9,7 @@ import {
 } from '../api/auth';
 import { ApiError, setAccessToken, setSessionInvalidHandler } from '../api/client';
 import { isOnboardingPending, saveOnboardingPending } from './onboardingSession';
+import { discardEntryLink, rememberEntryLink } from './returnEntry';
 
 const KEY = 'rehab.auth.token';
 
@@ -49,9 +50,17 @@ function persistPendingUser(userId: number | null): void {
   }
 }
 
+function initiallyRestoring(): boolean {
+  const saved = getSavedToken();
+  if (!saved && Platform.OS === 'web' && typeof window !== 'undefined') {
+    rememberEntryLink(window.sessionStorage, window.location.pathname);
+  }
+  return saved !== null;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserAccount | null>(null);
-  const [loading, setLoading] = useState(() => getSavedToken() !== null);
+  const [loading, setLoading] = useState(initiallyRestoring);
   const [restoreError, setRestoreError] = useState(false);
   const [onboardingPending, setOnboardingPending] = useState(false);
   const sessionVersion = useRef(0);
@@ -61,6 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(null);
     saveToken(null);
     persistPendingUser(null);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      discardEntryLink(window.sessionStorage);
+    }
     setUser(null);
     setRestoreError(false);
     setOnboardingPending(false);
@@ -162,6 +174,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Реєстрацію перервано через зміну сесії.');
     }
     const account = await signIn(data.email, data.password);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      discardEntryLink(window.sessionStorage);
+    }
     persistPendingUser(account.user_id);
     setOnboardingPending(true);
     return account;
