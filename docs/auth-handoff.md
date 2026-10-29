@@ -27,7 +27,8 @@
 
 ## Перевірки перед інтеграцією
 
-- `python -m pytest tests/test_auth_schema_contract.py tests/test_auth.py tests/test_auth_revocation.py -q`.
+- Окремий локальний smoke-прогін скопійованої JWT-залежності та тестових сценаріїв: **17 passed, 1 skipped**. Це не повний запуск репозиторію; перевірку `pwdlib`/Argon2 пропущено через відсутню бібліотеку. TypeScript, Expo lint, web export та інтеграцію PostgreSQL не підтверджено.
+- `python -m pytest tests/test_auth_schema_contract.py tests/test_auth.py tests/test_auth_revocation.py tests/test_auth_routes_unit.py tests/test_security_dependency.py -q`.
 - Після появи PostgreSQL: реєстрація двох акаунтів → вхід → `/me` → доступ тільки до своїх записів → вихід → старий JWT дає 401 → блокування дає 403 → після розблокування старий JWT не оживає.
 - У `frontend`: `npm ci`, `npx tsc --noEmit`, `npx expo lint`, `npx expo export --platform web`. Перевірити прямі URL, reload і мобільний браузер.
 
