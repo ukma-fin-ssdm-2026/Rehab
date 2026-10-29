@@ -46,4 +46,3 @@ def recompute_progress(db, user_id: int, today: dt.date) -> None:
             if goal.is_achieved
             else min(current_streak, goal.target_days)
         )
-

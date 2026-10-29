@@ -26,11 +26,7 @@ def get_goal(db: Session, user_id: int, goal_id: int) -> Goal | None:
 def list_user_goals(db: Session, user_id: int) -> list[Goal]:
     """Повертає всі цілі користувача за зростанням ідентифікатора."""
 
-    statement = (
-        select(Goal)
-        .where(Goal.user_id == user_id)
-        .order_by(Goal.goal_id)
-    )
+    statement = select(Goal).where(Goal.user_id == user_id).order_by(Goal.goal_id)
     return list(db.scalars(statement).all())
 
 
@@ -44,9 +40,7 @@ def list_goals_page(
     """Повертає сторінку цілей і загальну кількість цілей користувача."""
 
     ownership_filter = Goal.user_id == user_id
-    total = db.scalar(
-        select(func.count()).select_from(Goal).where(ownership_filter)
-    )
+    total = db.scalar(select(func.count()).select_from(Goal).where(ownership_filter))
     statement = (
         select(Goal)
         .where(ownership_filter)
