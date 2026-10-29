@@ -1,14 +1,13 @@
-"""API статистики тверезості для прототипу Rehab."""
+"""API статистики тверезості."""
 
-import datetime as dt
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Query
 
-from backend.app import stubs
 from backend.app.errors import COMMON_RESPONSES, api_error
 from backend.app.models import StatisticsOut
-from backend.app.security import CurrentUser, get_current_user
+from backend.app.security import CurrentUser, _db_session, get_current_user
+from backend.app.services.progress_sync import recompute_progress
 from backend.app.services.statistics import calculate_statistics
 
 router = APIRouter(prefix="/statistics", tags=["Statistics"])
@@ -35,29 +34,36 @@ def get_statistics(
             "year — поточний рік."
         ),
     ),
+    db=Depends(_db_session),
     user: CurrentUser = Depends(get_current_user),
 ):
-    """Повертає статистику для авторизованого користувача."""
+    """Повертає статистику з календаря та цілей поточного користувача."""
 
-    tracking_start_date = stubs.tracking_start_dates.get(user.user_id)
+    from backend.app.core.clock import today_local
+    from backend.app.repositories.entries import list_user_entries
+    from backend.app.repositories.goals import list_user_goals, lock_user_for_update
 
-    if tracking_start_date is None:
+    account = lock_user_for_update(db, user.user_id)
+
+    if account is None or account.tracking_start_date is None:
         raise api_error(
             404,
             "TRACKING_NOT_STARTED",
             "Для користувача ще не встановлено дату початку відстеження",
         )
 
-    user_entries = [
-        entry for entry in stubs.entries.values() if entry.user_id == user.user_id
-    ]
+    today = today_local()
+    user_entries = list_user_entries(db, user.user_id)
+    user_goals = list_user_goals(db, user.user_id)
+    recompute_progress(db, user.user_id, today)
 
     result = calculate_statistics(
-        tracking_start_date=tracking_start_date,
-        today=dt.date.today(),
+        tracking_start_date=account.tracking_start_date,
+        today=today,
         entries=user_entries,
-        goals=stubs.goals.values(),
+        goals=user_goals,
         period=period,
     )
 
+    db.commit()
     return StatisticsOut(**result)
