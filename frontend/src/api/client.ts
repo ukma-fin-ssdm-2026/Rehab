@@ -62,7 +62,9 @@ export async function apiRequest<T>(
     const message = typeof body.message === 'string' ? body.message
       : typeof detail.message === 'string' ? detail.message
       : typeof body.detail === 'string' ? body.detail
-      : `Помилка сервера (${response.status})`;
+      : response.status === 422 && Array.isArray(body.detail)
+        ? 'Перевір правильність заповнених полів.'
+        : `Помилка сервера (${response.status})`;
     if (response.status === 401 || (response.status === 403 && code === 'ACCOUNT_BLOCKED')) {
       sessionInvalid?.();
     }
