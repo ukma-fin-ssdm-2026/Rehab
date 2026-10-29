@@ -1,4 +1,4 @@
-"""Перерахунок рекорду та особистих досягнень користувача."""
+"""Перерахунок рекорду користувача для фіксованих етапів."""
 
 import datetime as dt
 
@@ -7,13 +7,13 @@ from backend.app.services.statistics import count_streaks
 
 
 def recompute_progress(db, user_id: int, today: dt.date) -> None:
-    """Оновлює кеш рекорду й ознаки досягнення за історією календаря.
+    """Оновлює кеш рекорду за історією календаря.
 
     Зміни залишаються в транзакції виклику. Функція не виконує commit.
+    Стани етапів виводяться зі streak і не зберігаються окремими цілями.
     """
 
     from backend.app.repositories.entries import list_user_entries
-    from backend.app.repositories.goals import list_user_goals
     from backend.app.repositories.users import get_user
 
     user = get_user(db, user_id)
@@ -32,17 +32,10 @@ def recompute_progress(db, user_id: int, today: dt.date) -> None:
             and tracking_start_date <= entry.date <= today
         )
     }
-    current_streak, longest_streak = count_streaks(
+    _, longest_streak = count_streaks(
         start_date=tracking_start_date,
         end_date=today,
         relapse_dates=relapse_dates,
     )
 
     user.best_streak = longest_streak
-    for goal in list_user_goals(db, user_id):
-        goal.is_achieved = longest_streak >= goal.target_days
-        goal.progress_days = (
-            goal.target_days
-            if goal.is_achieved
-            else min(current_streak, goal.target_days)
-        )

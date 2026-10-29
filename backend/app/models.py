@@ -251,72 +251,27 @@ class EntryList(BaseModel):
     )
 
 
-# ---------- Цілі (Goal) ----------
+# ---------- Фіксовані етапи тверезості ----------
 
 
-class GoalCreate(BaseModel):
-    """Тіло запиту на створення або повну заміну цілі (FR-004)."""
+class GoalMilestoneOut(BaseModel):
+    """Стан одного фіксованого етапу тверезості."""
 
-    model_config = ConfigDict(extra="forbid")
+    target_days: int = Field(..., ge=1, description="Тривалість етапу в днях.")
+    is_achieved: bool = Field(..., description="Чи досягнуто етап за найкращою серією.")
+    progress_days: int = Field(..., ge=0, description="Поточний прогрес, обмежений етапом.")
 
-    target_days: int = Field(
-        ...,
-        ge=1,
-        le=3650,
-        strict=True,
-        description="Цільова кількість днів без алкоголю (від 1 до 3650).",
-        examples=[30],
-    )
-
-
-class GoalOut(BaseModel):
-    """Ціль у відповіді API."""
-
-    goal_id: int = Field(
-        ...,
-        description="Ідентифікатор цілі.",
-        examples=[1],
-    )
-
-    user_id: int = Field(
-        ...,
-        description="Власник цілі.",
-        examples=[42],
-    )
-
-    target_days: int = Field(
-        ...,
-        description="Цільова кількість днів.",
-        examples=[30],
-    )
-
-    is_achieved: bool = Field(
-        ...,
-        description=(
-            "Чи досягнуто ціль. Виставляє система, "
-            "коли серія доходить до цілі (FR-005)."
-        ),
-    )
-
-    progress_days: int = Field(
-        default=0,
-        ge=0,
-        description="Прогрес поточної серії до цієї цілі.",
-    )
-
-    created_at: dt.datetime = Field(
-        default_factory=lambda: dt.datetime.now(dt.timezone.utc),
-        description="Час створення цілі (UTC).",
-    )
+    @model_validator(mode="after")
+    def progress_does_not_exceed_target(self) -> "GoalMilestoneOut":
+        if self.progress_days > self.target_days:
+            raise ValueError("Прогрес не може перевищувати тривалість етапу")
+        return self
 
 
 class GoalList(BaseModel):
-    """Сторінка особистих цілей."""
+    """Фіксований перелік етапів поточного користувача."""
 
-    items: list[GoalOut] = Field(..., description="Цілі поточної сторінки.")
-    total: int = Field(..., ge=0, description="Загальна кількість цілей.")
-    limit: int = Field(..., ge=1, description="Розмір сторінки.")
-    offset: int = Field(..., ge=0, description="Зміщення від початку.")
+    items: list[GoalMilestoneOut] = Field(..., description="Етапи 7 і 30 днів.")
 
 
 # ---------- Статистика ----------
@@ -377,12 +332,12 @@ class StatisticsOut(BaseModel):
 
     active_goal_days: int | None = Field(
         ...,
-        description="Найближча невиконана особиста ціль або null.",
+        description="Найближчий невиконаний етап 7/30 днів або null після обох.",
     )
 
     has_goals: bool = Field(
         ...,
-        description="Чи створював користувач хоча б одну особисту ціль.",
+        description="Чи доступні фіксовані етапи (завжди true).",
     )
 
     completed_goal_days: list[int] = Field(

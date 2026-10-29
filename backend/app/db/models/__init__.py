@@ -1,1 +1,1 @@
-"""Participant-owned ORM models; User and Goal integrate at KT-1."""
+"""ORM models; Goal is retained only for legacy database compatibility."""
