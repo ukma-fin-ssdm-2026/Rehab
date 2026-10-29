@@ -7,13 +7,16 @@ import {
   type UserAccount, type RegistrationData, getMyAccount,
   loginUser, logoutUser, registerUser,
 } from '../api/auth';
-import { setAccessToken, setSessionInvalidHandler } from '../api/client';
+import { ApiError, setAccessToken, setSessionInvalidHandler } from '../api/client';
 
 const KEY = 'rehab.auth.token';
 
 type AuthContextValue = {
   user: UserAccount | null;
   loading: boolean;
+  restoreError: boolean;
+  onboardingPending: boolean;
+  finishOnboarding(): void;
   signIn(email: string, password: string): Promise<UserAccount>;
   signUp(data: RegistrationData): Promise<UserAccount>;
   signOut(): Promise<void>;
@@ -26,6 +29,7 @@ function getSavedToken(): string | null {
   return Platform.OS === 'web' && typeof window !== 'undefined'
     ? window.sessionStorage.getItem(KEY) : null;
 }
+
 function saveToken(value: string | null): void {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return;
   if (value) window.sessionStorage.setItem(KEY, value);
@@ -35,18 +39,28 @@ function saveToken(value: string | null): void {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserAccount | null>(null);
   const [loading, setLoading] = useState(true);
+  const [restoreError, setRestoreError] = useState(false);
+  const [onboardingPending, setOnboardingPending] = useState(false);
 
   const clear = useCallback(() => {
     setAccessToken(null);
     saveToken(null);
     setUser(null);
+    setRestoreError(false);
+    setOnboardingPending(false);
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!getSavedToken()) return;
+    const saved = getSavedToken();
+    if (!saved) {
+      clear();
+      return;
+    }
+    setAccessToken(saved);
     const account = await getMyAccount();
     setUser(account);
-  }, []);
+    setRestoreError(false);
+  }, [clear]);
 
   useEffect(() => {
     let active = true;
@@ -56,8 +70,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(saved);
       getMyAccount().then(account => {
         if (active) setUser(account);
-      }).catch(() => {
-        // Тимчасова мережева помилка не скидає токен.
+      }).catch(cause => {
+        if (active && !(cause instanceof ApiError &&
+          (cause.status === 401 || cause.code === 'ACCOUNT_BLOCKED'))) {
+          setRestoreError(true);
+        }
       }).finally(() => {
         if (active) setLoading(false);
       });
@@ -88,13 +105,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const result = await loginUser(email, password);
     setAccessToken(result.access_token);
     saveToken(result.access_token);
+    setRestoreError(false);
+    setOnboardingPending(false);
     setUser(result.user);
     return result.user;
   }, []);
 
   const signUp = useCallback(async (data: RegistrationData) => {
     await registerUser(data);
-    return signIn(data.email, data.password);
+    const account = await signIn(data.email, data.password);
+    setOnboardingPending(true);
+    return account;
   }, [signIn]);
 
   const signOut = useCallback(async () => {
@@ -103,7 +124,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clear]);
 
   return (
-    <Context.Provider value={{ user, loading, signIn, signUp, signOut, refresh }}>
+    <Context.Provider value={{
+      user, loading, restoreError, onboardingPending,
+      finishOnboarding: () => setOnboardingPending(false),
+      signIn, signUp, signOut, refresh,
+    }}>
       {children}
     </Context.Provider>
   );
