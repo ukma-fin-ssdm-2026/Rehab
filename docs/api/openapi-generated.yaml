@@ -9,15 +9,87 @@ info:
     замість БД використовуються дані-заглушки в пам''яті.'
   version: 1.0.0
 paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Register
+      operationId: register_api_v1_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: Me
+      operationId: me_api_v1_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+      security:
+      - BearerAuth: []
+  /api/v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Logout
+      operationId: logout_api_v1_auth_logout_post
+      responses:
+        '204':
+          description: Successful Response
+      security:
+      - BearerAuth: []
   /api/v1/calendar/entries:
     post:
       tags:
       - Calendar
       summary: Створити відмітку дня
-      description: Відмічає день як тверезий (`sober`) або зрив (`relapse`) для поточного
-        користувача. Майбутні дати заборонені (FR-002). На одну дату може бути лише
-        один запис. При зриві серія обнуляється, а ментор отримує сповіщення (FR-003);
-        у заглушці сповіщення не надсилається.
       operationId: create_entry_api_v1_calendar_entries_post
       security:
       - BearerAuth: []
@@ -29,16 +101,11 @@ paths:
               $ref: '#/components/schemas/EntryCreate'
       responses:
         '201':
-          description: Запис створено
+          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryOut'
-          headers:
-            Location:
-              description: URL створеного запису
-              schema:
-                type: string
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -51,18 +118,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Запис на цю дату вже існує
+        '404':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
     get:
       tags:
       - Calendar
-      summary: Отримати список відміток
-      description: Повертає відмітки поточного користувача, відсортовані від нових
-        до старих. Підтримує фільтр за діапазоном дат та пагінацію (`limit`, `offset`).
+      summary: List Entries
       operationId: list_entries_api_v1_calendar_entries_get
       security:
       - BearerAuth: []
@@ -75,9 +152,7 @@ paths:
           - type: string
             format: date
           - type: 'null'
-          description: Початок діапазону (включно), YYYY-MM-DD.
           title: From
-        description: Початок діапазону (включно), YYYY-MM-DD.
       - name: to
         in: query
         required: false
@@ -86,9 +161,7 @@ paths:
           - type: string
             format: date
           - type: 'null'
-          description: Кінець діапазону (включно), YYYY-MM-DD.
           title: To
-        description: Кінець діапазону (включно), YYYY-MM-DD.
       - name: limit
         in: query
         required: false
@@ -96,20 +169,16 @@ paths:
           type: integer
           maximum: 100
           minimum: 1
-          description: Розмір сторінки (1-100).
           default: 30
           title: Limit
-        description: Розмір сторінки (1-100).
       - name: offset
         in: query
         required: false
         schema:
           type: integer
           minimum: 0
-          description: Скільки записів пропустити.
           default: 0
           title: Offset
-        description: Скільки записів пропустити.
       responses:
         '200':
           description: Successful Response
@@ -129,14 +198,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
   /api/v1/calendar/entries/{record_id}:
+    get:
+      tags:
+      - Calendar
+      summary: Get Entry
+      operationId: get_entry_api_v1_calendar_entries__record_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Record Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
     patch:
       tags:
       - Calendar
-      summary: Змінити статус відміченого дня
-      description: Змінює статус (і тригер) існуючого запису. Дату змінити не можна.
-        Редагування дозволене лише протягом 48 годин з моменту створення запису (FR-008),
-        після цього повертається 403.
+      summary: Update Entry
       operationId: update_entry_api_v1_calendar_entries__record_id__patch
       security:
       - BearerAuth: []
@@ -147,11 +259,7 @@ paths:
         schema:
           type: integer
           minimum: 1
-          description: Ідентифікатор запису.
-          examples:
-          - 2
           title: Record Id
-        description: Ідентифікатор запису.
       requestBody:
         required: true
         content:
@@ -177,18 +285,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Минуло 48 годин з моменту створення запису
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Запис не знайдено
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
   /api/v1/goals:
     get:
       tags:
@@ -264,8 +378,247 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: Процес працює. До БД не звертається.
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Health Health Get
+  /ready:
+    get:
+      tags:
+      - Health
+      summary: Ready
+      description: 'Сервіс готовий: БД відповідає на SELECT 1.'
+      operationId: ready_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Ready Ready Get
+  /api/v1/admin/users:
+    get:
+      tags:
+      - Admin
+      summary: List Users
+      description: Сторінка акаунтів без хешів паролів і службових полів.
+      operationId: list_users_api_v1_admin_users_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/admin/users/{user_id}/block:
+    patch:
+      tags:
+      - Admin
+      summary: Block User
+      description: Блокує або розблокує акаунт. Розблокування не оживляє старі токени.
+      operationId: block_user_api_v1_admin_users__user_id__block_patch
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Акаунт не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/admin/trigger-distribution:
+    get:
+      tags:
+      - Admin
+      summary: Trigger Distribution
+      description: Анонімний розподіл тригерів зривів за останні 30 днів усіх акаунтів.
+      operationId: trigger_distribution_api_v1_admin_trigger_distribution_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerDistributionOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
 components:
   schemas:
+    AdminUserList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminUserOut'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: AdminUserList
+    AdminUserOut:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        name:
+          type: string
+          title: Name
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+        role:
+          type: string
+          enum:
+          - user
+          - mentor
+          - admin
+          title: Role
+        is_blocked:
+          type: boolean
+          title: Is Blocked
+      type: object
+      required:
+      - user_id
+      - name
+      - nickname
+      - email
+      - role
+      - is_blocked
+      title: AdminUserOut
+      description: Публічний стан акаунта. Без password_hash і token_version.
+    BlockRequest:
+      properties:
+        is_blocked:
+          type: boolean
+          title: Is Blocked
+          description: 'true: заблокувати, false: розблокувати.'
+      additionalProperties: false
+      type: object
+      required:
+      - is_blocked
+      title: BlockRequest
     DayStatus:
       type: string
       enum:
@@ -524,6 +877,120 @@ components:
       - progress_days
       title: GoalMilestoneOut
       description: Стан одного фіксованого етапу тверезості.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoginRequest:
+      properties:
+        email:
+          type: string
+          title: Email
+        password:
+          type: string
+          title: Password
+      additionalProperties: false
+      type: object
+      required:
+      - email
+      - password
+      title: LoginRequest
+    LoginResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          const: bearer
+          title: Token Type
+          default: bearer
+        expires_in:
+          type: integer
+          const: 3600
+          title: Expires In
+          default: 3600
+        user:
+          $ref: '#/components/schemas/UserPublic'
+      type: object
+      required:
+      - access_token
+      - user
+      title: LoginResponse
+    MeResponse:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        name:
+          type: string
+          title: Name
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+        role:
+          type: string
+          enum:
+          - user
+          - mentor
+          - admin
+          title: Role
+        tracking_start_date:
+          type: string
+          format: date
+          title: Tracking Start Date
+        current_date:
+          type: string
+          format: date
+          title: Current Date
+      type: object
+      required:
+      - user_id
+      - name
+      - nickname
+      - email
+      - role
+      - tracking_start_date
+      - current_date
+      title: MeResponse
+    RegisterRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        nickname:
+          type: string
+          maxLength: 50
+          minLength: 1
+          title: Nickname
+        email:
+          type: string
+          maxLength: 254
+          minLength: 3
+          title: Email
+        password:
+          type: string
+          maxLength: 128
+          minLength: 8
+          title: Password
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - nickname
+      - email
+      - password
+      title: RegisterRequest
     StatisticsOut:
       properties:
         period:
@@ -621,6 +1088,113 @@ components:
       - other
       title: TriggerCategory
       description: Категорія тригера зриву (DayRecord.trigger_category).
+    TriggerDistributionOut:
+      properties:
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+        period_end:
+          type: string
+          format: date
+          title: Period End
+        total:
+          type: integer
+          minimum: 0.0
+          title: Total
+          description: Зриви із вказаною категорією.
+        categories:
+          items:
+            $ref: '#/components/schemas/TriggerStat'
+          type: array
+          title: Categories
+      type: object
+      required:
+      - period_start
+      - period_end
+      - total
+      - categories
+      title: TriggerDistributionOut
+      description: Розбивка зривів за категоріями без ідентифікаторів, імен і email.
+    TriggerStat:
+      properties:
+        category:
+          $ref: '#/components/schemas/TriggerCategory'
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+        percentage:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Percentage
+      type: object
+      required:
+      - category
+      - count
+      - percentage
+      title: TriggerStat
+    UserPublic:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        name:
+          type: string
+          title: Name
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+        role:
+          type: string
+          enum:
+          - user
+          - mentor
+          - admin
+          title: Role
+        tracking_start_date:
+          type: string
+          format: date
+          title: Tracking Start Date
+      type: object
+      required:
+      - user_id
+      - name
+      - nickname
+      - email
+      - role
+      - tracking_start_date
+      title: UserPublic
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     BearerAuth:
       type: http
@@ -632,8 +1206,13 @@ tags:
   description: 'Щоденні відмітки користувача (DayRecord): тверезий день або зрив.
     FR-001, FR-002, FR-003, FR-008.'
 - name: Goals
-  description: 'Фіксовані етапи тверезості на 7 і 30 днів та прогрес. FR-004,
+  description: 'Цілі тверезості (Goal): цільова кількість днів і прогрес. FR-004,
     FR-005.'
+- name: Admin
+  description: 'Лише для ролі admin: акаунти, блокування й анонімна діаграма тригерів
+    за 30 днів.'
+- name: Health
+  description: 'Перевірки стану сервісу: /health і /ready.'
 - name: Statistics
   description: 'Статистика тверезості: кількість днів, серії та автоматичні цілі на
     7 і 30 днів.'
