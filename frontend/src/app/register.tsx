@@ -37,21 +37,23 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Pressable disabled={saving} onPress={() => router.replace('/login')}>
-          <Text style={styles.back}>← Назад до входу</Text>
-        </Pressable>
-        <Text style={styles.title}>Створити акаунт</Text>
-        <Text style={styles.subtitle}>Почни свій шлях у власному темпі.</Text>
-        <View style={styles.form}>
-          <FormField label="Ім’я" value={name} onChangeText={setName} maxLength={100} />
-          <FormField label="Нікнейм" value={nickname} onChangeText={setNickname} maxLength={50}
-            autoCapitalize="none" />
-          <FormField label="Email" value={email} onChangeText={setEmail} maxLength={254}
-            autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
-          <FormField label="Пароль" value={password} onChangeText={setPassword}
-            secureTextEntry maxLength={128} />
-          {!!error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
-          <Button title="Зареєструватися" loading={saving} onPress={() => { void handleRegister(); }} />
+        <View style={styles.content}>
+          <Pressable disabled={saving} onPress={() => router.replace('/login')}>
+            <Text style={styles.back}>← Назад до входу</Text>
+          </Pressable>
+          <Text style={styles.title}>Створити акаунт</Text>
+          <Text style={styles.subtitle}>Почни свій шлях у власному темпі.</Text>
+          <View style={styles.form}>
+            <FormField label="Ім’я" value={name} onChangeText={setName} maxLength={100} />
+            <FormField label="Нікнейм" value={nickname} onChangeText={setNickname} maxLength={50}
+              autoCapitalize="none" />
+            <FormField label="Email" value={email} onChangeText={setEmail} maxLength={254}
+              autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
+            <FormField label="Пароль" value={password} onChangeText={setPassword}
+              secureTextEntry maxLength={128} />
+            {!!error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
+            <Button title="Зареєструватися" loading={saving} onPress={() => { void handleRegister(); }} />
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -60,6 +62,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: theme.colors.background },
   container: { flexGrow: 1, justifyContent: 'center', padding: 26, gap: 14 },
+  content: { width: '100%', maxWidth: 460, alignSelf: 'center', gap: 14 },
   back: { color: theme.colors.primaryDark, fontWeight: '600' },
   title: { textAlign: 'center', fontSize: 28, fontWeight: '800', color: theme.colors.primaryDark },
   subtitle: { textAlign: 'center', color: theme.colors.muted },
