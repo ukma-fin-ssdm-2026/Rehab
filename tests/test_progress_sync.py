@@ -75,6 +75,7 @@ def test_recompute_progress_updates_cache_and_achievements(monkeypatch):
 
     assert user.best_streak == 5
     assert [goal.is_achieved for goal in goals] == [True, False, False]
+    assert [goal.progress_days for goal in goals] == [5, 2, 2]
 
 
 def test_recompute_progress_recalculates_after_history_correction(monkeypatch):
@@ -93,6 +94,7 @@ def test_recompute_progress_recalculates_after_history_correction(monkeypatch):
 
     assert user.best_streak == 7
     assert [goal.is_achieved for goal in goals] == [True, False]
+    assert [goal.progress_days for goal in goals] == [7, 7]
 
 
 def test_recompute_progress_rejects_a_missing_user(monkeypatch):

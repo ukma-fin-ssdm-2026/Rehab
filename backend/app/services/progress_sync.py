@@ -41,4 +41,9 @@ def recompute_progress(db, user_id: int, today: dt.date) -> None:
     user.best_streak = longest_streak
     for goal in list_user_goals(db, user_id):
         goal.is_achieved = longest_streak >= goal.target_days
+        goal.progress_days = (
+            goal.target_days
+            if goal.is_achieved
+            else min(current_streak, goal.target_days)
+        )
 
