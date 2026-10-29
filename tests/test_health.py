@@ -68,4 +68,11 @@ def test_cors_preflight_allows_put_and_delete():
         assert method in response.headers["access-control-allow-methods"]
 
 
+def test_main_app_registers_auth_routes():
+    paths = client.get("/openapi.json").json()["paths"]
+
+    for route in ("register", "login", "me", "logout"):
+        assert f"/api/v1/auth/{route}" in paths
+
+
 # AI-GENERATED END

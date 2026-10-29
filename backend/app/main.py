@@ -17,7 +17,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.app.routers import admin, calendar, goals, health, statistics
+from backend.app.routers import admin, auth, calendar, goals, health, statistics
 
 API_PREFIX = "/api/v1"
 
@@ -149,6 +149,9 @@ async def validation_exception_handler(
     )
 
 
+# AI-GENERATED START
+app.include_router(auth.router, prefix=API_PREFIX)
+# AI-GENERATED END
 app.include_router(calendar.router, prefix=API_PREFIX)
 app.include_router(goals.router, prefix=API_PREFIX)
 app.include_router(statistics.router, prefix=API_PREFIX)
