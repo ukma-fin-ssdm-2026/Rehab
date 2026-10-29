@@ -13,12 +13,21 @@ def get_user_by_email(db: Session, email: str) -> User | None:
 
 
 def create_user(
-    db: Session, *, name: str, nickname: str, email: str,
-    password_hash: str, tracking_start_date,
+    db: Session,
+    *,
+    name: str,
+    nickname: str,
+    email: str,
+    password_hash: str,
+    tracking_start_date,
 ) -> User:
     account = User(
-        name=name, nickname=nickname, email=email.strip().lower(),
-        password_hash=password_hash, role="user", tracking_start_date=tracking_start_date,
+        name=name,
+        nickname=nickname,
+        email=email.strip().lower(),
+        password_hash=password_hash,
+        role="user",
+        tracking_start_date=tracking_start_date,
     )
     db.add(account)
     db.flush()
