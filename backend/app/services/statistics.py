@@ -117,33 +117,12 @@ def count_streaks(
     return current_streak, longest_streak
 
 
-def get_goal_progress(
-    total_sober_days: int,
-) -> tuple[int | None, list[int], int]:
-    """Визначає активну ціль і виконані цілі.
-
-    До 7 тверезих днів активна ціль — 7.
-    Від 7 до 29 днів активна ціль — 30.
-    Після 30 днів обидві цілі виконані.
-    """
-
-    if total_sober_days < 0:
-        raise ValueError("Кількість тверезих днів не може бути від'ємною")
-
-    if total_sober_days < 7:
-        return 7, [], total_sober_days
-
-    if total_sober_days < 30:
-        return 30, [7], total_sober_days
-
-    return None, [7, 30], total_sober_days
-
-
 def calculate_statistics(
     *,
     tracking_start_date: dt.date,
     today: dt.date,
     entries: Iterable[EntryOut],
+    goals: Iterable[GoalProgressInput] = (),
     period: StatisticsPeriod = "all",
 ) -> dict[str, object]:
     """Обчислює статистику за погодженим API-контрактом.
@@ -197,8 +176,12 @@ def calculate_statistics(
         relapse_dates=relapse_dates,
     )
 
-    active_goal_days, completed_goal_days, goal_progress_days = get_goal_progress(
-        total_sober_days=total_sober_days,
+    has_goals, active_goal_days, completed_goal_days, goal_progress_days = (
+        calculate_goal_progress(
+            current_streak=current_streak,
+            longest_streak=longest_streak,
+            goals=goals,
+        )
     )
 
     return {
@@ -212,6 +195,7 @@ def calculate_statistics(
         "current_streak": current_streak,
         "longest_streak": longest_streak,
         "active_goal_days": active_goal_days,
+        "has_goals": has_goals,
         "completed_goal_days": completed_goal_days,
         "goal_progress_days": goal_progress_days,
     }

@@ -1,16 +1,40 @@
 """Ендпоінти цілей (ресурс Goal)."""
 
-from fastapi import APIRouter, Depends, Path, Request, Response
+from fastapi import APIRouter, Depends, Path, Query, Request, Response
 
 from backend.app import stubs
 from backend.app.errors import COMMON_RESPONSES, api_error
-from backend.app.models import ErrorResponse, GoalCreate, GoalOut
+from backend.app.models import ErrorResponse, GoalCreate, GoalList, GoalOut
 from backend.app.security import CurrentUser, get_current_user
 
 router = APIRouter(prefix="/goals", tags=["Goals"])
 
 GOAL_ID = Path(..., ge=1, description="Ідентифікатор цілі.", examples=[1])
 NOT_FOUND = {"model": ErrorResponse, "description": "Ціль не знайдено"}
+
+
+@router.get(
+    "",
+    response_model=GoalList,
+    summary="Список особистих цілей",
+    description="Повертає сторінку цілей поточного користувача (FR-004, FR-005).",
+    responses={**COMMON_RESPONSES},
+)
+def list_goals(
+    limit: int = Query(30, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    user: CurrentUser = Depends(get_current_user),
+):
+    user_goals = sorted(
+        (goal for goal in stubs.goals.values() if goal.user_id == user.user_id),
+        key=lambda goal: goal.goal_id,
+    )
+    return GoalList(
+        items=user_goals[offset : offset + limit],
+        total=len(user_goals),
+        limit=limit,
+        offset=offset,
+    )
 
 
 def _get_own_goal(goal_id: int, user: CurrentUser) -> GoalOut:

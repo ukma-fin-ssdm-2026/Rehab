@@ -56,6 +56,7 @@ def get_statistics(
         tracking_start_date=tracking_start_date,
         today=dt.date.today(),
         entries=user_entries,
+        goals=stubs.goals.values(),
         period=period,
     )
 

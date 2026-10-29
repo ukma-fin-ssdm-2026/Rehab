@@ -257,10 +257,13 @@ class EntryList(BaseModel):
 class GoalCreate(BaseModel):
     """Тіло запиту на створення або повну заміну цілі (FR-004)."""
 
+    model_config = ConfigDict(extra="forbid")
+
     target_days: int = Field(
         ...,
         ge=1,
         le=3650,
+        strict=True,
         description="Цільова кількість днів без алкоголю (від 1 до 3650).",
         examples=[30],
     )
@@ -294,6 +297,26 @@ class GoalOut(BaseModel):
             "коли серія доходить до цілі (FR-005)."
         ),
     )
+
+    progress_days: int = Field(
+        default=0,
+        ge=0,
+        description="Прогрес поточної серії до цієї цілі.",
+    )
+
+    created_at: dt.datetime = Field(
+        default_factory=lambda: dt.datetime.now(dt.timezone.utc),
+        description="Час створення цілі (UTC).",
+    )
+
+
+class GoalList(BaseModel):
+    """Сторінка особистих цілей."""
+
+    items: list[GoalOut] = Field(..., description="Цілі поточної сторінки.")
+    total: int = Field(..., ge=0, description="Загальна кількість цілей.")
+    limit: int = Field(..., ge=1, description="Розмір сторінки.")
+    offset: int = Field(..., ge=0, description="Зміщення від початку.")
 
 
 # ---------- Статистика ----------
@@ -354,7 +377,12 @@ class StatisticsOut(BaseModel):
 
     active_goal_days: int | None = Field(
         ...,
-        description="Активна ціль: 7, 30 або null після виконання обох.",
+        description="Найближча невиконана особиста ціль або null.",
+    )
+
+    has_goals: bool = Field(
+        ...,
+        description="Чи створював користувач хоча б одну особисту ціль.",
     )
 
     completed_goal_days: list[int] = Field(
@@ -365,7 +393,7 @@ class StatisticsOut(BaseModel):
     goal_progress_days: int = Field(
         ...,
         ge=0,
-        description="Кількість тверезих днів для прогресу цілі.",
+        description="Поточна серія днів для прогресу активної цілі.",
     )
 
 

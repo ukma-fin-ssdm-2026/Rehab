@@ -3,18 +3,31 @@
 import datetime as dt
 
 import pytest
+from fastapi.testclient import TestClient
 
 from backend.app import stubs
+from backend.app.main import app
 from backend.app.models import DayStatus, EntryOut
 from backend.app.services.statistics import (
     calculate_statistics,
     count_streaks,
-    get_goal_progress,
     get_period_start,
 )
 
+client = TestClient(app)
+
+HEADERS = {"Authorization": "Bearer user-42"}
 STATISTICS_URL = "/api/v1/statistics"
 ENTRIES_URL = "/api/v1/calendar/entries"
+
+
+@pytest.fixture(autouse=True)
+def reset_data():
+    """Відновлює демонстраційні дані перед і після кожного тесту."""
+
+    stubs.reset()
+    yield
+    stubs.reset()
 
 
 def make_entry(
@@ -34,11 +47,10 @@ def make_entry(
     )
 
 
-def test_statistics_endpoint_returns_expected_fields(prototype_api):
-    data = prototype_api
+def test_statistics_endpoint_returns_expected_fields():
     """API повертає всі поля погодженого контракту."""
 
-    response = data.client.get(STATISTICS_URL, headers=data.headers)
+    response = client.get(STATISTICS_URL, headers=HEADERS)
 
     assert response.status_code == 200
 
@@ -55,6 +67,7 @@ def test_statistics_endpoint_returns_expected_fields(prototype_api):
         "current_streak",
         "longest_streak",
         "active_goal_days",
+        "has_goals",
         "completed_goal_days",
         "goal_progress_days",
     }
@@ -62,13 +75,12 @@ def test_statistics_endpoint_returns_expected_fields(prototype_api):
     assert set(data) == expected_fields
 
 
-def test_initial_statistics(prototype_api):
-    data = prototype_api
+def test_initial_statistics():
     """Стартові дані: 7 днів відстеження та один день вживання."""
 
-    response = data.client.get(
+    response = client.get(
         STATISTICS_URL,
-        headers=data.headers,
+        headers=HEADERS,
         params={"period": "all"},
     )
 
@@ -82,18 +94,18 @@ def test_initial_statistics(prototype_api):
     assert data["total_sober_days"] == 6
     assert data["current_streak"] == 1
     assert data["longest_streak"] == 5
-    assert data["active_goal_days"] == 7
+    assert data["active_goal_days"] == 30
+    assert data["has_goals"] is True
     assert data["completed_goal_days"] == []
-    assert data["goal_progress_days"] == 6
+    assert data["goal_progress_days"] == 1
 
 
-def test_week_statistics(prototype_api):
-    data = prototype_api
+def test_week_statistics():
     """Тиждень охоплює останні сім календарних днів."""
 
-    response = data.client.get(
+    response = client.get(
         STATISTICS_URL,
-        headers=data.headers,
+        headers=HEADERS,
         params={"period": "week"},
     )
 
@@ -108,13 +120,12 @@ def test_week_statistics(prototype_api):
 
 
 @pytest.mark.parametrize("period", ["all", "week", "month", "year"])
-def test_supported_periods(period, prototype_api):
-    data = prototype_api
+def test_supported_periods(period):
     """Усі чотири погоджені періоди доступні через API."""
 
-    response = data.client.get(
+    response = client.get(
         STATISTICS_URL,
-        headers=data.headers,
+        headers=HEADERS,
         params={"period": period},
     )
 
@@ -122,19 +133,17 @@ def test_supported_periods(period, prototype_api):
     assert response.json()["period"] == period
 
 
-def test_invalid_period_returns_422(prototype_api):
-    data = prototype_api
+def test_invalid_period_returns_422():
     """Невідомий період відхиляється."""
 
-    response = data.client.get(
+    response = client.get(
         STATISTICS_URL,
-        headers=data.headers,
+        headers=HEADERS,
         params={"period": "decade"},
     )
 
     assert response.status_code == 422
-
-
+    """???"""
 def test_get_period_start_rejects_invalid_period():
     with pytest.raises(ValueError, match="Невідомий період статистики"):
         get_period_start(
@@ -228,7 +237,6 @@ def test_streak_ends_on_relapse():
     assert current == 0
     assert longest == 3
 
-
 def test_streak_rejects_end_date_before_start_date():
     with pytest.raises(ValueError, match="Кінцева дата не може бути раніше початкової"):
         count_streaks(
@@ -238,39 +246,10 @@ def test_streak_rejects_end_date_before_start_date():
         )
 
 
-@pytest.mark.parametrize(
-    "days, expected_goal, expected_completed",
-    [
-        (0, 7, []),
-        (6, 7, []),
-        (7, 30, [7]),
-        (29, 30, [7]),
-        (30, None, [7, 30]),
-        (40, None, [7, 30]),
-    ],
-)
-def test_goal_progress(days, expected_goal, expected_completed):
-    """Цілі автоматично переходять від 7 до 30 днів."""
-
-    active, completed, progress = get_goal_progress(days)
-
-    assert active == expected_goal
-    assert completed == expected_completed
-    assert progress == days
-
-
-def test_goal_progress_rejects_negative_days():
-    """Від'ємна кількість тверезих днів заборонена."""
-
-    with pytest.raises(ValueError):
-        get_goal_progress(-1)
-
-
-def test_statistics_ignores_other_users_entries(prototype_api):
-    data = prototype_api
+def test_statistics_ignores_other_users_entries():
     """Записи іншого користувача не впливають на нашу статистику."""
 
-    before = data.client.get(STATISTICS_URL, headers=data.headers)
+    before = client.get(STATISTICS_URL, headers=HEADERS)
 
     assert before.status_code == 200
 
@@ -282,26 +261,25 @@ def test_statistics_ignores_other_users_entries(prototype_api):
 
     stubs.entries[999] = other_entry
 
-    after = data.client.get(STATISTICS_URL, headers=data.headers)
+    after = client.get(STATISTICS_URL, headers=HEADERS)
 
     assert after.status_code == 200
     assert after.json() == before.json()
 
 
-def test_statistics_changes_after_new_entry(prototype_api):
-    data = prototype_api
+def test_statistics_changes_after_new_entry():
     """Після POST календар і статистика відображають одні дані."""
 
-    before = data.client.get(STATISTICS_URL, headers=data.headers)
+    before = client.get(STATISTICS_URL, headers=HEADERS)
 
     assert before.status_code == 200
     assert before.json()["sober_days"] == 6
 
     today = dt.date.today().isoformat()
 
-    created = data.client.post(
+    created = client.post(
         ENTRIES_URL,
-        headers=data.headers,
+        headers=HEADERS,
         json={
             "date": today,
             "status": "relapse",
@@ -316,9 +294,9 @@ def test_statistics_changes_after_new_entry(prototype_api):
 
     assert created.status_code == 201
 
-    calendar = data.client.get(
+    calendar = client.get(
         ENTRIES_URL,
-        headers=data.headers,
+        headers=HEADERS,
         params={"from": today, "to": today},
     )
 
@@ -326,7 +304,7 @@ def test_statistics_changes_after_new_entry(prototype_api):
     assert calendar.json()["total"] == 1
     assert len(calendar.json()["items"][0]["drinks"]) == 2
 
-    after = data.client.get(STATISTICS_URL, headers=data.headers)
+    after = client.get(STATISTICS_URL, headers=HEADERS)
 
     assert after.status_code == 200
 
@@ -337,9 +315,9 @@ def test_statistics_changes_after_new_entry(prototype_api):
     assert data["total_sober_days"] == 5
     assert data["current_streak"] == 0
     assert data["longest_streak"] == 5
-    assert data["goal_progress_days"] == 5
+    assert data["goal_progress_days"] == 0
 
-
+"""jrr"""
 def test_calculate_statistics_rejects_invalid_period():
     with pytest.raises(ValueError, match="Невідомий період статистики"):
         calculate_statistics(
@@ -362,14 +340,12 @@ def test_calculate_statistics_rejects_future_tracking_start():
             period="all",
         )
 
-
-def test_statistics_without_tracking_start(prototype_api):
-    data = prototype_api
+def test_statistics_without_tracking_start():
     """API повертає 404, якщо відстеження не розпочато."""
 
-    stubs.tracking_start_dates.pop(data.user_id)
+    stubs.tracking_start_dates.pop(42)
 
-    response = data.client.get(STATISTICS_URL, headers=data.headers)
+    response = client.get(STATISTICS_URL, headers=HEADERS)
 
     assert response.status_code == 404
     assert response.json()["code"] == "TRACKING_NOT_STARTED"
