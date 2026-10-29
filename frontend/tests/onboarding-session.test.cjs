@@ -117,9 +117,9 @@ test('private calendar details and onboarding have separate access rules', () =>
     const root = navigation();
     assert.equal(root.type, Stack);
     return root.props.children.find(child =>
-      child.type === Stack.Protected && child.props.children.some(route =>
-        route.props.name === name
-      )
+      child.type === Stack.Protected &&
+      (Array.isArray(child.props.children) ? child.props.children : [child.props.children])
+        .some(route => route.props.name === name)
     );
   }
 
