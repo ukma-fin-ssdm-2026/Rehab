@@ -1,6 +1,6 @@
 # Інтеграція авторизації Rehab — передача контрактів
 
-**Статус:** код авторизації включено до `develop` через PR №172. Наскрізне тестування на PostgreSQL, CI й опублікованій вебверсії ще не виконане.
+**Статус станом на 29.10.2026:** авторизація та її форматування включені до `develop` через PR №172 і №178; PostgreSQL-основа та міграція — через PR №182. CI із реальною тестовою PostgreSQL проходить. Реєстрацію, JWT, `/me`, вихід і блокування перевірено на окремому інтеграційному FastAPI-додатку, а **основний `backend/app/main.py` ще не підключає `auth.router`**. Вхід через опубліковану вебверсію не перевірено.
 
 ## Анастасія — контракти
 
@@ -11,34 +11,36 @@
 - `frontend/src/api/client.ts`: `apiRequest<T>('/calendar/entries', options)` сам додає `/api/v1`, Bearer й форматує помилки. `AuthProvider` дає `user`, `signIn`, `signUp`, `signOut`, `refresh`.
 - `Button`, `FormField`, `ScreenState` — спільні компоненти для екранів.
 
-## Поліна — що потрібно для запуску
+## Поліна — основа, вже інтегрована у `develop`
 
-- Надати `backend.app.db.base.Base` і `backend.app.db.session.get_db()` з окремою сесією на запит та rollback.
-- Включити `User` у **єдину** початкову Alembic-міграцію разом із `day_records` і `goals`. Не створювати другу базу даних або окрему стартову міграцію.
-- Надати `backend.app.core.clock.today_local()` для дати реєстрації та відповіді `/me`.
-- Передбачити тестову PostgreSQL і auth-фікстури в `tests/conftest.py`; адреси dev і test БД повинні відрізнятися.
+- Надано `backend.app.db.base.Base` і `backend.app.db.session.get_db()` з окремою сесією на запит та rollback.
+- Таблицю `users` включено в єдину початкову Alembic-міграцію разом із `day_records` і `goals`; окремої стартової міграції не потрібно.
+- Надано `backend.app.core.clock.today_local()` для дати реєстрації та відповіді `/me` (Europe/Kyiv).
+- У `tests/conftest.py` є фікстури для ізольованої тестової PostgreSQL, справжніх реєстрацій і JWT. Тестова БД має окреме ім'я й не замінює dev.
 
 ## Софія — що потрібно для запуску
 
 - Додати `auth.router` до `backend/app/main.py` під `API_PREFIX`; реєстрація й логін не підключаються автоматично.
-- У спільні залежності додати сумісні `PyJWT`, `pwdlib[argon2]`, SQLAlchemy та драйвер БД (останній за погодженням із Поліною), після чого зафіксувати версії.
+- `PyJWT`, `pwdlib[argon2]`, SQLAlchemy та `psycopg` уже є в спільному `requirements.txt` з зафіксованими версіями; підтверджено встановлення в CI.
 - Налаштувати `JWT_SECRET` тільки в середовищі; **ніколи** не додавати значення секрету у Git чи публічний Expo env.
 - Налаштувати CORS для опублікованого клієнта і `POST`/інші методи, CI для інтеграційних тестів; додати `/admin/users` для ролі admin.
 
 ## Відкриті завдання на інтеграцію
 
 - [Issue №179 — auth.router, Python-залежності та CI](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/179) — Софія.
-- [Issue №180 — PostgreSQL, Alembic і get_db](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/180) — Поліна.
-- [PR №178 — форматування backend авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/178): локально перевірено Black (22 файли без змін), Flake8 (без зауважень) і 44 auth-тести (1 попередження). Це не заміняє загальний CI.
+- [Issue №180 — PostgreSQL, Alembic і get_db](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/180) — основа Поліни вже злита через PR №182; issue залишається відкритим до завершення наскрізної інтеграції.
+- [PR №178 — форматування backend авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/178) — злитий у `develop`; локальні Black, Flake8 і 44 auth-тести пройшли.
+- [PR №185 — PostgreSQL-тести авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/185) — очікує review. На head `afe43d6` CI: **258 passed, 1 warning, backend coverage 94%**, Code Quality і Lab07 Traceability — зелені. Ціль покриття 95% ще не підтверджена.
 
 ## Перевірки перед інтеграцією
 
-- На локальній Windows-копії Rehab шість auth-test файлів: **44 passed, 1 warning**, включно з тестом `pwdlib`/Argon2. TypeScript і web export пройшли; ESLint файлів авторизації пройшов. Загальний lint ще має помилки в чужих вкладках. Реальна PostgreSQL-інтеграція й наскрізний вхід не перевірені.
+- На локальній Windows-копії Rehab шість auth-test файлів: **44 passed, 1 warning**, включно з `pwdlib`/Argon2. TypeScript і web export пройшли; ESLint власних файлів авторизації пройшов. Повний Expo lint мав помилки в інших вкладках.
+- У GitHub Actions із тестовою PostgreSQL: **258 passed, 1 warning in 31.04s**, покриття backend **94%** (PR №185); це тестування ізольованих маршрутів та модулів, а не підтвердження повного запуску головного застосунку.
 - `python -m pytest tests/test_auth.py tests/test_auth_revocation.py tests/test_auth_schema_contract.py tests/test_auth_schema_boundaries.py tests/test_auth_routes_unit.py tests/test_security_dependency.py -q`.
-- Після появи PostgreSQL: реєстрація двох акаунтів → вхід → `/me` → доступ тільки до своїх записів → вихід → старий JWT дає 401 → блокування дає 403 → після розблокування старий JWT не оживає.
+- У `tests/test_calendar_auth_postgres.py` та `tests/test_auth_postgres.py` перевіряються реальна реєстрація з Argon2, вхід, `/me`, ізоляція акаунтів, вихід і старі JWT, блокування та недійсність попереднього токена після розблокування, дубль email і заборона реєстрації ролі admin. Це ще треба перевірити через **головний** `app` після підключення маршрутів Софією.
 - У `frontend`: `npm ci`, `npx tsc --noEmit`, `npx expo lint`, `npx expo export --platform web`. Перевірити прямі URL, reload і мобільний браузер.
 
-Тут описано контракти й залежності, а не вигадані результати тестування. Ця гілка доповнює `docs/requirements/rtm.md`, але не змінює `backend/app/main.py`, `requirements.txt`, CI чи `docs/validation/*`.
+Тут розрізнено фактичні результати перевірок модулів та незавершену інтеграцію основного застосунку. PR №185 не змінює `backend/app/main.py`, `requirements.txt`, CI чи файли інших учасниць.
 
 ## Передача моделі загроз авторизації
 
