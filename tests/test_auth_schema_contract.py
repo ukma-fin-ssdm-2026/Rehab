@@ -1,4 +1,3 @@
-"""Контрактні тести Auth перед підключенням PostgreSQL."""
 
 import pytest
 from pydantic import ValidationError
