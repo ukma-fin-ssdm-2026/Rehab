@@ -8,8 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { getCalendarEntriesUrl } from '../../config/api';
-import { getStatisticsUrl } from '../../config/api';
+import { apiRequest } from '../../api/client';
 import { theme } from '../../constants/theme';
 
 type CalendarEntry = {
@@ -84,19 +83,9 @@ export default function CalendarScreen() {
       setError(null);
 
       try {
-        const url =
-          `${getCalendarEntriesUrl()}?from=${monthStart}` +
-          `&to=${monthEnd}&limit=100&offset=0`;
-
-        const response = await fetch(url, {
-          headers: { Authorization: 'Bearer user-42' },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const result: CalendarResponse = await response.json();
+        const result = await apiRequest<CalendarResponse>(
+          `/calendar/entries?from=${monthStart}&to=${monthEnd}&limit=100&offset=0`,
+        );
 
         if (active) {
           setEntries(result.items);
@@ -129,13 +118,7 @@ export default function CalendarScreen() {
 
     async function loadTrackingStart() {
       try {
-        const response = await fetch(getStatisticsUrl('all'), {
-          headers: { Authorization: 'Bearer user-42' },
-        });
-
-        if (!response.ok) return;
-
-        const result: StatisticsResponse = await response.json();
+        const result = await apiRequest<StatisticsResponse>('/statistics?period=all');
 
         if (active && result.tracking_start_date) {
           setTrackingStart(result.tracking_start_date);

@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { getStatisticsUrl } from '../../config/api';
+import { apiRequest } from '../../api/client';
 import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS } from '../../constants/goals';
 
@@ -38,15 +38,7 @@ export default function HomeScreen() {
     setError(null);
 
     try {
-      const response = await fetch(getStatisticsUrl('all'), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
+      setData(await apiRequest<Statistics>('/statistics?period=all'));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Не вдалося завантажити статистику',

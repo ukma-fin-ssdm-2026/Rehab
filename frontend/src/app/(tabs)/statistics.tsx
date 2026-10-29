@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { getStatisticsUrl } from '../../config/api';
+import { apiRequest } from '../../api/client';
 import { theme } from '../../constants/theme';
 
 type Period = 'week' | 'month' | 'year';
@@ -39,15 +39,7 @@ export default function StatisticsScreen() {
     setError('');
 
     try {
-      const response = await fetch(getStatisticsUrl(period), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
+      setData(await apiRequest<Statistics>(`/statistics?period=${period}`));
     } catch (err) {
       setData(null);
       setError(

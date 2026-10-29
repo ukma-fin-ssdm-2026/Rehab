@@ -10,12 +10,20 @@ OpenAPI JSON: http://127.0.0.1:8000/openapi.json
 тому `app` безпечно імпортувати зі скрипта експорту та з CI.
 """
 
+import os
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.app.routers import calendar, goals, statistics
+from backend.app.routers import admin, auth, goals, health, statistics
+
+# AI-GENERATED START
+# KT-1: календар на PostgreSQL (Поліна) замість in-memory stubs.
+from backend.app.routers import calendar_postgres as calendar
+
+# AI-GENERATED END
 
 API_PREFIX = "/api/v1"
 
@@ -34,6 +42,17 @@ tags_metadata = [
             "Цілі тверезості (Goal): цільова кількість днів і прогрес. "
             "FR-004, FR-005."
         ),
+    },
+    {
+        "name": "Admin",
+        "description": (
+            "Лише для ролі admin: акаунти, блокування й анонімна діаграма "
+            "тригерів за 30 днів."
+        ),
+    },
+    {
+        "name": "Health",
+        "description": "Перевірки стану сервісу: /health і /ready.",
     },
     {
         "name": "Statistics",
@@ -57,14 +76,26 @@ app = FastAPI(
     openapi_tags=tags_metadata,
 )
 
+
+# AI-GENERATED START
+def cors_origins() -> list[str]:
+    """Локальні адреси для розробки + точні адреси клієнта з CORS_ORIGINS."""
+    local = ["http://localhost:8081", "http://127.0.0.1:8081"]
+    extra = [
+        origin.strip().rstrip("/")
+        for origin in os.getenv("CORS_ORIGINS", "").split(",")
+        if origin.strip() and origin.strip() != "*"
+    ]
+    return [*local, *extra]
+
+
+# AI-GENERATED END
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8081",
-        "http://127.0.0.1:8081",
-    ],
+    allow_origins=cors_origins(),
     allow_credentials=False,
-    allow_methods=["GET", "POST", "PATCH"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
@@ -124,6 +155,14 @@ async def validation_exception_handler(
     )
 
 
+# AI-GENERATED START
+app.include_router(auth.router, prefix=API_PREFIX)
+# AI-GENERATED END
 app.include_router(calendar.router, prefix=API_PREFIX)
 app.include_router(goals.router, prefix=API_PREFIX)
 app.include_router(statistics.router, prefix=API_PREFIX)
+
+# AI-GENERATED START
+app.include_router(health.router)
+app.include_router(admin.router, prefix=API_PREFIX)
+# AI-GENERATED END

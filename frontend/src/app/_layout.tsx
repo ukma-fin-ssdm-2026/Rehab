@@ -16,6 +16,11 @@ function ProtectedNavigation() {
         <Stack.Screen name="add-entry" />
         <Stack.Screen name="placeholders" />
       </Stack.Protected>
+      {/* AI-GENERATED START */}
+      <Stack.Protected guard={!loading && !!user && user.role === 'admin'}>
+        <Stack.Screen name="admin" />
+      </Stack.Protected>
+      {/* AI-GENERATED END */}
     </Stack>
   );
 }

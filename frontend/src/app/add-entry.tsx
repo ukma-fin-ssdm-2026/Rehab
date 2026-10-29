@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { router } from 'expo-router';
-import { getCalendarEntriesUrl } from '../config/api';
+import { apiRequest } from '../api/client';
 import { theme } from '../constants/theme';
 
 const drinkTypes = [
@@ -111,12 +111,8 @@ export default function AddEntryScreen() {
     setSaving(true);
 
     try {
-      const response = await fetch(getCalendarEntriesUrl(), {
+      await apiRequest('/calendar/entries', {
         method: 'POST',
-        headers: {
-          Authorization: 'Bearer user-42',
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           date,
           status: 'relapse',
@@ -125,11 +121,6 @@ export default function AddEntryScreen() {
           comment: comment.trim() || null,
         }),
       });
-
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || `HTTP ${response.status}`);
-      }
 
       router.replace('/(tabs)/home');
     } catch (err) {
