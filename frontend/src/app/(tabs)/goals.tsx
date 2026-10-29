@@ -10,10 +10,12 @@ import {
 } from 'react-native';
 import { apiRequest } from '../../api/client';
 import { theme } from '../../constants/theme';
+import { FIXED_GOAL_DAYS } from '../../constants/goals';
 
 type Statistics = {
   active_goal_days: number | null;
   completed_goal_days: number[];
+  current_streak: number;
   goal_progress_days: number;
   total_sober_days: number;
 };
@@ -43,8 +45,11 @@ export default function GoalsScreen() {
   }, [loadGoals]);
 
   const completed = data?.completed_goal_days ?? [];
-  const activeGoal = data?.active_goal_days ?? null;
-  const progress = data?.goal_progress_days ?? 0;
+  const activeGoal =
+    FIXED_GOAL_DAYS.find((days) => !completed.includes(days)) ?? null;
+  const progress = activeGoal === null
+    ? 0
+    : Math.min(data?.current_streak ?? 0, activeGoal);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -76,13 +81,13 @@ export default function GoalsScreen() {
           {activeGoal !== null ? (
             <View style={styles.activeCard}>
               <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>АКТИВНА ЦІЛЬ</Text>
+                <Text style={styles.activeBadgeText}>ПОТОЧНИЙ ЕТАП</Text>
               </View>
               <Text style={styles.activeTitle}>
                 {activeGoal} днів тверезості
               </Text>
               <Text style={styles.activeDescription}>
-                Твоя наступна ціль — один день за раз.
+                Рухайся до наступного етапу один день за раз.
               </Text>
               <View style={styles.progressTrack}>
                 <View
@@ -98,13 +103,13 @@ export default function GoalsScreen() {
                 />
               </View>
               <Text style={styles.progressLabel}>
-                {Math.min(progress, activeGoal)} із {activeGoal} днів
+                {progress} із {activeGoal} днів
               </Text>
             </View>
           ) : (
             <View style={styles.successCard}>
               <Text style={styles.successIcon}>★</Text>
-              <Text style={styles.successTitle}>Усі цілі виконано!</Text>
+              <Text style={styles.successTitle}>Усі етапи виконано!</Text>
               <Text style={styles.muted}>
                 Ти пройшла всі доступні етапи. Продовжуй рухатися у власному
                 темпі.
@@ -114,7 +119,7 @@ export default function GoalsScreen() {
 
           <Text style={styles.sectionTitle}>Етапи твого шляху</Text>
 
-          {[7, 30].map((days) => {
+          {FIXED_GOAL_DAYS.map((days) => {
             const isCompleted = completed.includes(days);
             const isActive = activeGoal === days;
 
@@ -149,7 +154,7 @@ export default function GoalsScreen() {
                     {isCompleted
                       ? 'Виконано'
                       : isActive
-                        ? 'Поточна ціль'
+                        ? 'Поточний етап'
                         : 'Наступний етап'}
                   </Text>
                 </View>

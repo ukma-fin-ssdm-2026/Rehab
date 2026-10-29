@@ -11,12 +11,14 @@ import {
 import { router, useFocusEffect } from 'expo-router';
 import { apiRequest } from '../../api/client';
 import { theme } from '../../constants/theme';
+import { FIXED_GOAL_DAYS } from '../../constants/goals';
 
 type Statistics = {
   total_sober_days: number;
   current_streak: number;
   longest_streak: number;
   active_goal_days: number | null;
+  completed_goal_days: number[];
   goal_progress_days: number;
 };
 
@@ -24,6 +26,12 @@ export default function HomeScreen() {
   const [data, setData] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const completedGoals = data?.completed_goal_days ?? [];
+  const activeGoal =
+    FIXED_GOAL_DAYS.find((days) => !completedGoals.includes(days)) ?? null;
+  const goalProgress = activeGoal === null
+    ? 0
+    : Math.min(data?.current_streak ?? 0, activeGoal);
 
   const loadStatistics = useCallback(async () => {
     setLoading(true);
@@ -97,16 +105,16 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.goalCard}>
-            <Text style={styles.goalTitle}>Твоя поточна ціль</Text>
-            {data.active_goal_days == null ? (
-              <Text style={styles.goalText}>Усі цілі виконано!</Text>
+            <Text style={styles.goalTitle}>Твій поточний етап</Text>
+            {activeGoal === null ? (
+              <Text style={styles.goalText}>Усі етапи виконано!</Text>
             ) : (
               <>
                 <Text style={styles.goalNumber}>
-                  {data.active_goal_days} днів
+                  {activeGoal} днів
                 </Text>
                 <Text style={styles.muted}>
-                  Прогрес: {data.goal_progress_days} із {data.active_goal_days}
+                  Прогрес: {goalProgress} із {activeGoal}
                 </Text>
                 <View style={styles.progressTrack}>
                   <View
@@ -115,7 +123,7 @@ export default function HomeScreen() {
                       {
                         width: `${Math.min(
                           100,
-                          (data.goal_progress_days / data.active_goal_days) * 100,
+                          (goalProgress / activeGoal) * 100,
                         )}%`,
                       },
                     ]}

@@ -37,11 +37,11 @@ def get_statistics(
     db=Depends(_db_session),
     user: CurrentUser = Depends(get_current_user),
 ):
-    """Повертає статистику з календаря та цілей поточного користувача."""
+    """Повертає статистику й фіксовані етапи з календаря користувача."""
 
     from backend.app.core.clock import today_local
     from backend.app.repositories.entries import list_user_entries
-    from backend.app.repositories.goals import list_user_goals, lock_user_for_update
+    from backend.app.repositories.users import lock_user_for_update
 
     account = lock_user_for_update(db, user.user_id)
 
@@ -54,14 +54,12 @@ def get_statistics(
 
     today = today_local()
     user_entries = list_user_entries(db, user.user_id)
-    user_goals = list_user_goals(db, user.user_id)
     recompute_progress(db, user.user_id, today)
 
     result = calculate_statistics(
         tracking_start_date=account.tracking_start_date,
         today=today,
         entries=user_entries,
-        goals=user_goals,
         period=period,
     )
 

@@ -10,7 +10,6 @@ from backend.app.db.models.entry import DayRecord
 from backend.app.db.models.user import User
 from backend.app.main import app
 from backend.app.models import DayStatus, EntryOut, EntryCreate
-from backend.app.repositories.goals import create_goal
 from backend.app.repositories.entries import create_entry
 from backend.app.security import CurrentUser, _db_session, get_current_user
 from backend.app.services.statistics import (
@@ -39,7 +38,6 @@ def reset_data(calendar_db, db_users):
             drinks=[],
         )
     )
-    create_goal(calendar_db, owner_id, 30)
     calendar_db.commit()
 
     app.dependency_overrides[get_current_user] = lambda: CurrentUser(owner_id, "user")
@@ -102,7 +100,7 @@ def test_initial_statistics():
     assert data["total_sober_days"] == 6
     assert data["current_streak"] == 1
     assert data["longest_streak"] == 5
-    assert data["active_goal_days"] == 30
+    assert data["active_goal_days"] == 7
     assert data["has_goals"] is True
     assert data["completed_goal_days"] == []
     assert data["goal_progress_days"] == 1

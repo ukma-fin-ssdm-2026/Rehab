@@ -8,6 +8,11 @@ def get_user(db: Session, user_id: int) -> User | None:
     return db.get(User, user_id)
 
 
+def lock_user_for_update(db: Session, user_id: int) -> User | None:
+    """Блокує рядок користувача перед суміжними змінами в одній транзакції."""
+    return db.scalar(select(User).where(User.user_id == user_id).with_for_update())
+
+
 def get_user_by_email(db: Session, email: str) -> User | None:
     return db.scalar(select(User).where(User.email == email.strip().lower()))
 
