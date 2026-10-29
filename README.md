@@ -399,7 +399,7 @@ npx tsc --noEmit
 
 - [PROGRESS.md](PROGRESS.md) — прогрес розробки, інтеграція Backend і Frontend, реалізовані можливості та обмеження.
 - [setup_and_run.md](setup_and_run.md) — встановлення залежностей, запуск застосунку та перевірка роботи.
-- <!-- AI-GENERATED START -->[docs/deployment/render-neon.md](docs/deployment/render-neon.md) — онлайн-розгортання (Render + Neon), статус: конфіг підготовлено, не перевірено<!-- AI-GENERATED END -->
+- <!-- AI-GENERATED START -->[docs/deployment/render-neon.md](docs/deployment/render-neon.md) — онлайн-розгортання (Render + Neon): сайт https://rehab-web-b9d5.onrender.com, API https://rehab-api-0na0.onrender.com; фактичні результати перевірок — розділ 6. Демоакаунти створює `python -m scripts.seed_demo`, облікові дані передаються викладачу окремо, не в репозиторії. Безкоштовний Render засинає: перше відкриття може тривати до хвилини<!-- AI-GENERATED END -->
 - [Labs/](Labs/) — матеріали лабораторних робіт і демонстраційні відео.
 
 ## 13. CI/CD та доступні ресурси

@@ -405,5 +405,5 @@ npm audit
 <!-- AI-GENERATED START -->
 ## 15. Онлайн-розгортання (Render + Neon)
 
-Безкоштовне розгортання (Render Static Site + Render Web Service Free + Neon Free) описано в [docs/deployment/render-neon.md](docs/deployment/render-neon.md); конфігурація — `render.yaml`. Для API потрібні змінні `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, для frontend — `EXPO_PUBLIC_API_URL`; секрети вводяться лише в панелі хостингу. Онлайн-версія **ще не перевірена**, результати будуть у розділі 6 цього документа.
+Безкоштовне розгортання (Render Static Site + Render Web Service Free + Neon Free) описано в [docs/deployment/render-neon.md](docs/deployment/render-neon.md); конфігурація — `render.yaml`. Для API потрібні змінні `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, для frontend — `EXPO_PUBLIC_API_URL`; секрети вводяться лише в панелі хостингу. Онлайн-версія: сайт https://rehab-web-b9d5.onrender.com, API https://rehab-api-0na0.onrender.com; фактичні результати перевірок — у розділі 6 цього документа. Демоакаунти: `python -m scripts.seed_demo` з кореня репозиторію з прямим (без `-pooler`) рядком Neon у `DATABASE_URL`.
 <!-- AI-GENERATED END -->
