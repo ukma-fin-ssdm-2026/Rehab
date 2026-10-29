@@ -50,12 +50,24 @@ test('a same-tab reload can restore the pending onboarding', () => {
   assert.equal(isOnboardingPending(storage, 42), true);
 });
 
-test('onboarding does not leak into another tab', () => {
+test('independently opened tabs have separate onboarding state', () => {
   const firstTab = createStorage();
   const secondTab = createStorage();
   saveOnboardingPending(firstTab, 42);
   assert.equal(isOnboardingPending(firstTab, 42), true);
   assert.equal(isOnboardingPending(secondTab, 42), false);
+});
+
+test('copied session storage has an independent pending marker', () => {
+  const firstTab = createStorage();
+  saveOnboardingPending(firstTab, 42);
+  const secondTab = createStorage();
+  const initialMarker = firstTab.getItem('rehab.auth.onboarding-user');
+  secondTab.setItem('rehab.auth.onboarding-user', initialMarker);
+  assert.equal(isOnboardingPending(secondTab, 42), true);
+  saveOnboardingPending(firstTab, null);
+  assert.equal(isOnboardingPending(firstTab, 42), false);
+  assert.equal(isOnboardingPending(secondTab, 42), true);
 });
 
 test('finishing onboarding removes the pending flag', () => {
