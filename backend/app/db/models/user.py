@@ -22,6 +22,7 @@ class User(Base):
     tracking_start_date: Mapped[date] = mapped_column(Date, nullable=False)
     best_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False,
+        DateTime(timezone=True),
+        nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
