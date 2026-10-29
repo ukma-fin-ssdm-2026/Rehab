@@ -21,6 +21,7 @@ type AuthContextValue = {
   signUp(data: RegistrationData): Promise<UserAccount>;
   signOut(): Promise<void>;
   refresh(): Promise<void>;
+  retryRestore(): Promise<void>;
 };
 
 const Context = createContext<AuthContextValue | null>(null);
@@ -61,6 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(account);
     setRestoreError(false);
   }, [clear]);
+
+  const retryRestore = useCallback(async () => {
+    setLoading(true);
+    try {
+      await refresh();
+    } catch (cause) {
+      if (!(cause instanceof ApiError &&
+        (cause.status === 401 || cause.code === 'ACCOUNT_BLOCKED'))) {
+        setRestoreError(true);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [refresh]);
 
   useEffect(() => {
     let active = true;
@@ -127,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <Context.Provider value={{
       user, loading, restoreError, onboardingPending,
       finishOnboarding: () => setOnboardingPending(false),
-      signIn, signUp, signOut, refresh,
+      signIn, signUp, signOut, refresh, retryRestore,
     }}>
       {children}
     </Context.Provider>
