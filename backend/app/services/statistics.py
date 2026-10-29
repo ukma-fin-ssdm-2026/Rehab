@@ -6,7 +6,7 @@
 
 import datetime as dt
 from collections.abc import Iterable
-from typing import Literal
+from typing import Literal, Protocol
 
 from backend.app.models import DayStatus, EntryOut, TriggerCategory
 from backend.app.services.sobriety import count_sober_days
@@ -14,6 +14,63 @@ from backend.app.services.sobriety import count_sober_days
 StatisticsPeriod = Literal["all", "week", "month", "year"]
 
 VALID_PERIODS = ("all", "week", "month", "year")
+
+
+class GoalProgressInput(Protocol):
+    """Мінімальні поля цілі, потрібні для розрахунку прогресу."""
+
+    goal_id: int
+    target_days: int
+
+
+def calculate_goal_progress(
+    *,
+    current_streak: int,
+    longest_streak: int,
+    goals: Iterable[GoalProgressInput],
+) -> tuple[bool, int | None, list[int], int]:
+    """Обчислює особисті цілі за поточною та найдовшою серіями.
+
+    Історичне виконання визначається за найдовшою серією, а видимий
+    прогрес активної цілі — за поточною. Кілька цілей з однаковою
+    кількістю днів утворюють один елемент у переліку досягнень.
+    """
+
+    if current_streak < 0 or longest_streak < 0:
+        raise ValueError("Серія тверезості не може бути від'ємною")
+    if current_streak > longest_streak:
+        raise ValueError("Поточна серія не може перевищувати рекорд")
+
+    user_goals = list(goals)
+    completed_goal_days = sorted(
+        {
+            goal.target_days
+            for goal in user_goals
+            if longest_streak >= goal.target_days
+        }
+    )
+    active_goal = min(
+        (
+            goal
+            for goal in user_goals
+            if longest_streak < goal.target_days
+        ),
+        key=lambda goal: (goal.target_days, goal.goal_id),
+        default=None,
+    )
+    active_goal_days = active_goal.target_days if active_goal is not None else None
+    goal_progress_days = (
+        min(current_streak, active_goal_days)
+        if active_goal_days is not None
+        else 0
+    )
+
+    return (
+        bool(user_goals),
+        active_goal_days,
+        completed_goal_days,
+        goal_progress_days,
+    )
 
 
 def get_period_start(
