@@ -37,7 +37,8 @@ export async function apiRequest<T>(
   if (options.body !== undefined && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
-  if (token) headers.set('Authorization', `Bearer ${token}`);
+  const requestToken = token;
+  if (requestToken) headers.set('Authorization', `Bearer ${requestToken}`);
 
   const response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
     ...options,
@@ -65,7 +66,11 @@ export async function apiRequest<T>(
       : response.status === 422 && Array.isArray(body.detail)
         ? 'Перевір правильність заповнених полів.'
         : `Помилка сервера (${response.status})`;
-    if (response.status === 401 || (response.status === 403 && code === 'ACCOUNT_BLOCKED')) {
+    if (
+      requestToken !== null &&
+      requestToken === token &&
+      (response.status === 401 || (response.status === 403 && code === 'ACCOUNT_BLOCKED'))
+    ) {
       sessionInvalid?.();
     }
     throw new ApiError(response.status, code, message, body.details ?? detail.details ?? null);
