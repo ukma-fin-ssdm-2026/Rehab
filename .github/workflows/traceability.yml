@@ -2,9 +2,9 @@ name: Lab07 Traceability
 
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
   pull_request:
-    branches: [develop, main]
+    branches: [main]
 
 permissions:
   contents: read

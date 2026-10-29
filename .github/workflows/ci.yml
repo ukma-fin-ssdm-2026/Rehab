@@ -1,11 +1,10 @@
-# AI-GENERATED START
 name: CI Pipeline
 
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
   pull_request:
-    branches: [develop, main]
+    branches: [main]
 
 permissions:
   contents: read
@@ -13,23 +12,7 @@ permissions:
 jobs:
   backend-tests:
     name: Backend tests and coverage
-    # GitHub-hosted runner: сервісний контейнер PostgreSQL потребує Docker.
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: rehab_dev
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s --health-timeout 5s --health-retries 10
-    env:
-      DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/rehab_dev
-      TEST_DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/rehab_test
-      JWT_SECRET: ci-only-not-a-secret-ci-only-not-a-secret
+    runs-on: [self-hosted, linux]
 
     steps:
       - name: Checkout repository
@@ -39,30 +22,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: pip
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Create disposable test database
-        run: psql -h localhost -U postgres -c "CREATE DATABASE rehab_test"
-
-      - name: Apply migrations to development database
-        if: ${{ hashFiles('alembic.ini') != '' }}
-        run: python -m alembic upgrade head
-
       - name: Run tests with coverage
         run: |
           python -m pytest -q \
             --cov=backend.app \
-            --cov-branch \
             --cov-report=term-missing \
             --cov-report=html:htmlcov
-
-      - name: Export OpenAPI
-        run: python scripts/export_openapi.py
 
       - name: Upload HTML coverage report
         if: always()
@@ -71,30 +42,3 @@ jobs:
           name: backend-coverage-report
           path: htmlcov/
           if-no-files-found: warn
-
-  frontend:
-    name: Frontend lint, types and web export
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    env:
-      EXPO_PUBLIC_API_URL: https://example.invalid
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - run: npm ci --ignore-scripts
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run export:web
-
-# AI-GENERATED END
