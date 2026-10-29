@@ -20,7 +20,7 @@
 
 ## Софія — що потрібно для запуску
 
-- Додати `auth.router` до `backend/app/main.py` під `API_PREFIX`; реєстрація й логін не підключаються автоматично.
+- У [PR №183](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/183) Софія вже запропонувала підключення `auth.router` під `API_PREFIX`. **До злиття PR №183 у `develop`** головний `backend/app/main.py` ще не реєструє auth-маршрути; після злиття перевірити їх на головному app.
 - `PyJWT`, `pwdlib[argon2]`, SQLAlchemy та `psycopg` уже є в спільному `requirements.txt` з зафіксованими версіями; підтверджено встановлення в CI.
 - Налаштувати `JWT_SECRET` тільки в середовищі; **ніколи** не додавати значення секрету у Git чи публічний Expo env.
 - Налаштувати CORS для опублікованого клієнта і `POST`/інші методи, CI для інтеграційних тестів; додати `/admin/users` для ролі admin.
@@ -30,17 +30,26 @@
 - [Issue №179 — auth.router, Python-залежності та CI](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/179) — Софія.
 - [Issue №180 — PostgreSQL, Alembic і get_db](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/180) — основа Поліни вже злита через PR №182; issue залишається відкритим до завершення наскрізної інтеграції.
 - [PR №178 — форматування backend авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/178) — злитий у `develop`; локальні Black, Flake8 і 44 auth-тести пройшли.
-- [PR №185 — PostgreSQL-тести авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/185) — очікує review. На head `afe43d6` CI: **258 passed, 1 warning, backend coverage 94%**, Code Quality і Lab07 Traceability — зелені. Ціль покриття 95% ще не підтверджена.
+- [PR №185 — PostgreSQL-тести авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/185) — **злитий у `develop`**. На останньому коміті PR `fb3913c` CI: **258 passed, 1 warning, backend coverage 94%**, Code Quality і Lab07 Traceability — зелені. Ціль покриття 95% ще не підтверджена.
+
+## Що має зафіксувати відповідальна за командну перевірку КТ1
+
+- [x] PostgreSQL, єдина міграція `0001_initial`, JWT та Argon2 перевірені в CI для тестового FastAPI app (PR №182, №185).
+- [x] Дублі email, відмова в підвищенні ролі, підроблений токен, ізоляція акаунтів і відкликання сесій покриті PostgreSQL-тестами (PR №185).
+- [ ] Після злиття PR №183 перевірити, що головний `backend.app.main:app` віддає `/api/v1/auth/register`, `/login`, `/me`, `/logout` без окремого тестового застосунку.
+- [ ] Виконати основним app наскрізний сценарій із test/dev PostgreSQL: реєстрація → вхід → власний календар → ціль і статистика → адмінське блокування (403) → вихід (старий JWT — 401).
+- [ ] Звірити браузерний login/onboarding/profile/logout, збереження токена лише у вкладці та сценарії 401/403.
+- [ ] Після злиття всіх командних PR отримати green CI на тому самому коміті `develop`, який піде на review до `main`; результати й дату зафіксувати в релізному PR.
 
 ## Перевірки перед інтеграцією
 
 - На локальній Windows-копії Rehab шість auth-test файлів: **44 passed, 1 warning**, включно з `pwdlib`/Argon2. TypeScript і web export пройшли; ESLint власних файлів авторизації пройшов. Повний Expo lint мав помилки в інших вкладках.
-- У GitHub Actions із тестовою PostgreSQL: **258 passed, 1 warning in 31.04s**, покриття backend **94%** (PR №185); це тестування ізольованих маршрутів та модулів, а не підтвердження повного запуску головного застосунку.
+- У GitHub Actions із тестовою PostgreSQL: **258 passed, 1 warning in 32.44s**, покриття backend **94%** на останньому коміті PR №185 (CI run 40890740429); це тестування окремого інтеграційного app і модулів, а не підтвердження повного запуску головного застосунку.
 - `python -m pytest tests/test_auth.py tests/test_auth_revocation.py tests/test_auth_schema_contract.py tests/test_auth_schema_boundaries.py tests/test_auth_routes_unit.py tests/test_security_dependency.py -q`.
 - У `tests/test_calendar_auth_postgres.py` та `tests/test_auth_postgres.py` перевіряються реальна реєстрація з Argon2, вхід, `/me`, ізоляція акаунтів, вихід і старі JWT, блокування та недійсність попереднього токена після розблокування, дубль email і заборона реєстрації ролі admin. Це ще треба перевірити через **головний** `app` після підключення маршрутів Софією.
 - У `frontend`: `npm ci`, `npx tsc --noEmit`, `npx expo lint`, `npx expo export --platform web`. Перевірити прямі URL, reload і мобільний браузер.
 
-Тут розрізнено фактичні результати перевірок модулів та незавершену інтеграцію основного застосунку. PR №185 не змінює `backend/app/main.py`, `requirements.txt`, CI чи файли інших учасниць.
+Тут розрізнено фактичні результати перевірок модулів та незавершену інтеграцію основного застосунку. Ця документаційна зміна не змінює `backend/app/main.py`, `requirements.txt`, CI чи файли інших учасниць.
 
 ## Передача моделі загроз авторизації
 
