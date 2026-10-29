@@ -13,7 +13,6 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
-  // Two-step action: Alert buttons are not shown by react-native-web.
   const [confirmId, setConfirmId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
