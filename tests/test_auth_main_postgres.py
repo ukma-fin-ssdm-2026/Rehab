@@ -157,4 +157,5 @@ def test_main_app_isolates_accounts_and_admin_revokes_session(
     assert unblock.status_code == 200, unblock.text
     assert main_api.get(f"{API}/auth/me", headers=second_headers).status_code == 401
     assert main_api.get(f"{API}/auth/me", headers=first_headers).status_code == 200
-    assert main_api.get(f"{API}/auth/me", headers=login(main_api, second["email"])).status_code == 200
+    fresh_headers = login(main_api, second["email"])
+    assert main_api.get(f"{API}/auth/me", headers=fresh_headers).status_code == 200
