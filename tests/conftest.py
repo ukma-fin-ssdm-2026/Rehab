@@ -220,7 +220,7 @@ def prototype_api(authenticated_calendar, registered_users):
     owner, headers = registered_users[0]
     _, other_headers = registered_users[1]
     stubs.reset()
-    for records in (stubs.entries, stubs.goals):
+    for records in (stubs.entries,):
         for record_id, record in list(records.items()):
             records[record_id] = record.model_copy(update={"user_id": owner["user_id"]})
     start = next(iter(stubs.tracking_start_dates.values()))

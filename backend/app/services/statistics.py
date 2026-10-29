@@ -6,7 +6,7 @@
 
 import datetime as dt
 from collections.abc import Iterable
-from typing import Literal, Protocol
+from typing import Literal
 
 from backend.app.models import DayStatus, EntryOut, TriggerCategory
 from backend.app.services.sobriety import count_sober_days
@@ -14,44 +14,19 @@ from backend.app.services.sobriety import count_sober_days
 StatisticsPeriod = Literal["all", "week", "month", "year"]
 
 VALID_PERIODS = ("all", "week", "month", "year")
-
-
-class GoalProgressInput(Protocol):
-    """Мінімальні поля цілі, потрібні для розрахунку прогресу."""
-
-    goal_id: int
-    target_days: int
-
-
-def calculate_single_goal_progress(
-    *,
-    current_streak: int,
-    longest_streak: int,
-    target_days: int,
-) -> tuple[bool, int]:
-    """Повертає ознаку історичного виконання та прогрес однієї цілі."""
-
-    if not 1 <= target_days <= 3650:
-        raise ValueError("Ціль має бути від 1 до 3650 днів")
-    if current_streak < 0 or longest_streak < current_streak:
-        raise ValueError("Некоректні показники серії тверезості")
-
-    is_achieved = longest_streak >= target_days
-    progress_days = target_days if is_achieved else min(current_streak, target_days)
-    return is_achieved, progress_days
+FIXED_GOAL_DAYS = (7, 30)
 
 
 def calculate_goal_progress(
     *,
     current_streak: int,
     longest_streak: int,
-    goals: Iterable[GoalProgressInput],
 ) -> tuple[bool, int | None, list[int], int]:
-    """Обчислює особисті цілі за поточною та найдовшою серіями.
+    """Обчислює фіксовані етапи 7 і 30 днів.
 
     Історичне виконання визначається за найдовшою серією, а видимий
-    прогрес активної цілі — за поточною. Кілька цілей з однаковою
-    кількістю днів утворюють один елемент у переліку досягнень.
+    прогрес активного етапу — за поточною. Етапи належать застосунку,
+    тому їх наявність не залежить від записів у таблиці цілей.
     """
 
     if current_streak < 0 or longest_streak < 0:
@@ -59,22 +34,19 @@ def calculate_goal_progress(
     if current_streak > longest_streak:
         raise ValueError("Поточна серія не може перевищувати рекорд")
 
-    user_goals = list(goals)
     completed_goal_days = sorted(
-        {goal.target_days for goal in user_goals if longest_streak >= goal.target_days}
+        days for days in FIXED_GOAL_DAYS if longest_streak >= days
     )
-    active_goal = min(
-        (goal for goal in user_goals if longest_streak < goal.target_days),
-        key=lambda goal: (goal.target_days, goal.goal_id),
-        default=None,
+    active_goal_days = next(
+        (days for days in FIXED_GOAL_DAYS if longest_streak < days),
+        None,
     )
-    active_goal_days = active_goal.target_days if active_goal is not None else None
     goal_progress_days = (
         min(current_streak, active_goal_days) if active_goal_days is not None else 0
     )
 
     return (
-        bool(user_goals),
+        True,
         active_goal_days,
         completed_goal_days,
         goal_progress_days,
@@ -140,7 +112,6 @@ def calculate_statistics(
     tracking_start_date: dt.date,
     today: dt.date,
     entries: Iterable[EntryOut],
-    goals: Iterable[GoalProgressInput] = (),
     period: StatisticsPeriod = "all",
 ) -> dict[str, object]:
     """Обчислює статистику за погодженим API-контрактом.
@@ -198,7 +169,6 @@ def calculate_statistics(
         calculate_goal_progress(
             current_streak=current_streak,
             longest_streak=longest_streak,
-            goals=goals,
         )
     )
 
@@ -223,9 +193,7 @@ def get_days_remaining(sober_days: int) -> int:
     if sober_days < 0:
         raise ValueError("Кількість тверезих днів не може бути від'ємною")
 
-    goals = (7, 30)
-
-    for goal in goals:
+    for goal in FIXED_GOAL_DAYS:
         if sober_days < goal:
             return goal - sober_days
 
