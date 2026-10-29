@@ -1,18 +1,17 @@
 import { Stack } from 'expo-router';
 import { AuthProvider, useAuth } from '../auth/AuthProvider';
-import { ScreenState } from '../components/ui/ScreenState';
 
 function ProtectedNavigation() {
   const { user, loading } = useAuth();
-  if (loading) return <ScreenState state="loading" message="Перевіряємо сесію…" />;
+  // Keep Stack mounted while checking storage, as recommended by Expo Router.
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Protected guard={!user}>
+      <Stack.Protected guard={!loading && !user}>
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
       </Stack.Protected>
-      <Stack.Protected guard={!!user && user.role !== 'admin'}>
+      <Stack.Protected guard={!loading && !!user && user.role !== 'admin'}>
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="add-entry" />
