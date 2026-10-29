@@ -16,12 +16,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from backend.app import security
-from backend.app.db.base import Base
-from backend.app.db.models.user import User
-from backend.app.main import http_exception_handler, validation_exception_handler
-from backend.app.models import DayStatus, EntryOut, TriggerCategory
-from backend.app.routers import admin
+pytest.importorskip(
+    "backend.app.db.base",
+    reason="DB-шар (PR Поліни) ще не в цій гілці; тест виконається після його злиття",
+)
+
+from backend.app import security  # noqa: E402
+from backend.app.db.base import Base  # noqa: E402
+from backend.app.db.models.user import User  # noqa: E402
+from backend.app.main import (  # noqa: E402
+    http_exception_handler,
+    validation_exception_handler,
+)
+from backend.app.models import DayStatus, EntryOut, TriggerCategory  # noqa: E402
+from backend.app.routers import admin  # noqa: E402
 
 SECRET = "admin-test-secret-at-least-32-characters-long"
 

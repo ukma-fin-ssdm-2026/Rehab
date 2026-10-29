@@ -20,15 +20,15 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: rehab_dev
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
-      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/rehab_dev
-      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/rehab_test
+      DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/rehab_dev
+      TEST_DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/rehab_test
       JWT_SECRET: ci-only-not-a-secret-ci-only-not-a-secret
 
     steps:
@@ -47,7 +47,7 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Create disposable test database
-        run: PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE rehab_test"
+        run: psql -h localhost -U postgres -c "CREATE DATABASE rehab_test"
 
       - name: Apply migrations to development database
         if: ${{ hashFiles('alembic.ini') != '' }}
@@ -92,7 +92,7 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run lint
       - run: npx tsc --noEmit
       - run: npx expo export --platform web
