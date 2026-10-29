@@ -1,24 +1,46 @@
+"""API-тести особистих цілей на PostgreSQL."""
+
+import datetime as dt
 
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app import stubs
+from backend.app.core.clock import today_local, utc_now
+from backend.app.db.models.entry import DayRecord
+from backend.app.db.models.user import User
 from backend.app.main import app
-from backend.app.models import GoalOut
-from backend.app.security import CurrentUser, get_current_user
+from backend.app.repositories.goals import create_goal as add_goal
+from backend.app.security import CurrentUser, _db_session, get_current_user
 
 client = TestClient(app)
 API_URL = "/api/v1/goals"
-AUTH_HEADERS = {"Authorization": "Bearer user-42"}
+AUTH_HEADERS = {"Authorization": "Bearer integration-test"}
 
 
 @pytest.fixture(autouse=True)
-def reset_test_data():
-    stubs.reset()
-    app.dependency_overrides[get_current_user] = lambda: CurrentUser(42, "user")
+def reset_test_data(calendar_db, db_users):
+    owner_id, _ = db_users
+    today = today_local()
+    account = calendar_db.get(User, owner_id)
+    account.tracking_start_date = today - dt.timedelta(days=6)
+    calendar_db.add(
+        DayRecord(
+            user_id=owner_id,
+            date=today - dt.timedelta(days=1),
+            status="relapse",
+            trigger_category="stress",
+            drinks=[],
+            created_at=utc_now(),
+        )
+    )
+    add_goal(calendar_db, owner_id, 30)
+    calendar_db.commit()
+
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(owner_id, "user")
+    app.dependency_overrides[_db_session] = lambda: calendar_db
     yield
     app.dependency_overrides.pop(get_current_user, None)
-    stubs.reset()
+    app.dependency_overrides.pop(_db_session, None)
 
 
 def test_get_existing_goal():
@@ -35,19 +57,17 @@ def test_get_missing_goal():
     assert response.status_code == 404
 
 
-def test_get_other_users_goal():
-    app.dependency_overrides[get_current_user] = lambda: CurrentUser(43, "user")
+def test_get_other_users_goal(db_users):
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(db_users[1], "user")
     response = client.get(
         f"{API_URL}/1",
-        headers={"Authorization": "Bearer user-43"},
+        headers={"Authorization": "Bearer other-integration-test"},
     )
     assert response.status_code == 404
 
 
-def test_create_goal():
-    response = client.post(
-        API_URL, headers=AUTH_HEADERS, json={"target_days": 7}
-    )
+def test_create_goal(db_users):
+    response = client.post(API_URL, headers=AUTH_HEADERS, json={"target_days": 7})
     assert response.status_code == 201
     assert response.json()["target_days"] == 7
     assert response.json()["is_achieved"] is False
@@ -69,9 +89,7 @@ def test_create_goal_checks_existing_history():
 
 @pytest.mark.parametrize("days", [0, -1, 3651, True, 10.5, "10"])
 def test_create_goal_invalid_days(days):
-    response = client.post(
-        API_URL, headers=AUTH_HEADERS, json={"target_days": days}
-    )
+    response = client.post(API_URL, headers=AUTH_HEADERS, json={"target_days": days})
     assert response.status_code == 422
 
 
@@ -86,19 +104,10 @@ def test_create_goal_rejects_server_owned_fields(field):
     assert response.status_code == 422
 
 
-def test_list_goals_filters_user_and_paginates():
-    stubs.goals[2] = GoalOut(
-        goal_id=2,
-        user_id=42,
-        target_days=10,
-        is_achieved=False,
-    )
-    stubs.goals[3] = GoalOut(
-        goal_id=3,
-        user_id=43,
-        target_days=20,
-        is_achieved=False,
-    )
+def test_list_goals_filters_user_and_paginates(calendar_db, db_users):
+    add_goal(calendar_db, db_users[0], 10)
+    add_goal(calendar_db, db_users[1], 20)
+    calendar_db.commit()
 
     first_page = client.get(API_URL, headers=AUTH_HEADERS, params={"limit": 1})
     second_page = client.get(
@@ -138,11 +147,11 @@ def test_replace_goal():
     assert response.json()["is_achieved"] is False
 
 
-def test_replace_other_users_goal():
-    app.dependency_overrides[get_current_user] = lambda: CurrentUser(43, "user")
+def test_replace_other_users_goal(db_users):
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(db_users[1], "user")
     response = client.put(
         f"{API_URL}/1",
-        headers={"Authorization": "Bearer user-43"},
+        headers={"Authorization": "Bearer other-integration-test"},
         json={"target_days": 60},
     )
     assert response.status_code == 404
