@@ -127,3 +127,60 @@ def test_importing_database_layer_and_openapi_requires_no_database():
     )
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "OK"
+
+
+@pytest.mark.parametrize("scheme", ["postgres", "postgresql"])
+def test_neon_plain_urls_get_the_psycopg_driver(monkeypatch, scheme):
+    config = configure(
+        monkeypatch,
+        f"{scheme}://u:p@ep-x-pooler.eu-central-1.aws.neon.tech/neondb"
+        "?sslmode=require&channel_binding=require",
+        "",
+    )
+    assert config.get_database_url() == (
+        "postgresql+psycopg://u:p@ep-x-pooler.eu-central-1.aws.neon.tech/neondb"
+        "?sslmode=require&channel_binding=require"
+    )
+
+
+def test_migrations_prefer_direct_neon_connection(monkeypatch):
+    config = configure(monkeypatch, "postgresql://u:p@ep-x-pooler.neon.tech/neondb", "")
+    monkeypatch.setenv(
+        "DATABASE_URL_UNPOOLED", "postgresql://u:p@ep-x.neon.tech/neondb"
+    )
+    assert config.get_migration_database_url() == (
+        "postgresql+psycopg://u:p@ep-x.neon.tech/neondb"
+    )
+
+
+def test_migrations_fall_back_to_database_url(monkeypatch):
+    dev = "postgresql+psycopg://dev:secret@localhost:25432/rehab_dev"
+    config = configure(monkeypatch, dev, "")
+    monkeypatch.delenv("DATABASE_URL_UNPOOLED", raising=False)
+    assert config.get_migration_database_url() == dev
+
+
+def test_neon_local_env_file_is_read_after_dot_env(monkeypatch, tmp_path):
+    config = configure(monkeypatch, "", "")
+    monkeypatch.delenv("DATABASE_URL")
+    (tmp_path / ".env.local").write_text(
+        "DATABASE_URL=postgresql://u:p@ep-x.neon.tech/neondb\n"
+    )
+    monkeypatch.setattr(
+        config, "ENV_FILES", (tmp_path / ".env", tmp_path / ".env.local")
+    )
+    assert config.get_database_url() == "postgresql+psycopg://u:p@ep-x.neon.tech/neondb"
+
+
+def test_pooled_neon_engine_disables_prepared_statements(monkeypatch):
+    session = importlib.import_module("backend.app.db.session")
+    calls = {}
+    monkeypatch.setattr(
+        session, "create_engine", lambda url, **kw: calls.setdefault(url, kw)
+    )
+    pooled = "postgresql+psycopg://u:p@ep-x-pooler.neon.tech/neondb"
+    direct = "postgresql+psycopg://u:p@ep-x.neon.tech/neondb"
+    session._engine_for_url.__wrapped__(pooled)
+    session._engine_for_url.__wrapped__(direct)
+    assert calls[pooled]["connect_args"]["prepare_threshold"] is None
+    assert "prepare_threshold" not in calls[direct]["connect_args"]
