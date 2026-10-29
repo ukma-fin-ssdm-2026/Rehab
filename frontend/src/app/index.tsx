@@ -5,11 +5,11 @@ import { Button } from '../components/ui/Button';
 import { ScreenState } from '../components/ui/ScreenState';
 
 export default function Index() {
-  const { user, loading, restoreError, refresh, onboardingPending, signOut } = useAuth();
+  const { user, loading, restoreError, onboardingPending, signOut, retryRestore } = useAuth();
   if (loading) return <ScreenState state="loading" />;
   if (restoreError && !user) {
     return <ScreenState state="error" message="Не вдалося перевірити сесію. Перевір підключення."
-      onRetry={() => { void refresh().catch(() => {}); }} />;
+      onRetry={() => { void retryRestore(); }} />;
   }
   if (!user) return <Redirect href="/login" />;
   if (user.role === 'admin') {
