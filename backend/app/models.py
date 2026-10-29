@@ -259,7 +259,9 @@ class GoalMilestoneOut(BaseModel):
 
     target_days: int = Field(..., ge=1, description="Тривалість етапу в днях.")
     is_achieved: bool = Field(..., description="Чи досягнуто етап за найкращою серією.")
-    progress_days: int = Field(..., ge=0, description="Поточний прогрес, обмежений етапом.")
+    progress_days: int = Field(
+        ..., ge=0, description="Поточний прогрес, обмежений етапом."
+    )
 
     @model_validator(mode="after")
     def progress_does_not_exceed_target(self) -> "GoalMilestoneOut":
