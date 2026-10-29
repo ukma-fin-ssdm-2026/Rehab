@@ -1,5 +1,3 @@
-
-import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,55 +6,16 @@ import {
   Text,
   View,
 } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
-import { apiRequest } from '../../api/client';
+import { router } from 'expo-router';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS } from '../../constants/goals';
 
-type Statistics = {
-  total_sober_days: number;
-  current_streak: number;
-  longest_streak: number;
-  active_goal_days: number | null;
-  completed_goal_days: number[];
-  goal_progress_days: number;
-};
-
 export default function HomeScreen() {
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, reload: loadStatistics } = useProgressStatistics();
   const completedGoals = data?.completed_goal_days ?? [];
-  const activeGoal =
-    FIXED_GOAL_DAYS.find((days) => !completedGoals.includes(days)) ?? null;
-  const goalProgress = activeGoal === null
-    ? 0
-    : Math.min(data?.current_streak ?? 0, activeGoal);
-
-  const loadStatistics = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      setData(await apiRequest<Statistics>('/statistics?period=all'));
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити статистику',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadStatistics();
-  }, [loadStatistics]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadStatistics();
-    }, [loadStatistics]),
-  );
+  const activeGoal = FIXED_GOAL_DAYS.find(days => !completedGoals.includes(days)) ?? null;
+  const goalProgress = activeGoal === null ? 0 : Math.min(data?.current_streak ?? 0, activeGoal);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -65,6 +24,8 @@ export default function HomeScreen() {
       <Text style={styles.subtitle}>
         Кожен день — це твій власний крок уперед.
       </Text>
+
+      <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
 
       {loading && (
         <View style={styles.message}>
