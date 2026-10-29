@@ -1,5 +1,6 @@
 @startuml
-title Реалізовані компоненти Rehab — КТ1 / календар КТ2
+!pragma layout smetana
+title Реалізовані компоненти Rehab — реліз КТ3
 component "Expo Web\nКалендар / деталі / форми" as Front
 component "apiRequest\nJWT поточної сесії" as Client
 package "FastAPI" {
@@ -9,7 +10,7 @@ package "FastAPI" {
  component "progress_sync\nперерахунок у транзакції" as Progress
  component "Repositories / SQLAlchemy" as Repo
 }
-database "PostgreSQL\nusers, day_records, goals\nНапої: JSONB" as DB
+database "PostgreSQL\nusers, day_records\ngoals: legacy, не використовується\nНапої: JSONB" as DB
 Front --> Client
 Client --> Auth : HTTPS / JSON
 Client --> Calendar : JWT

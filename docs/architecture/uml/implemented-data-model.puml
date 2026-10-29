@@ -1,5 +1,6 @@
 @startuml
-title Rehab: implemented PostgreSQL schema — KT1 / calendar KT2
+!pragma layout smetana
+title Rehab: фактична схема PostgreSQL — КТ3
 entity users {
   * user_id : integer <<identity, PK>>
   --
@@ -31,7 +32,7 @@ entity goals {
   * goal_id : integer <<identity, PK>>
   --
   user_id : integer <<FK>>
-  target_days : integer [legacy, ignored by application]
+  target_days : integer [CHECK 1..3650, legacy]
   is_achieved : boolean
   created_at : timestamptz
   updated_at : timestamptz
@@ -39,7 +40,8 @@ entity goals {
 users ||--o{ day_records
 users ||--o{ goals : legacy schema only
 note bottom
-Mentorship, notifications and complaints are planned, not created by this migration.
-User and Goal ORM models are owned by Anastasiia and Mariia respectively.
+MentorRequest, Notification, Complaint не створені міграцією.
+goals збережена для сумісності, її рядки застосунок не використовує.
+Етапи 7/30 обчислюються з календаря.
 end note
 @enduml

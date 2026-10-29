@@ -1,26 +1,25 @@
 @startuml
-title Діаграма розгортання системи "Рехаб"
-
-rectangle "ТВ-1: Клієнтська зона (недовірена)" {
-  node "Користувацький пристрій" {
-    component "Web Browser" as Browser
-  }
+!pragma layout smetana
+title Rehab — фактичне публічне розгортання
+node "Пристрій користувача\nБраузер / iPhone Safari" as Device {
+ component "Expo Web у браузері\nJWT: sessionStorage вкладки" as Browser
 }
-
-rectangle "ТВ-2: Серверна зона (довірена)" {
-  node "Сервер застосунку" {
-    component "Web Frontend" as Front
-    component "REST API Backend\n(Layered Monolith,\nAuth/RBAC, Rate Limiting)" as API
-  }
+node "Render" {
+ artifact "rehab-web-b9d5.onrender.com\nСтатичні файли Expo Web" as Front
+ component "rehab-api-0na0.onrender.com\nFastAPI / JWT / RBAC / CORS" as API
 }
-
-rectangle "ТВ-3: Зона зберігання даних" {
-  node "Сервер БД" {
-    database "PostgreSQL" as DB
-  }
+node "Neon" {
+ database "PostgreSQL 18\nneondb" as DB
 }
-
-Browser --> Front : HTTPS
-Front --> API : REST API / JSON\n(JWT)
-API --> DB : SQL (TLS,\nConnection Pool)
+Browser --> Front : HTTPS: завантажити frontend
+Browser --> API : HTTPS / JSON / Bearer JWT
+API --> DB : PostgreSQL / TLS\npsycopg + pool
+note bottom of API
+ health / ready; API не скидає БД при старті.
+ Render Free може присипляти API.
+end note
+note bottom of DB
+ Локальні dev/test: окремі PostgreSQL 16 у Compose.
+ Секрети — у середовищі, не в репозиторії.
+end note
 @enduml

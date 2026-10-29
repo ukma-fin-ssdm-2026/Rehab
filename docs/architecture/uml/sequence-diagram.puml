@@ -1,34 +1,41 @@
 @startuml
-title Фіксація зриву (критичний сценарій)
-
+title Rehab — створення календарного запису
 actor "Користувач" as User
-participant "Web Frontend" as Front
-participant "Backend API\n(Auth + Services)" as Back
+participant "Expo Web" as Front
+participant "calendar_postgres" as API
+participant "get_current_user" as Auth
+participant "entries / progress_sync" as Service
 database "PostgreSQL" as DB
-actor "Ментор" as Mentor
-
-User -> Front : Відмічає зрив\n(статус, категорія тригера)
-Front -> Back : POST /day-records\n(JWT у заголовку)
-Back -> Back : Перевірка JWT і ролі
-
-alt токен недійсний
-  Back --> Front : 401 Unauthorized
-  Front --> User : Потрібно увійти знову
-else токен дійсний
-  Back -> Back : Валідація даних\n(перевірка 48 год за created_at)
-  Back -> DB : INSERT DayRecord
-  DB --> Back : Запис збережено
-  Back -> DB : INSERT Notification\n(для ментора підопічного)
-  DB --> Back : Сповіщення збережено
-  Back --> Front : 201 Created
-  Front --> User : Показує результат
+User -> Front : Зберегти sober / relapse
+Front -> API : POST /api/v1/calendar/entries\nBearer JWT, date/status/trigger/drinks/comment
+API -> Auth : Перевірити JWT та блокування
+alt сесія недійсна / користувач заблокований
+ Auth --> API : 401 / 403 ACCOUNT_BLOCKED
+ API --> Front : Помилка авторизації
+ Front --> User : Вхід і повернення до запису, якщо є допустиме посилання
+else користувач активний
+ Auth --> API : CurrentUser
+ API -> Service : create_entry(db, user_id, body)
+ Service -> DB : Блокування users; перевірка дат; INSERT day_records; flush
+ alt дата недопустима / дублікат
+  API -> DB : ROLLBACK
+  API --> Front : 422 / 409 ENTRY_ALREADY_EXISTS
+ else запис допустимий
+  API -> Service : recompute_progress(db, user_id, today_local())
+  Service -> DB : Прочитати календар; оновити кеш best_streak
+  alt помилка перерахунку
+   API -> DB : ROLLBACK
+   API --> Front : Помилка; запис не збережено
+  else успіх
+   API -> DB : COMMIT
+   API --> Front : 201 EntryOut
+   Front -> Front : Сповістити екрани прогресу; відкрити деталі
+   Front --> User : Збережений запис
+  end
+ end
 end
-
-... пізніше ...
-Mentor -> Front : Відкриває застосунок
-Front -> Back : GET /notifications (JWT)
-Back -> DB : SELECT Notification
-DB --> Back : Сповіщення
-Back --> Front : Список сповіщень
-Front --> Mentor : Показує сповіщення про зрив
+note over API
+  PATCH перевіряє 48 годин від created_at (UTC).
+  Створення перевіряє дату, а не вікно редагування.
+end note
 @enduml
