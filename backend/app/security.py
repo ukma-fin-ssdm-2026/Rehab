@@ -1,8 +1,3 @@
-"""JWT access control shared by Rehab routers.
-
-Database infrastructure is supplied by the database workstream. No database
-connection is created while importing this module (OpenAPI export remains safe).
-"""
 import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -73,7 +68,6 @@ def decode_access_token(token: str) -> tuple[int, int]:
 
 
 def _db_session():
-    """Delegates to Polina's per-request Session dependency once integrated."""
     from backend.app.db.session import get_db
     yield from get_db()
 
