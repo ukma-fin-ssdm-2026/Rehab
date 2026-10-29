@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { theme } from '../constants/theme';
+import { useAuth } from '../auth/AuthProvider';
 
 const options = [
   'Хочу краще розуміти свої звички',
@@ -18,6 +19,7 @@ const options = [
 ];
 
 export default function OnboardingScreen() {
+  const { finishOnboarding } = useAuth();
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -27,6 +29,7 @@ export default function OnboardingScreen() {
       return;
     }
 
+    finishOnboarding();
     router.replace('/(tabs)/home');
   }
 
