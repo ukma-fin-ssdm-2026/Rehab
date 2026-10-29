@@ -399,6 +399,7 @@ npx tsc --noEmit
 
 - [PROGRESS.md](PROGRESS.md) — прогрес розробки, інтеграція Backend і Frontend, реалізовані можливості та обмеження.
 - [setup_and_run.md](setup_and_run.md) — встановлення залежностей, запуск застосунку та перевірка роботи.
+- <!-- AI-GENERATED START -->[docs/deployment/render-neon.md](docs/deployment/render-neon.md) — онлайн-розгортання (Render + Neon), статус: конфіг підготовлено, не перевірено<!-- AI-GENERATED END -->
 - [Labs/](Labs/) — матеріали лабораторних робіт і демонстраційні відео.
 
 ## 13. CI/CD та доступні ресурси
