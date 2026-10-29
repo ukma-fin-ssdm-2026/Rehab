@@ -23,8 +23,7 @@ services:
 
   - type: web
     name: rehab-web
-    runtime: static
-    plan: free
+    runtime: static # статичні сайти Render безкоштовні, поле plan не підтримують
     rootDir: frontend
     buildCommand: npm ci && npm run export:web
     staticPublishPath: dist
