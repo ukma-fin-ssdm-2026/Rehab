@@ -201,3 +201,50 @@ def calendar_regression_data(calendar_contract_api, registered_users, calendar_d
         old_id=old.record_id,
         db=calendar_db,
     )
+
+
+@pytest.fixture
+def prototype_api(authenticated_calendar, registered_users):
+    """Legacy goal/statistics regression with real auth and explicit stub data.
+
+    This preserves prototype behavior until Mariia migrates those modules; it
+    does not claim that their data is stored in PostgreSQL.
+    """
+    from fastapi import FastAPI, HTTPException
+    from fastapi.exceptions import RequestValidationError
+    from fastapi.testclient import TestClient
+    from backend.app import stubs
+    from backend.app.main import http_exception_handler, validation_exception_handler
+    from backend.app.routers import calendar, goals, statistics
+
+    owner, headers = registered_users[0]
+    _, other_headers = registered_users[1]
+    stubs.reset()
+    for records in (stubs.entries, stubs.goals):
+        for record_id, record in list(records.items()):
+            records[record_id] = record.model_copy(update={"user_id": owner["user_id"]})
+    start = next(iter(stubs.tracking_start_dates.values()))
+    stubs.tracking_start_dates.clear()
+    stubs.tracking_start_dates[owner["user_id"]] = start
+
+    application = FastAPI()
+    application.add_exception_handler(HTTPException, http_exception_handler)
+    application.add_exception_handler(
+        RequestValidationError, validation_exception_handler
+    )
+    for module in (calendar, goals, statistics):
+        application.include_router(module.router, prefix="/api/v1")
+    # Only SQL connection routing is overridden; token validation stays real.
+    application.dependency_overrides.update(
+        authenticated_calendar.app.dependency_overrides
+    )
+    try:
+        with TestClient(application) as client:
+            yield SimpleNamespace(
+                client=client,
+                headers=headers,
+                other_headers=other_headers,
+                user_id=owner["user_id"],
+            )
+    finally:
+        stubs.reset()
