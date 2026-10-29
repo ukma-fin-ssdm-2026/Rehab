@@ -47,8 +47,20 @@ function createAuth(loginUser, registerUser = async () => undefined) {
   vm.runInNewContext(transpiled, {
     exports: exported,
     module: { exports: exported },
-    window: { sessionStorage },
+    window: { sessionStorage, location: { pathname: '/' } },
     require: name => {
+      if (name === './onboardingSession' || name === './returnEntry') {
+        const helperFile = path.join(__dirname, '..', 'src', 'auth', `${name.slice(2)}.ts`);
+        const helperSource = fs.readFileSync(helperFile, 'utf8');
+        const helperOutput = ts.transpileModule(helperSource, {
+          compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+        }).outputText;
+        const helperExports = {};
+        vm.runInNewContext(helperOutput, {
+          exports: helperExports, module: { exports: helperExports },
+        });
+        return helperExports;
+      }
       if (name === 'react') return react;
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
       if (name === 'react-native') return { Platform: { OS: 'web' } };
