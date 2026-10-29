@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from '../auth/AuthProvider';
 
 function ProtectedNavigation() {
   const { user, loading } = useAuth();
-  // Keep Stack mounted while checking storage, as recommended by Expo Router.
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
