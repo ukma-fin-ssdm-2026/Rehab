@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../auth/AuthProvider';
 import { ApiError } from '../api/client';
 import { Button } from '../components/ui/Button';
@@ -9,6 +9,7 @@ import { theme } from '../constants/theme';
 
 export default function LoginScreen() {
   const { user, signIn } = useAuth();
+  const { logout } = useLocalSearchParams<{ logout?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,8 +24,8 @@ export default function LoginScreen() {
     setSaving(true);
     setError('');
     try {
-      const account = await signIn(email, password);
-      router.replace(account.role === 'admin' ? ('/admin/users' as never) : '/(tabs)/home');
+      await signIn(email, password);
+      router.replace('/');
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : 'Не вдалося зв’язатися із сервером.');
     } finally {
@@ -38,6 +39,11 @@ export default function LoginScreen() {
         <Text style={styles.brand}>Rehab</Text>
         <Text style={styles.title}>Раді тебе бачити</Text>
         <Text style={styles.subtitle}>Увійди, щоб продовжити свій шлях до змін.</Text>
+        {logout === 'local' ? (
+          <Text style={styles.error} accessibilityRole="alert">
+            Локальний вихід виконано, але сервер не підтвердив завершення сесії.
+          </Text>
+        ) : null}
         <View style={styles.form}>
           <FormField label="Email" value={email} onChangeText={setEmail}
             keyboardType="email-address" autoCapitalize="none" autoCorrect={false}
