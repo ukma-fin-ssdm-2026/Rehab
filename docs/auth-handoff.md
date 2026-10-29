@@ -25,6 +25,12 @@
 - Налаштувати `JWT_SECRET` тільки в середовищі; **ніколи** не додавати значення секрету у Git чи публічний Expo env.
 - Налаштувати CORS для опублікованого клієнта і `POST`/інші методи, CI для інтеграційних тестів; додати `/admin/users` для ролі admin.
 
+## Відкриті завдання на інтеграцію
+
+- [Issue №179 — auth.router, Python-залежності та CI](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/179) — Софія.
+- [Issue №180 — PostgreSQL, Alembic і get_db](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/180) — Поліна.
+- [PR №178 — форматування backend авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/178): локально перевірено Black (22 файли без змін), Flake8 (без зауважень) і 44 auth-тести (1 попередження). Це не заміняє загальний CI.
+
 ## Перевірки перед інтеграцією
 
 - На локальній Windows-копії Rehab шість auth-test файлів: **44 passed, 1 warning**, включно з тестом `pwdlib`/Argon2. TypeScript і web export пройшли; ESLint файлів авторизації пройшов. Загальний lint ще має помилки в чужих вкладках. Реальна PostgreSQL-інтеграція й наскрізний вхід не перевірені.
@@ -32,7 +38,7 @@
 - Після появи PostgreSQL: реєстрація двох акаунтів → вхід → `/me` → доступ тільки до своїх записів → вихід → старий JWT дає 401 → блокування дає 403 → після розблокування старий JWT не оживає.
 - У `frontend`: `npm ci`, `npx tsc --noEmit`, `npx expo lint`, `npx expo export --platform web`. Перевірити прямі URL, reload і мобільний браузер.
 
-Тут описано контракти й залежності, а не вигадані результати тестування. Файли `main.py`, `requirements.txt`, CI, `docs/validation/*` і `docs/requirements/rtm.md` ця гілка не змінює.
+Тут описано контракти й залежності, а не вигадані результати тестування. Ця гілка доповнює `docs/requirements/rtm.md`, але не змінює `backend/app/main.py`, `requirements.txt`, CI чи `docs/validation/*`.
 
 ## Передача моделі загроз авторизації
 
