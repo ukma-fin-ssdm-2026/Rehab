@@ -20,7 +20,7 @@ const plain = value => JSON.parse(JSON.stringify(value));
 
 test('calendar client keeps the API contract for list, detail, create and patch', async () => {
   const requests = [];
-  const api = load('api/calendar.ts', { './client': { apiRequest: async (...args) => {
+  const api = load('api/calendar.ts', { '../progress/changes': { notifyProgressChanged() {} }, './client': { apiRequest: async (...args) => {
     requests.push(args); return { record_id: 8 };
   } } });
   await api.listEntries('2026-10-01', '2026-10-31');

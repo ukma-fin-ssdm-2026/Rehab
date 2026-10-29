@@ -1,5 +1,3 @@
-
-import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,41 +6,12 @@ import {
   Text,
   View,
 } from 'react-native';
-import { apiRequest } from '../../api/client';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS } from '../../constants/goals';
 
-type Statistics = {
-  active_goal_days: number | null;
-  completed_goal_days: number[];
-  current_streak: number;
-  goal_progress_days: number;
-  total_sober_days: number;
-};
-
 export default function GoalsScreen() {
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadGoals = useCallback(async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      setData(await apiRequest<Statistics>('/statistics?period=all'));
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити цілі',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadGoals();
-  }, [loadGoals]);
+  const { data, loading, error, reload: loadGoals } = useProgressStatistics();
 
   const completed = data?.completed_goal_days ?? [];
   const activeGoal =
@@ -56,8 +25,10 @@ export default function GoalsScreen() {
       <Text style={styles.eyebrow}>МАЛЕНЬКІ КРОКИ</Text>
       <Text style={styles.title}>Мої цілі</Text>
       <Text style={styles.subtitle}>
-        Не потрібно робити все одразу. Рухайся у власному темпі.
+        Фіксовані етапи 7 і 30 днів за безперервною серією.
       </Text>
+
+      <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
 
       {loading && (
         <View style={styles.message}>
@@ -140,6 +111,9 @@ export default function GoalsScreen() {
                 <View style={styles.goalInfo}>
                   <Text style={styles.goalTitle}>{days} днів</Text>
                   <Text style={styles.goalDescription}>
+                    Прогрес: {isCompleted ? days : Math.min(data.current_streak, days)} із {days} днів
+                  </Text>
+                  <Text style={styles.goalDescription}>
                     {days === 7
                       ? 'Перший тиждень твого шляху'
                       : 'Місяць послідовності та турботи про себе'}
@@ -165,8 +139,7 @@ export default function GoalsScreen() {
           <View style={styles.infoCard}>
             <Text style={styles.infoTitle}>Пам’ятай</Text>
             <Text style={styles.infoText}>
-              Твій прогрес — це не змагання. Навіть маленькі кроки мають
-              значення.
+              Відзнака зберігається після нового зриву. Виправлення минулих записів може змінити рекорд і відзнаки.
             </Text>
           </View>
         </>
