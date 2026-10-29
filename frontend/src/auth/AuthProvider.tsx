@@ -152,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user, refresh]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string, beginOnboarding = false) => {
     const version = ++sessionVersion.current;
     const result = await loginUser(email, password);
     if (version !== sessionVersion.current) {
@@ -161,8 +161,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(result.access_token);
     saveToken(result.access_token);
     setRestoreError(false);
-    setOnboardingPending(false);
-    persistPendingUser(null);
+    setOnboardingPending(beginOnboarding);
+    persistPendingUser(beginOnboarding ? result.user.user_id : null);
     setUser(result.user);
     return result.user;
   }, []);
@@ -173,13 +173,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (version !== sessionVersion.current) {
       throw new Error('Реєстрацію перервано через зміну сесії.');
     }
-    const account = await signIn(data.email, data.password);
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       discardEntryLink(window.sessionStorage);
     }
-    persistPendingUser(account.user_id);
-    setOnboardingPending(true);
-    return account;
+    return signIn(data.email, data.password, true);
   }, [signIn]);
 
   const finishOnboarding = useCallback(() => {
