@@ -1,20 +1,28 @@
 @startuml
-title Діаграма компонентів системи "Рехаб"
-
-component "Web Frontend\n(календар, статистика,\nцілі, менторство)" as Front
-
-package "Backend (Layered Monolith)" {
-  component "Controllers\n(REST API)" as Ctrl
-  component "Auth / RBAC\nMiddleware" as Auth
-  component "Services\n(бізнес-логіка, streak,\nсповіщення, модерація)" as Svc
-  component "Repositories\n(доступ до даних,\nConnection Pool)" as Repo
+title Реалізовані компоненти Rehab — КТ1 / календар КТ2
+component "Expo Web\nКалендар / деталі / форми" as Front
+component "apiRequest\nJWT поточної сесії" as Client
+package "FastAPI" {
+ component "Auth / RBAC" as Auth
+ component "calendar_postgres\nPOST / GET / PATCH" as Calendar
+ component "Цілі / статистика / admin" as Other
+ component "progress_sync\nперерахунок у транзакції" as Progress
+ component "Repositories / SQLAlchemy" as Repo
 }
-
-database "PostgreSQL\n(User, DayRecord, Goal,\nMentorRequest, Notification,\nComplaint)" as DB
-
-Front --> Ctrl : REST API / JSON\n(HTTPS, JWT)
-Ctrl --> Auth : перевірка JWT\nі ролі (user/mentor/admin)
-Ctrl --> Svc : виклик бізнес-логіки
-Svc --> Repo : операції з даними
-Repo --> DB : SQL
+database "PostgreSQL\nusers, day_records, goals\nНапої: JSONB" as DB
+Front --> Client
+Client --> Auth : HTTPS / JSON
+Client --> Calendar : JWT
+Client --> Other : JWT
+Calendar --> Auth : власник
+Calendar --> Progress : POST / PATCH
+Calendar --> Repo
+Progress --> Repo
+Other --> Repo
+Auth --> Repo
+Repo --> DB : psycopg
+note bottom of DB
+ Neon онлайн; окремі dev/test БД Compose локально.
+ Менторство й сповіщення — майбутні компоненти.
+end note
 @enduml

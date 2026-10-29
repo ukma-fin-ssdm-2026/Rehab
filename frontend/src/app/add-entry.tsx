@@ -1,404 +1,103 @@
-
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { router } from 'expo-router';
-import { apiRequest } from '../api/client';
-import { theme } from '../constants/theme';
-
-const drinkTypes = [
-  { label: 'Пиво', value: 'beer' },
-  { label: 'Вино', value: 'wine' },
-  { label: 'Міцний алкоголь', value: 'spirits' },
-  { label: 'Коктейль', value: 'cocktail' },
-  { label: 'Інше', value: 'other' },
-] as const;
-
-type Drink = {
-  id: number;
-  type: (typeof drinkTypes)[number]['value'];
-  volume: string;
-};
-
-function todayString() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+import { useCallback, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { getMyAccount, type UserSession } from '../api/auth';
+import { createEntry, type DayStatus, type TriggerCategory } from '../api/calendar';
+import { drinkTypes, entryPayload, type DraftDrink } from '../calendar/rules';
+import { StatusFields } from '../calendar/StatusFields';
+import { styles } from '../calendar/styles';
 
 export default function AddEntryScreen() {
-  const [date, setDate] = useState(todayString());
-  const [drinks, setDrinks] = useState<Drink[]>([
-    { id: 1, type: 'beer', volume: '' },
-  ]);
+  const params = useLocalSearchParams<{ date?: string }>();
+  const [date, setDate] = useState(typeof params.date === 'string' ? params.date : '');
+  const [account, setAccount] = useState<UserSession | null>(null);
+  const [status, setStatus] = useState<DayStatus>('sober');
+  const [trigger, setTrigger] = useState<TriggerCategory | null>(null);
+  const [drinks, setDrinks] = useState<DraftDrink[]>([]);
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const [attempt, setAttempt] = useState(0);
 
-  function updateDrink(id: number, changes: Partial<Drink>) {
-    setDrinks((current) =>
-      current.map((drink) =>
-        drink.id === id ? { ...drink, ...changes } : drink,
-      ),
-    );
-  }
-
-  function addDrink() {
-    setDrinks((current) => [
-      ...current,
-      { id: Date.now(), type: 'beer', volume: '' },
-    ]);
-  }
-
-  function removeDrink(id: number) {
-    setDrinks((current) => current.filter((drink) => drink.id !== id));
-  }
-
-  async function saveEntry() {
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    setLoading(true);
     setError('');
+    getMyAccount().then(user => {
+      if (active) { setAccount(user); setDate(value => value || user.current_date); }
+    }).catch(err => { if (active) { setAccount(null); setError(err instanceof Error ? err.message : 'Не вдалося завантажити дані.'); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+    // attempt changes only when the user explicitly retries loading.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attempt]));
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      setError('Введи дату у форматі РРРР-ММ-ДД.');
-      return;
-    }
-
-    const [year, month, day] = date.split('-').map(Number);
-    const parsedDate = new Date(year, month - 1, day);
-    const validDate =
-      parsedDate.getFullYear() === year &&
-      parsedDate.getMonth() === month - 1 &&
-      parsedDate.getDate() === day;
-
-    if (!validDate) {
-      setError('Введи коректну дату.');
-      return;
-    }
-
-    if (date > todayString()) {
-      setError('Не можна додати запис на майбутню дату.');
-      return;
-    }
-
-    if (drinks.length === 0) {
-      setError('Додай хоча б один напій.');
-      return;
-    }
-
-    const parsedDrinks = drinks.map((drink) => ({
-      type: drink.type,
-      volume_ml: Number(drink.volume),
-    }));
-
-    if (
-      parsedDrinks.some(
-        (drink) =>
-          !Number.isInteger(drink.volume_ml) || drink.volume_ml <= 0,
-      )
-    ) {
-      setError('Для кожного напою вкажи цілий об’єм у мілілітрах більше нуля.');
-      return;
-    }
-
+  const back = () => router.replace('/(tabs)/calendar');
+  async function save() {
+    if (savingRef.current || !account) return;
+    setError('');
+    savingRef.current = true;
     setSaving(true);
-
     try {
-      await apiRequest('/calendar/entries', {
-        method: 'POST',
-        body: JSON.stringify({
-          date,
-          status: 'relapse',
-          trigger_category: null,
-          drinks: parsedDrinks,
-          comment: comment.trim() || null,
-        }),
-      });
-
-      router.replace('/(tabs)/home');
+      const current = await getMyAccount();
+      setAccount(current);
+      const payload = entryPayload({ date, status, trigger_category: trigger, drinks, comment },
+        current.tracking_start_date, current.current_date);
+      const entry = await createEntry(payload);
+      router.replace({ pathname: '/entry/[record_id]', params: { record_id: entry.record_id } });
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? `Не вдалося зберегти запис: ${err.message}`
-          : 'Не вдалося зберегти запис.',
-      );
-    } finally {
-      setSaving(false);
-    }
+      setError(err instanceof Error ? err.message : 'Не вдалося зберегти запис.');
+    } finally { savingRef.current = false; setSaving(false); }
   }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Pressable onPress={() => router.back()}>
-        <Text style={styles.back}>← Назад</Text>
-      </Pressable>
-
-      <Text style={styles.title}>Новий запис</Text>
-      <Text style={styles.subtitle}>
-        Заповни інформацію без осуду до себе.
-      </Text>
-
+  return <ScrollView contentContainerStyle={styles.container}>
+    <Pressable disabled={saving} onPress={back}><Text style={styles.back}>← Календар</Text></Pressable>
+    <Text style={styles.title}>Новий запис</Text>
+    {loading && <ActivityIndicator accessibilityLabel="Завантаження" />}
+    {account && !loading && <>
       <View style={styles.card}>
         <Text style={styles.label}>Дата</Text>
-        <TextInput
-          value={date}
-          onChangeText={setDate}
-          placeholder="РРРР-ММ-ДД"
-          style={styles.input}
-          maxLength={10}
-          autoCapitalize="none"
-        />
-        <Text style={styles.hint}>Формат: 2026-10-15. Не пізніше сьогодні.</Text>
+        <TextInput accessibilityLabel="Дата запису" value={date} onChangeText={setDate} editable={!saving}
+          placeholder="РРРР-ММ-ДД" style={styles.input} maxLength={10} autoCapitalize="none" />
+        <Text style={styles.hint}>Від {account.tracking_start_date} до {account.current_date} включно.</Text>
       </View>
-
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Напої</Text>
-        <Pressable onPress={addDrink} style={styles.addSmall}>
-          <Text style={styles.addSmallText}>＋ Додати</Text>
-        </Pressable>
-      </View>
-
-      {drinks.map((drink, index) => (
-        <View key={drink.id} style={styles.card}>
-          <View style={styles.drinkHeader}>
-            <Text style={styles.label}>Напій {index + 1}</Text>
-            {drinks.length > 1 && (
-              <Pressable onPress={() => removeDrink(drink.id)}>
-                <Text style={styles.removeText}>Видалити</Text>
-              </Pressable>
-            )}
-          </View>
-
-          <Text style={styles.label}>Тип напою</Text>
-          <View style={styles.typeList}>
-            {drinkTypes.map((item) => {
-              const active = drink.type === item.value;
-              return (
-                <Pressable
-                  key={item.value}
-                  onPress={() => updateDrink(drink.id, { type: item.value })}
-                  style={[styles.typeOption, active && styles.typeActive]}
-                >
-                  <Text
-                    style={[styles.typeText, active && styles.typeTextActive]}
-                  >
-                    {item.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <Text style={styles.label}>Об’єм (мл)</Text>
-          <TextInput
-            value={drink.volume}
-            onChangeText={(value) =>
-              updateDrink(drink.id, {
-                volume: value.replace(/[^0-9]/g, ''),
-              })
-            }
-            placeholder="Наприклад, 330"
-            keyboardType="number-pad"
-            style={styles.input}
-          />
+      <StatusFields status={status} trigger={trigger} disabled={saving} onStatus={setStatus} onTrigger={setTrigger} />
+      {status === 'relapse' && <>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.label}>Напої (необов’язково)</Text>
+          <Pressable disabled={saving} style={styles.addSmall} onPress={() => setDrinks(items => [...items,
+            { id: Date.now(), type: 'beer', volume: '' }])}><Text style={styles.addSmallText}>＋ Додати напій</Text></Pressable>
         </View>
-      ))}
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Коментар (необов’язково)</Text>
-        <TextInput
-          value={comment}
-          onChangeText={setComment}
-          placeholder="Що хочеш зафіксувати?"
-          multiline
-          textAlignVertical="top"
-          style={styles.commentInput}
-        />
+        {drinks.map((drink, index) => <View style={styles.card} key={drink.id}>
+          <Text style={styles.label}>Напій {index + 1}</Text>
+          <Pressable disabled={saving} accessibilityLabel={`Видалити напій ${index + 1}`}
+            onPress={() => setDrinks(items => items.filter(item => item.id !== drink.id))}><Text style={styles.removeText}>Видалити</Text></Pressable>
+          <View style={styles.typeList}>{drinkTypes.map(item => <Pressable key={item.value} disabled={saving}
+            accessibilityRole="radio" accessibilityState={{ checked: drink.type === item.value }}
+            style={[styles.typeOption, drink.type === item.value && styles.typeActive]}
+            onPress={() => setDrinks(items => items.map(value => value.id === drink.id ? { ...value, type: item.value } : value))}>
+            <Text style={styles.typeText}>{item.label}</Text>
+          </Pressable>)}</View>
+          <TextInput accessibilityLabel={`Об’єм напою ${index + 1} (мл)`} placeholder="Об’єм (мл)"
+            keyboardType="number-pad" value={drink.volume} editable={!saving} style={styles.input}
+            onChangeText={volume => setDrinks(items => items.map(item => item.id === drink.id ? { ...item, volume } : item))} />
+        </View>)}
+      </>}
+      <View style={styles.card}><Text style={styles.label}>Коментар (необов’язково)</Text>
+        <TextInput accessibilityLabel="Коментар" value={comment} onChangeText={setComment} editable={!saving}
+          placeholder="Що хочеш зафіксувати?" multiline maxLength={2000} style={styles.commentInput} />
+        <Text style={styles.hint}>До 2000 символів.</Text>
       </View>
-
-      {error ? (
-        <View style={styles.errorBox}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : null}
-
-      <Pressable
-        style={[styles.button, saving && styles.buttonDisabled]}
-        onPress={saveEntry}
-        disabled={saving}
-      >
-        {saving ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.buttonText}>Зберегти запис</Text>
-        )}
-      </Pressable>
-
-      <Pressable
-        style={styles.cancelButton}
-        onPress={() => router.back()}
-        disabled={saving}
-      >
-        <Text style={styles.cancelText}>Скасувати</Text>
-      </Pressable>
-    </ScrollView>
-  );
+    </>}
+    {!!error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
+      {!account && <Pressable onPress={() => setAttempt(value => value + 1)}><Text>Спробувати ще раз</Text></Pressable>}
+    </View>}
+    <Pressable disabled={saving || loading || !account} onPress={save}
+      style={[styles.button, (saving || loading || !account) && styles.buttonDisabled]}>
+      {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Зберегти запис</Text>}
+    </Pressable>
+    <Pressable disabled={saving} onPress={back}><Text style={styles.cancelText}>Скасувати</Text></Pressable>
+  </ScrollView>;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: theme.colors.background,
-    padding: 22,
-    paddingTop: 32,
-    gap: 16,
-  },
-  back: {
-    color: theme.colors.primaryDark,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
-  },
-  subtitle: {
-    color: theme.colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: -10,
-  },
-  card: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: 18,
-    padding: 17,
-    gap: 11,
-  },
-  label: {
-    color: theme.colors.text,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    color: theme.colors.text,
-    paddingHorizontal: 13,
-    fontSize: 15,
-  },
-  hint: {
-    fontSize: 12,
-    lineHeight: 18,
-    color: theme.colors.muted,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
-  },
-  addSmall: {
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    backgroundColor: theme.colors.accent,
-  },
-  addSmallText: {
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
-  },
-  drinkHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  removeText: {
-    color: theme.colors.danger,
-    fontWeight: '600',
-  },
-  typeList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  typeOption: {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: 12,
-    paddingVertical: 9,
-    paddingHorizontal: 11,
-    backgroundColor: '#FFFFFF',
-  },
-  typeActive: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.accent,
-  },
-  typeText: {
-    fontSize: 13,
-    color: theme.colors.text,
-  },
-  typeTextActive: {
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
-  },
-  commentInput: {
-    minHeight: 100,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: 12,
-    padding: 13,
-    fontSize: 15,
-    color: theme.colors.text,
-  },
-  errorBox: {
-    padding: 14,
-    borderRadius: 12,
-    backgroundColor: '#FDECEC',
-  },
-  errorText: {
-    color: theme.colors.danger,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  button: {
-    minHeight: 53,
-    borderRadius: 15,
-    backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-  },
-  buttonDisabled: {
-    opacity: 0.65,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  cancelButton: {
-    alignItems: 'center',
-    padding: 12,
-  },
-  cancelText: {
-    color: theme.colors.muted,
-    fontWeight: '600',
-  },
-});
