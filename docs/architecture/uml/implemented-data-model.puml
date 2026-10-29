@@ -31,13 +31,13 @@ entity goals {
   * goal_id : integer <<identity, PK>>
   --
   user_id : integer <<FK>>
-  target_days : integer [1..3650]
+  target_days : integer [legacy, ignored by application]
   is_achieved : boolean
   created_at : timestamptz
   updated_at : timestamptz
 }
 users ||--o{ day_records
-users ||--o{ goals
+users ||--o{ goals : legacy schema only
 note bottom
 Mentorship, notifications and complaints are planned, not created by this migration.
 User and Goal ORM models are owned by Anastasiia and Mariia respectively.

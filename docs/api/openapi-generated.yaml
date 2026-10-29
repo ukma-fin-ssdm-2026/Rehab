@@ -190,74 +190,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /api/v1/goals:
-    post:
-      tags:
-      - Goals
-      summary: Створити ціль
-      description: Створює нову ціль тверезості (кількість днів від 1 до 3650). Нова
-        ціль завжди створюється з `is_achieved=false` (FR-004).
-      operationId: create_goal_api_v1_goals_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GoalCreate'
-        required: true
-      responses:
-        '201':
-          description: Ціль створено
-          headers:
-            Location:
-              description: URL створеної цілі
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoalOut'
-        '401':
-          description: Відсутній або недійсний Bearer-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      security:
-      - BearerAuth: []
-  /api/v1/goals/{goal_id}:
     get:
       tags:
       - Goals
-      summary: Отримати ціль
-      description: Повертає ціль поточного користувача та ознаку її досягнення (FR-004,
-        FR-005).
-      operationId: get_goal_api_v1_goals__goal_id__get
-      security:
-      - BearerAuth: []
-      parameters:
-      - name: goal_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          minimum: 1
-          description: Ідентифікатор цілі.
-          examples:
-          - 1
-          title: Goal Id
-        description: Ідентифікатор цілі.
+      summary: Отримати фіксовані етапи тверезості
+      description: Повертає етапи 7 і 30 днів та їхній прогрес для поточного користувача.
+      operationId: list_goals_api_v1_goals_get
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GoalOut'
+                $ref: '#/components/schemas/GoalList'
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -270,46 +215,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Ціль не знайдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    put:
+      security:
+      - BearerAuth: []
+  /api/v1/statistics:
+    get:
       tags:
-      - Goals
-      summary: Замінити ціль
-      description: Повністю замінює цільову кількість днів. Ознака `is_achieved` керується
-        системою (FR-005) і через цей ендпоінт не змінюється.
-      operationId: replace_goal_api_v1_goals__goal_id__put
+      - Statistics
+      summary: Отримати статистику тверезості
+      description: Повертає кількість тверезих днів, днів із вживанням, поточну й
+        найдовшу серії, а також прогрес цілей 7 і 30 днів. Дані обчислюються з календарних
+        записів поточного користувача.
+      operationId: get_statistics_api_v1_statistics_get
       security:
       - BearerAuth: []
       parameters:
-      - name: goal_id
-        in: path
-        required: true
+      - name: period
+        in: query
+        required: false
         schema:
-          type: integer
-          minimum: 1
-          description: Ідентифікатор цілі.
-          examples:
-          - 1
-          title: Goal Id
-        description: Ідентифікатор цілі.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GoalCreate'
+          enum:
+          - all
+          - week
+          - month
+          - year
+          type: string
+          description: 'Період статистики: all — увесь час, week — останні 7 днів,
+            month — поточний місяць, year — поточний рік.'
+          default: all
+          title: Period
+        description: 'Період статистики: all — увесь час, week — останні 7 днів, month
+          — поточний місяць, year — поточний рік.'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GoalOut'
+                $ref: '#/components/schemas/StatisticsOut'
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -318,53 +260,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Ціль не знайдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    delete:
-      tags:
-      - Goals
-      summary: Видалити ціль
-      description: Видаляє ціль поточного користувача. Відповідь без тіла.
-      operationId: delete_goal_api_v1_goals__goal_id__delete
-      security:
-      - BearerAuth: []
-      parameters:
-      - name: goal_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          minimum: 1
-          description: Ідентифікатор цілі.
-          examples:
-          - 1
-          title: Goal Id
-        description: Ідентифікатор цілі.
-      responses:
-        '204':
-          description: Ціль видалено
-        '401':
-          description: Відсутній або недійсний Bearer-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Ціль не знайдено
           content:
             application/json:
               schema:
@@ -378,6 +273,31 @@ components:
       - relapse
       title: DayStatus
       description: Статус дня в календарі (DayRecord.status).
+    Drink:
+      properties:
+        type:
+          $ref: '#/components/schemas/DrinkType'
+        volume_ml:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Volume Ml
+          description: Об'єм напою в мілілітрах (додатне ціле число).
+      type: object
+      required:
+      - type
+      - volume_ml
+      title: Drink
+      description: Один напій у записі про вживання.
+    DrinkType:
+      type: string
+      enum:
+      - beer
+      - wine
+      - spirits
+      - cocktail
+      - other
+      title: DrinkType
+      description: Тип алкогольного напою.
     EntryCreate:
       properties:
         status:
@@ -398,6 +318,20 @@ components:
             (FR-002).
           examples:
           - '2026-10-07'
+        drinks:
+          items:
+            $ref: '#/components/schemas/Drink'
+          type: array
+          title: Drinks
+          description: Список алкогольних напоїв у записі.
+        comment:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Comment
+          description: Необов'язковий коментар до запису.
+      additionalProperties: false
       type: object
       required:
       - status
@@ -473,6 +407,18 @@ components:
           - $ref: '#/components/schemas/TriggerCategory'
           - type: 'null'
           description: Категорія тригера зриву.
+        drinks:
+          items:
+            $ref: '#/components/schemas/Drink'
+          type: array
+          title: Drinks
+          description: Список напоїв у записі.
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+          description: Коментар до запису.
         created_at:
           type: string
           format: date-time
@@ -500,6 +446,7 @@ components:
           - $ref: '#/components/schemas/TriggerCategory'
           - type: 'null'
           description: Категорія тригера. Дозволена лише для `status=relapse`.
+      additionalProperties: false
       type: object
       required:
       - status
@@ -541,54 +488,130 @@ components:
       - message
       title: ErrorResponse
       description: Єдиний формат помилки для всіх ендпоінтів.
-    GoalCreate:
+    GoalList:
       properties:
-        target_days:
-          type: integer
-          maximum: 3650.0
-          minimum: 1.0
-          title: Target Days
-          description: Цільова кількість днів без алкоголю (від 1 до 3650).
-          examples:
-          - 30
+        items:
+          items:
+            $ref: '#/components/schemas/GoalMilestoneOut'
+          type: array
+          title: Items
+          description: Етапи 7 і 30 днів.
       type: object
       required:
-      - target_days
-      title: GoalCreate
-      description: Тіло запиту на створення або повну заміну цілі (FR-004).
-    GoalOut:
+      - items
+      title: GoalList
+      description: Фіксований перелік етапів поточного користувача.
+    GoalMilestoneOut:
       properties:
-        goal_id:
-          type: integer
-          title: Goal Id
-          description: Ідентифікатор цілі.
-          examples:
-          - 1
-        user_id:
-          type: integer
-          title: User Id
-          description: Власник цілі.
-          examples:
-          - 42
         target_days:
           type: integer
+          minimum: 1.0
           title: Target Days
-          description: Цільова кількість днів.
-          examples:
-          - 30
+          description: Тривалість етапу в днях.
         is_achieved:
           type: boolean
           title: Is Achieved
-          description: Чи досягнуто ціль. Виставляє система, коли серія доходить до
-            цілі (FR-005).
+          description: Чи досягнуто етап за найкращою серією.
+        progress_days:
+          type: integer
+          minimum: 0.0
+          title: Progress Days
+          description: Поточний прогрес, обмежений етапом.
       type: object
       required:
-      - goal_id
-      - user_id
       - target_days
       - is_achieved
-      title: GoalOut
-      description: Ціль у відповіді API.
+      - progress_days
+      title: GoalMilestoneOut
+      description: Стан одного фіксованого етапу тверезості.
+    StatisticsOut:
+      properties:
+        period:
+          type: string
+          enum:
+          - all
+          - week
+          - month
+          - year
+          title: Period
+          description: Період статистики.
+        tracking_start_date:
+          type: string
+          format: date
+          title: Tracking Start Date
+          description: Дата початку відстеження тверезості.
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+          description: Початок вибраного періоду.
+        period_end:
+          type: string
+          format: date
+          title: Period End
+          description: Кінець вибраного періоду.
+        sober_days:
+          type: integer
+          minimum: 0.0
+          title: Sober Days
+          description: Кількість тверезих днів у вибраному періоді.
+        relapse_days:
+          type: integer
+          minimum: 0.0
+          title: Relapse Days
+          description: Кількість днів із вживанням у вибраному періоді.
+        total_sober_days:
+          type: integer
+          minimum: 0.0
+          title: Total Sober Days
+          description: Усі тверезі дні від початку відстеження.
+        current_streak:
+          type: integer
+          minimum: 0.0
+          title: Current Streak
+          description: Поточна безперервна серія тверезих днів.
+        longest_streak:
+          type: integer
+          minimum: 0.0
+          title: Longest Streak
+          description: Найдовша безперервна серія тверезих днів.
+        active_goal_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Active Goal Days
+          description: Найближчий невиконаний етап 7/30 днів або null після обох.
+        has_goals:
+          type: boolean
+          title: Has Goals
+          description: Чи доступні фіксовані етапи (завжди true).
+        completed_goal_days:
+          items:
+            type: integer
+          type: array
+          title: Completed Goal Days
+          description: Виконані цілі у днях.
+        goal_progress_days:
+          type: integer
+          minimum: 0.0
+          title: Goal Progress Days
+          description: Поточна серія днів для прогресу активної цілі.
+      type: object
+      required:
+      - period
+      - tracking_start_date
+      - period_start
+      - period_end
+      - sober_days
+      - relapse_days
+      - total_sober_days
+      - current_streak
+      - longest_streak
+      - active_goal_days
+      - has_goals
+      - goal_progress_days
+      title: StatisticsOut
+      description: Статистика тверезості для головної, цілей та екрана статистики.
     TriggerCategory:
       type: string
       enum:
@@ -601,8 +624,7 @@ components:
   securitySchemes:
     BearerAuth:
       type: http
-      description: Токен-заглушка у форматі `<роль>-<id>`, наприклад `user-42` або
-        `mentor-7`.
+      description: Підписаний JWT-токен доступу.
       scheme: bearer
       bearerFormat: JWT
 tags:
@@ -610,5 +632,8 @@ tags:
   description: 'Щоденні відмітки користувача (DayRecord): тверезий день або зрив.
     FR-001, FR-002, FR-003, FR-008.'
 - name: Goals
-  description: 'Цілі тверезості (Goal): цільова кількість днів і прогрес. FR-004,
+  description: 'Фіксовані етапи тверезості на 7 і 30 днів та прогрес. FR-004,
     FR-005.'
+- name: Statistics
+  description: 'Статистика тверезості: кількість днів, серії та автоматичні цілі на
+    7 і 30 днів.'
