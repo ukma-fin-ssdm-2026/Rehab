@@ -2,14 +2,14 @@
 
 | ID Вимоги | Компонент системи | Проектне рішення | Метод верифікації |
 |---|---|---|---|
-| FR-001 | Frontend, Backend, PostgreSQL | Календар відміток та збереження серії тверезості | Функціональне тестування |
-| FR-002 | Frontend, Backend | Перевірка дати перед створенням відмітки | Функціональне тестування |
+| FR-001 | Frontend, Backend, PostgreSQL | Календар, форма sober/relapse, деталі; PostgreSQL і транзакційний перерахунок | tests/test_calendar_postgres_api.py; tests/test_progress_sync_calendar.py; frontend/tests/calendar.test.cjs |
+| FR-002 | Frontend, Backend | Діапазон tracking_start_date..current_date з auth/me; остаточна серверна перевірка | tests/test_calendar_postgres_api.py; frontend/tests/calendar.test.cjs |
 | FR-003 | Backend | Надсилання сповіщення ментору після запису про зрив | Інтеграційне тестування |
 | FR-004 | Frontend, Backend | Відображення фіксованих етапів 7 і 30 днів та прогресу; створення цілей недоступне | Функціональне тестування |
 | FR-005 | Backend, Frontend | Автоматичне позначення фіксованого етапу після досягнення його найкращою серією | Функціональне тестування |
 | FR-006 | Backend, PostgreSQL | Розрахунок та збереження рекорду серії | Функціональне тестування |
 | FR-007 | Backend, PostgreSQL | Формування анонімної статистики тригерів | Функціональне тестування |
-| FR-008 | Frontend, Backend, PostgreSQL | Редагування запису протягом 48 годин | Функціональне тестування |
+| FR-008 | Frontend, Backend, PostgreSQL | Деталі запису та PATCH статусу/тригера; серверна межа 48 годин включно | tests/test_calendar_postgres_api.py; frontend/tests/calendar.test.cjs |
 | FR-009 | Frontend, Backend, PostgreSQL | Обробка запитів на наставництво та керування доступом до статистики | Функціональне тестування |
 | FR-010 | Backend, PostgreSQL | Блокування облікового запису та завершення активних сесій | Інтеграційне тестування |
 | FR-011 | Backend | Перевірка статусу облікового запису під час авторизації | Тестування авторизації |

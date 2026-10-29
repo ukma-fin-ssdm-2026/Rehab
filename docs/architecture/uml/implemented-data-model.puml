@@ -1,5 +1,5 @@
 @startuml
-title Rehab: implemented initial database schema (before API integration)
+title Rehab: implemented PostgreSQL schema — KT1 / calendar KT2
 entity users {
   * user_id : integer <<identity, PK>>
   --
