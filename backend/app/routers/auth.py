@@ -1,7 +1,3 @@
-"""Account registration and signed JWT session endpoints.
-
-Sofia integrates this router into backend/app/main.py after DB foundation is merged.
-"""
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.exc import IntegrityError
 
