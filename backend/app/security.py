@@ -87,13 +87,15 @@ def get_current_user(
     user_id, version = decode_access_token(credentials.credentials)
     from backend.app.repositories.users import get_user
     account = get_user(db, user_id)
-    if account is None or account.token_version != version:
+    if account is None:
         raise _unauthorized()
     if account.is_blocked:
         raise HTTPException(
             status_code=403,
             detail={"code": "ACCOUNT_BLOCKED", "message": "Ваш акаунт заблоковано", "details": None},
         )
+    if account.token_version != version:
+        raise _unauthorized()
     if account.role not in ALLOWED_ROLES:
         raise _unauthorized()
     return CurrentUser(user_id=account.user_id, role=account.role)
