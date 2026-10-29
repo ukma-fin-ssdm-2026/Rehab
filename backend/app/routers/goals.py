@@ -1,16 +1,53 @@
 """Ендпоінти цілей (ресурс Goal)."""
 
+import datetime as dt
+
 from fastapi import APIRouter, Depends, Path, Query, Request, Response
 
 from backend.app import stubs
 from backend.app.errors import COMMON_RESPONSES, api_error
-from backend.app.models import ErrorResponse, GoalCreate, GoalList, GoalOut
+from backend.app.models import DayStatus, ErrorResponse, GoalCreate, GoalList, GoalOut
 from backend.app.security import CurrentUser, get_current_user
+from backend.app.services.statistics import calculate_single_goal_progress, count_streaks
 
 router = APIRouter(prefix="/goals", tags=["Goals"])
 
 GOAL_ID = Path(..., ge=1, description="Ідентифікатор цілі.", examples=[1])
 NOT_FOUND = {"model": ErrorResponse, "description": "Ціль не знайдено"}
+
+
+def _user_streaks(user_id: int) -> tuple[int, int]:
+    tracking_start_date = stubs.tracking_start_dates.get(user_id)
+    if tracking_start_date is None:
+        return 0, 0
+
+    today = dt.date.today()
+    relapse_dates = {
+        entry.date
+        for entry in stubs.entries.values()
+        if (
+            entry.user_id == user_id
+            and entry.status == DayStatus.relapse
+            and tracking_start_date <= entry.date <= today
+        )
+    }
+    return count_streaks(
+        start_date=tracking_start_date,
+        end_date=today,
+        relapse_dates=relapse_dates,
+    )
+
+
+def _goal_with_progress(goal: GoalOut, user_id: int) -> GoalOut:
+    current_streak, longest_streak = _user_streaks(user_id)
+    is_achieved, progress_days = calculate_single_goal_progress(
+        current_streak=current_streak,
+        longest_streak=longest_streak,
+        target_days=goal.target_days,
+    )
+    return goal.model_copy(
+        update={"is_achieved": is_achieved, "progress_days": progress_days}
+    )
 
 
 @router.get(
@@ -26,7 +63,11 @@ def list_goals(
     user: CurrentUser = Depends(get_current_user),
 ):
     user_goals = sorted(
-        (goal for goal in stubs.goals.values() if goal.user_id == user.user_id),
+        (
+            _goal_with_progress(goal, user.user_id)
+            for goal in stubs.goals.values()
+            if goal.user_id == user.user_id
+        ),
         key=lambda goal: goal.goal_id,
     )
     return GoalList(
@@ -41,7 +82,7 @@ def _get_own_goal(goal_id: int, user: CurrentUser) -> GoalOut:
     goal = stubs.goals.get(goal_id)
     if goal is None or goal.user_id != user.user_id:
         raise api_error(404, "GOAL_NOT_FOUND", f"Ціль {goal_id} не знайдено")
-    return goal
+    return _goal_with_progress(goal, user.user_id)
 
 
 @router.post(
@@ -78,6 +119,7 @@ def create_goal(
         target_days=body.target_days,
         is_achieved=False,
     )
+    goal = _goal_with_progress(goal, user.user_id)
     stubs.goals[goal.goal_id] = goal
     response.headers["Location"] = f"{request.url.path.rstrip('/')}/{goal.goal_id}"
     return goal
@@ -111,6 +153,7 @@ def replace_goal(
 ):
     goal = _get_own_goal(goal_id, user)
     updated = goal.model_copy(update={"target_days": body.target_days})
+    updated = _goal_with_progress(updated, user.user_id)
     stubs.goals[goal_id] = updated
     return updated
 

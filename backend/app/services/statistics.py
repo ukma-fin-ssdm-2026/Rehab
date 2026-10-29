@@ -23,6 +23,24 @@ class GoalProgressInput(Protocol):
     target_days: int
 
 
+def calculate_single_goal_progress(
+    *,
+    current_streak: int,
+    longest_streak: int,
+    target_days: int,
+) -> tuple[bool, int]:
+    """Повертає ознаку історичного виконання та прогрес однієї цілі."""
+
+    if not 1 <= target_days <= 3650:
+        raise ValueError("Ціль має бути від 1 до 3650 днів")
+    if current_streak < 0 or longest_streak < current_streak:
+        raise ValueError("Некоректні показники серії тверезості")
+
+    is_achieved = longest_streak >= target_days
+    progress_days = target_days if is_achieved else min(current_streak, target_days)
+    return is_achieved, progress_days
+
+
 def calculate_goal_progress(
     *,
     current_streak: int,

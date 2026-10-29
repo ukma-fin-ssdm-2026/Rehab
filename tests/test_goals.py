@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from backend.app import stubs
 from backend.app.main import app
 from backend.app.models import GoalOut
+from backend.app.security import CurrentUser, get_current_user
 
 client = TestClient(app)
 API_URL = "/api/v1/goals"
@@ -14,7 +15,9 @@ AUTH_HEADERS = {"Authorization": "Bearer user-42"}
 @pytest.fixture(autouse=True)
 def reset_test_data():
     stubs.reset()
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(42, "user")
     yield
+    app.dependency_overrides.pop(get_current_user, None)
     stubs.reset()
 
 
@@ -22,6 +25,9 @@ def test_get_existing_goal():
     response = client.get(f"{API_URL}/1", headers=AUTH_HEADERS)
     assert response.status_code == 200
     assert response.json()["target_days"] == 30
+    assert response.json()["progress_days"] == 1
+    assert response.json()["is_achieved"] is False
+    assert "created_at" in response.json()
 
 
 def test_get_missing_goal():
@@ -30,6 +36,7 @@ def test_get_missing_goal():
 
 
 def test_get_other_users_goal():
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(43, "user")
     response = client.get(
         f"{API_URL}/1",
         headers={"Authorization": "Bearer user-43"},
@@ -44,12 +51,20 @@ def test_create_goal():
     assert response.status_code == 201
     assert response.json()["target_days"] == 7
     assert response.json()["is_achieved"] is False
+    assert response.json()["progress_days"] == 1
     assert response.headers["location"].endswith("/2")
 
 
-def test_create_goal_without_authorization():
-    response = client.post(API_URL, json={"target_days": 7})
-    assert response.status_code == 401
+def test_create_goal_checks_existing_history():
+    response = client.post(
+        API_URL,
+        headers=AUTH_HEADERS,
+        json={"target_days": 1},
+    )
+
+    assert response.status_code == 201
+    assert response.json()["is_achieved"] is True
+    assert response.json()["progress_days"] == 1
 
 
 @pytest.mark.parametrize("days", [0, -1, 3651, True, 10.5, "10"])
@@ -124,6 +139,7 @@ def test_replace_goal():
 
 
 def test_replace_other_users_goal():
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(43, "user")
     response = client.put(
         f"{API_URL}/1",
         headers={"Authorization": "Bearer user-43"},

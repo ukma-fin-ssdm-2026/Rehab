@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from backend.app import stubs
 from backend.app.main import app
 from backend.app.models import DayStatus, EntryOut
+from backend.app.security import CurrentUser, get_current_user
 from backend.app.services.statistics import (
     calculate_statistics,
     count_streaks,
@@ -26,7 +27,9 @@ def reset_data():
     """Відновлює демонстраційні дані перед і після кожного тесту."""
 
     stubs.reset()
+    app.dependency_overrides[get_current_user] = lambda: CurrentUser(42, "user")
     yield
+    app.dependency_overrides.pop(get_current_user, None)
     stubs.reset()
 
 
