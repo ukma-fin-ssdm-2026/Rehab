@@ -23,7 +23,6 @@ export function setSessionInvalidHandler(callback: (() => void) | null): void {
   sessionInvalid = callback;
 }
 
-/** Приймає /calendar/entries, сам додає /api/v1 і Bearer-токен. */
 export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
@@ -51,21 +50,23 @@ export async function apiRequest<T>(
     : await response.text();
   if (!response.ok) {
     const body =
-      payload && typeof payload === 'object'
-        ? (payload as Record<string, unknown>)
+      payload && typeof payload === 'object' && !Array.isArray(payload)
+        ? payload as Record<string, unknown>
         : {};
-    const code = typeof body.code === 'string' ? body.code : 'HTTP_ERROR';
-    const message =
-      typeof body.message === 'string'
-        ? body.message
-        : `Помилка сервера (${response.status})`;
-    if (
-      response.status === 401 ||
-      (response.status === 403 && code === 'ACCOUNT_BLOCKED')
-    ) {
+    const detail =
+      body.detail && typeof body.detail === 'object' && !Array.isArray(body.detail)
+        ? body.detail as Record<string, unknown>
+        : {};
+    const code = typeof body.code === 'string' ? body.code
+      : typeof detail.code === 'string' ? detail.code : 'HTTP_ERROR';
+    const message = typeof body.message === 'string' ? body.message
+      : typeof detail.message === 'string' ? detail.message
+      : typeof body.detail === 'string' ? body.detail
+      : `Помилка сервера (${response.status})`;
+    if (response.status === 401 || (response.status === 403 && code === 'ACCOUNT_BLOCKED')) {
       sessionInvalid?.();
     }
-    throw new ApiError(response.status, code, message, body.details ?? null);
+    throw new ApiError(response.status, code, message, body.details ?? detail.details ?? null);
   }
   return payload as T;
 }
