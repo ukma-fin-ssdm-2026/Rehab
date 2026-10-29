@@ -64,3 +64,60 @@ test('finishing onboarding removes the pending flag', () => {
   saveOnboardingPending(storage, null);
   assert.equal(isOnboardingPending(storage, 42), false);
 });
+
+test('private calendar details survive session restoration and stay protected', () => {
+  const layoutFile = path.join(__dirname, '..', 'src', 'app', '_layout.tsx');
+  const layoutSource = fs.readFileSync(layoutFile, 'utf8');
+  const output = ts.transpileModule(layoutSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+      jsx: ts.JsxEmit.ReactJSX,
+    },
+  }).outputText;
+  function Stack() {}
+  Stack.Screen = function Screen() {};
+  Stack.Protected = function Protected() {};
+  function ScreenState() {}
+  const jsx = (type, props) => ({ type, props });
+  let auth = { user: null, loading: true, restoreError: false };
+  const exports = {};
+  vm.runInNewContext(output, {
+    module: { exports },
+    exports,
+    require: name => {
+      if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
+      if (name === 'expo-router') return { Stack };
+      if (name === '../auth/AuthProvider') {
+        return { AuthProvider() {}, useAuth: () => auth };
+      }
+      if (name === '../components/ui/ScreenState') return { ScreenState };
+      throw new Error(name);
+    },
+  }, { filename: layoutFile });
+
+  const navigation = exports.default().props.children.type;
+  const waiting = navigation();
+  assert.equal(waiting.type, ScreenState);
+  assert.equal(waiting.props.state, 'loading');
+
+  auth = { user: { user_id: 42, role: 'user' }, loading: false, restoreError: false };
+  const root = navigation();
+  assert.equal(root.type, Stack);
+  const privateRoutes = root.props.children.find(child =>
+    child.type === Stack.Protected && child.props.guard === true
+  );
+  const names = privateRoutes.props.children.map(child => child.props.name);
+  assert.ok(names.includes('entry/[record_id]'));
+  assert.ok(names.includes('onboarding'));
+
+  auth = { user: null, loading: false, restoreError: false };
+  const loggedOut = navigation();
+  assert.equal(loggedOut.type, Stack);
+  const privateGroup = loggedOut.props.children.find(child =>
+    child.type === Stack.Protected && child.props.children.some(route =>
+      route.props.name === 'entry/[record_id]'
+    )
+  );
+  assert.equal(privateGroup.props.guard, false);
+});
