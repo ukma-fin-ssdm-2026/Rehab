@@ -2,33 +2,20 @@
 
 import pytest
 import datetime as dt
-from backend.app.routers import calendar as calendar_router
-from fastapi.testclient import TestClient
-
-from backend.app import stubs
-from backend.app.main import app
-
-client = TestClient(app)
+from backend.app.repositories import entries as calendar_router
+from backend.app.db.models.entry import DayRecord
 
 API_URL = "/api/v1/calendar/entries"
-AUTH_HEADERS = {"Authorization": "Bearer user-42"}
+AUTH_HEADERS = "owner"
 
 
-@pytest.fixture(autouse=True)
-def reset_test_data():
-    """Відновлює тестові записи до та після кожного тесту."""
-
-    stubs.reset()
-    yield
-    stubs.reset()
-
-
-def test_recent_entry_can_be_updated():
+def test_recent_entry_can_be_updated(calendar_regression_data):
+    data = calendar_regression_data
     """Запис, створений годину тому, можна редагувати."""
 
-    response = client.patch(
-        f"{API_URL}/2",
-        headers=AUTH_HEADERS,
+    response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
+        headers=data.headers,
         json={
             "status": "sober",
             "trigger_category": None,
@@ -36,17 +23,18 @@ def test_recent_entry_can_be_updated():
     )
 
     assert response.status_code == 200
-    assert response.json()["record_id"] == 2
+    assert response.json()["record_id"] == data.recent_id
     assert response.json()["status"] == "sober"
     assert response.json()["trigger_category"] is None
 
 
-def test_old_entry_cannot_be_updated():
+def test_old_entry_cannot_be_updated(calendar_regression_data):
+    data = calendar_regression_data
     """Запис, створений п'ять днів тому, редагувати не можна."""
 
-    response = client.patch(
-        f"{API_URL}/1",
-        headers=AUTH_HEADERS,
+    response = data.client.patch(
+        f"{API_URL}/{data.old_id}",
+        headers=data.headers,
         json={
             "status": "relapse",
             "trigger_category": "stress",
@@ -56,12 +44,13 @@ def test_old_entry_cannot_be_updated():
     assert response.status_code == 403
 
 
-def test_nonexistent_entry_returns_404():
+def test_nonexistent_entry_returns_404(calendar_regression_data):
+    data = calendar_regression_data
     """Неіснуючий запис повертає помилку 404."""
 
-    response = client.patch(
+    response = data.client.patch(
         f"{API_URL}/999",
-        headers=AUTH_HEADERS,
+        headers=data.headers,
         json={
             "status": "sober",
             "trigger_category": None,
@@ -71,12 +60,13 @@ def test_nonexistent_entry_returns_404():
     assert response.status_code == 404
 
 
-def test_other_users_entry_cannot_be_updated():
+def test_other_users_entry_cannot_be_updated(calendar_regression_data):
+    data = calendar_regression_data
     """Користувач не може редагувати чужий запис."""
 
-    response = client.patch(
-        f"{API_URL}/2",
-        headers={"Authorization": "Bearer user-43"},
+    response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
+        headers=data.second_headers,
         json={
             "status": "sober",
             "trigger_category": None,
@@ -86,10 +76,11 @@ def test_other_users_entry_cannot_be_updated():
     assert response.status_code == 404
 
 
-def test_update_requires_authorization():
+def test_update_requires_authorization(calendar_regression_data):
+    data = calendar_regression_data
 
-    response = client.patch(
-        f"{API_URL}/2",
+    response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
         json={
             "status": "sober",
             "trigger_category": None,
@@ -122,7 +113,7 @@ def test_update_requires_authorization():
         ),
         (
             dt.timedelta(hours=1),
-            {"Authorization": "Bearer user-43"},
+            "other",
             {"status": "sober", "trigger_category": None},
             404,
         ),
@@ -152,17 +143,22 @@ def test_update_requires_authorization():
         "FR008-R6",
     ],
 )
-def test_fr008_decision_table(monkeypatch, elapsed, headers, payload, expected_status):
+def test_fr008_decision_table(
+    monkeypatch, elapsed, headers, payload, expected_status, calendar_regression_data
+):
+    data = calendar_regression_data
+    headers = {"owner": data.headers, "other": data.second_headers}.get(headers)
 
     fixed_now = dt.datetime(2026, 10, 27, 12, 0, tzinfo=dt.timezone.utc)
     monkeypatch.setattr(calendar_router, "utc_now", lambda: fixed_now)
 
-    original = stubs.entries[2]
-    stubs.entries[2] = original.model_copy(update={"created_at": fixed_now - elapsed})
-    before_edit = stubs.entries[2].model_copy(deep=True)
+    original = data.db.get(DayRecord, data.recent_id)
+    original.created_at = fixed_now - elapsed
+    data.db.commit()
+    before_edit = (original.status, original.trigger_category, original.created_at)
 
-    response = client.patch(
-        f"{API_URL}/2",
+    response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
         headers=headers,
         json=payload,
     )
@@ -171,10 +167,16 @@ def test_fr008_decision_table(monkeypatch, elapsed, headers, payload, expected_s
 
     if expected_status == 200:
         assert response.json()["status"] == "sober"
-        assert stubs.entries[2].status.value == "sober"
-        assert stubs.entries[2].created_at == before_edit.created_at
+        data.db.refresh(original)
+        assert original.status == "sober"
+        assert original.created_at == before_edit[2]
     else:
-        assert stubs.entries[2] == before_edit
+        data.db.refresh(original)
+        assert (
+            original.status,
+            original.trigger_category,
+            original.created_at,
+        ) == before_edit
 
         expected_error_codes = {
             401: "UNAUTHORIZED",
@@ -194,12 +196,16 @@ def test_fr008_decision_table(monkeypatch, elapsed, headers, payload, expected_s
         ("user_id", 43),
     ],
 )
-def test_editing_rejects_forbidden_fields(forbidden_field, value):
-    initial = stubs.entries[2].model_copy(deep=True)
+def test_editing_rejects_forbidden_fields(
+    forbidden_field, value, calendar_regression_data
+):
+    data = calendar_regression_data
+    initial = data.db.get(DayRecord, data.recent_id)
+    before = (initial.status, initial.created_at)
 
-    response = client.patch(
-        f"{API_URL}/2",
-        headers=AUTH_HEADERS,
+    response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
+        headers=data.headers,
         json={
             "status": "sober",
             "trigger_category": None,
@@ -209,27 +215,31 @@ def test_editing_rejects_forbidden_fields(forbidden_field, value):
 
     assert response.status_code == 422
     assert response.json()["code"] == "VALIDATION_ERROR"
-    assert stubs.entries[2] == initial
+    data.db.refresh(initial)
+    assert (initial.status, initial.created_at) == before
 
 
-def test_editing_does_not_extend_original_window(monkeypatch):
+def test_editing_does_not_extend_original_window(monkeypatch, calendar_regression_data):
+    data = calendar_regression_data
     fixed_time = dt.datetime(2026, 10, 27, 12, 0, tzinfo=dt.timezone.utc)
-    initial = stubs.entries[2]
+    initial = data.db.get(DayRecord, data.recent_id)
     original_created_at = fixed_time - dt.timedelta(hours=47)
 
-    stubs.entries[2] = initial.model_copy(update={"created_at": original_created_at})
+    initial.created_at = original_created_at
+    data.db.commit()
 
     monkeypatch.setattr(calendar_router, "utc_now", lambda: fixed_time)
 
-    first_response = client.patch(
-        f"{API_URL}/2",
-        headers=AUTH_HEADERS,
+    first_response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
+        headers=data.headers,
         json={"status": "sober", "trigger_category": None},
     )
 
     assert first_response.status_code == 200
-    after_first_edit = stubs.entries[2].model_copy(deep=True)
-    assert after_first_edit.created_at == original_created_at
+    data.db.refresh(initial)
+    after_first_edit = (initial.status, initial.trigger_category, initial.created_at)
+    assert initial.created_at == original_created_at
 
     monkeypatch.setattr(
         calendar_router,
@@ -237,12 +247,17 @@ def test_editing_does_not_extend_original_window(monkeypatch):
         lambda: fixed_time + dt.timedelta(hours=2),
     )
 
-    second_response = client.patch(
-        f"{API_URL}/2",
-        headers=AUTH_HEADERS,
+    second_response = data.client.patch(
+        f"{API_URL}/{data.recent_id}",
+        headers=data.headers,
         json={"status": "relapse", "trigger_category": "stress"},
     )
 
     assert second_response.status_code == 403
     assert second_response.json()["code"] == "EDIT_WINDOW_EXPIRED"
-    assert stubs.entries[2] == after_first_edit
+    data.db.refresh(initial)
+    assert (
+        initial.status,
+        initial.trigger_category,
+        initial.created_at,
+    ) == after_first_edit

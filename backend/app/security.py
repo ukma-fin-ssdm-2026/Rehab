@@ -11,8 +11,10 @@ JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_SECONDS = 3600
 
 bearer_scheme = HTTPBearer(
-    scheme_name="BearerAuth", bearerFormat="JWT",
-    description="Підписаний JWT-токен доступу.", auto_error=False,
+    scheme_name="BearerAuth",
+    bearerFormat="JWT",
+    description="Підписаний JWT-токен доступу.",
+    auto_error=False,
 )
 
 
@@ -33,7 +35,9 @@ def _unauthorized(message: str = "Недійсна або прострочена
 def _secret() -> str:
     secret = os.getenv("JWT_SECRET", "")
     if len(secret) < 32:
-        raise RuntimeError("JWT_SECRET має бути заданий і містити щонайменше 32 символи")
+        raise RuntimeError(
+            "JWT_SECRET має бути заданий і містити щонайменше 32 символи"
+        )
     return secret
 
 
@@ -54,7 +58,9 @@ def create_access_token(user_id: int, token_version: int) -> str:
 def decode_access_token(token: str) -> tuple[int, int]:
     try:
         claims = jwt.decode(
-            token, _secret(), algorithms=[JWT_ALGORITHM],
+            token,
+            _secret(),
+            algorithms=[JWT_ALGORITHM],
             options={"require": ["sub", "iat", "exp", "token_version"]},
         )
         sub, version = claims["sub"], claims["token_version"]
@@ -69,6 +75,7 @@ def decode_access_token(token: str) -> tuple[int, int]:
 
 def _db_session():
     from backend.app.db.session import get_db
+
     yield from get_db()
 
 
@@ -80,13 +87,18 @@ def get_current_user(
         raise _unauthorized("Відсутній або некоректний Bearer-токен")
     user_id, version = decode_access_token(credentials.credentials)
     from backend.app.repositories.users import get_user
+
     account = get_user(db, user_id)
     if account is None:
         raise _unauthorized()
     if account.is_blocked:
         raise HTTPException(
             status_code=403,
-            detail={"code": "ACCOUNT_BLOCKED", "message": "Ваш акаунт заблоковано", "details": None},
+            detail={
+                "code": "ACCOUNT_BLOCKED",
+                "message": "Ваш акаунт заблоковано",
+                "details": None,
+            },
         )
     if account.token_version != version:
         raise _unauthorized()
@@ -100,7 +112,12 @@ def require_role(*roles: str):
         if user.role not in roles:
             raise HTTPException(
                 status_code=403,
-                detail={"code": "FORBIDDEN", "message": "Недостатньо прав", "details": None},
+                detail={
+                    "code": "FORBIDDEN",
+                    "message": "Недостатньо прав",
+                    "details": None,
+                },
             )
         return user
+
     return checker
