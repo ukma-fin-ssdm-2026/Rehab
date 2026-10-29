@@ -401,3 +401,9 @@ npm audit
 - **Expo Web:** адреса з виводу Expo, зазвичай http://localhost:8081.
 - **Демо Bearer-токен:** `user-42` (не справжня JWT-авторизація).
 - **Тести:** `python -m pytest -q` із кореня `Rehab/`.
+
+<!-- AI-GENERATED START -->
+## 15. Онлайн-розгортання (Render + Neon)
+
+Безкоштовне розгортання (Render Static Site + Render Web Service Free + Neon Free) описано в [docs/deployment/render-neon.md](docs/deployment/render-neon.md); конфігурація — `render.yaml`. Для API потрібні змінні `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, для frontend — `EXPO_PUBLIC_API_URL`; секрети вводяться лише в панелі хостингу. Онлайн-версія **ще не перевірена**, результати будуть у розділі 6 цього документа.
+<!-- AI-GENERATED END -->
