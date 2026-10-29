@@ -43,26 +43,16 @@ def calculate_goal_progress(
 
     user_goals = list(goals)
     completed_goal_days = sorted(
-        {
-            goal.target_days
-            for goal in user_goals
-            if longest_streak >= goal.target_days
-        }
+        {goal.target_days for goal in user_goals if longest_streak >= goal.target_days}
     )
     active_goal = min(
-        (
-            goal
-            for goal in user_goals
-            if longest_streak < goal.target_days
-        ),
+        (goal for goal in user_goals if longest_streak < goal.target_days),
         key=lambda goal: (goal.target_days, goal.goal_id),
         default=None,
     )
     active_goal_days = active_goal.target_days if active_goal is not None else None
     goal_progress_days = (
-        min(current_streak, active_goal_days)
-        if active_goal_days is not None
-        else 0
+        min(current_streak, active_goal_days) if active_goal_days is not None else 0
     )
 
     return (

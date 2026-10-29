@@ -16,6 +16,8 @@ from pydantic import (
     model_validator,
 )
 
+from backend.app.core.clock import today_local
+
 # ---------- Перелічення ----------
 
 
@@ -92,6 +94,7 @@ class EntryCreate(EntryBase):
     """Тіло запиту на створення відмітки дня (FR-001, FR-002)."""
 
     model_config = ConfigDict(
+        extra="forbid",
         json_schema_extra={
             "examples": [
                 {
@@ -105,7 +108,7 @@ class EntryCreate(EntryBase):
                     "date": "2026-10-07",
                 },
             ]
-        }
+        },
     )
 
     date: dt.date = Field(
@@ -124,6 +127,7 @@ class EntryCreate(EntryBase):
 
     comment: str | None = Field(
         None,
+        max_length=2000,
         description="Необов'язковий коментар до запису.",
     )
 
@@ -141,7 +145,7 @@ class EntryCreate(EntryBase):
     def date_not_in_future(cls, value: dt.date) -> dt.date:
         """Забороняє створення відмітки на майбутню дату."""
 
-        if value > dt.date.today():
+        if value > today_local():
             raise ValueError("Не можна відмічати майбутні дні (FR-002)")
 
         return value
