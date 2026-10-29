@@ -1,6 +1,6 @@
 # Інтеграція авторизації Rehab — передача контрактів
 
-**Статус:** код модуля підготовлений у гілці `feature/auth-session`. Наскрізне тестування на PostgreSQL, CI й опублікованій вебверсії ще не виконане.
+**Статус:** код авторизації включено до `develop` через PR №172. Наскрізне тестування на PostgreSQL, CI й опублікованій вебверсії ще не виконане.
 
 ## Анастасія — контракти
 
@@ -25,14 +25,32 @@
 - Налаштувати `JWT_SECRET` тільки в середовищі; **ніколи** не додавати значення секрету у Git чи публічний Expo env.
 - Налаштувати CORS для опублікованого клієнта і `POST`/інші методи, CI для інтеграційних тестів; додати `/admin/users` для ролі admin.
 
+## Відкриті завдання на інтеграцію
+
+- [Issue №179 — auth.router, Python-залежності та CI](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/179) — Софія.
+- [Issue №180 — PostgreSQL, Alembic і get_db](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/180) — Поліна.
+- [PR №178 — форматування backend авторизації](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/178): локально перевірено Black (22 файли без змін), Flake8 (без зауважень) і 44 auth-тести (1 попередження). Це не заміняє загальний CI.
+
 ## Перевірки перед інтеграцією
 
-- Окремий локальний smoke-прогін скопійованої JWT-залежності та тестових сценаріїв: **17 passed, 1 skipped**. Це не повний запуск репозиторію; перевірку `pwdlib`/Argon2 пропущено через відсутню бібліотеку. TypeScript, Expo lint, web export та інтеграцію PostgreSQL не підтверджено.
-- `python -m pytest tests/test_auth_schema_contract.py tests/test_auth.py tests/test_auth_revocation.py tests/test_auth_routes_unit.py tests/test_security_dependency.py -q`.
+- На локальній Windows-копії Rehab шість auth-test файлів: **44 passed, 1 warning**, включно з тестом `pwdlib`/Argon2. TypeScript і web export пройшли; ESLint файлів авторизації пройшов. Загальний lint ще має помилки в чужих вкладках. Реальна PostgreSQL-інтеграція й наскрізний вхід не перевірені.
+- `python -m pytest tests/test_auth.py tests/test_auth_revocation.py tests/test_auth_schema_contract.py tests/test_auth_schema_boundaries.py tests/test_auth_routes_unit.py tests/test_security_dependency.py -q`.
 - Після появи PostgreSQL: реєстрація двох акаунтів → вхід → `/me` → доступ тільки до своїх записів → вихід → старий JWT дає 401 → блокування дає 403 → після розблокування старий JWT не оживає.
 - У `frontend`: `npm ci`, `npx tsc --noEmit`, `npx expo lint`, `npx expo export --platform web`. Перевірити прямі URL, reload і мобільний браузер.
 
-Тут описано контракти й залежності, а не вигадані результати тестування. Файли `main.py`, `requirements.txt`, CI, `docs/validation/*` і `docs/requirements/rtm.md` ця гілка не змінює.
+Тут описано контракти й залежності, а не вигадані результати тестування. Ця гілка доповнює `docs/requirements/rtm.md`, але не змінює `backend/app/main.py`, `requirements.txt`, CI чи `docs/validation/*`.
+
+## Передача моделі загроз авторизації
+
+| Категорія STRIDE | Сценарій | Реалізований захист або залежність |
+|---|---|---|
+| Spoofing | Підроблений або прострочений токен | PyJWT перевіряє підпис HS256, `exp`, `iat`, `sub` та `token_version`; `JWT_SECRET` не зберігається в коді |
+| Elevation of Privilege | Звичайний користувач викликає адмінські дії | `require_role` перевіряє поточну роль із БД; підключення адмінських маршрутів належить Софії |
+| Information Disclosure | Користувач намагається отримати чужі дані | `CurrentUser.user_id` береться з перевіреного токена; власниці календаря, цілей і статистики забезпечують фільтрацію за цим ID |
+| Tampering | Клієнт передає `role` або підмінений `user_id` | Публічна реєстрація забороняє `role`; серверні маршрути повинні визначати власника з `CurrentUser` |
+| Denial of Service | Масові спроби входу | Обмеження частоти запитів і захист від brute force ще не підтверджені; потрібне рішення Софії для розгортання |
+
+У вебверсії токен зберігається у `sessionStorage`, а не в `HttpOnly` cookie. Отже, загальний опис захисних cookies у `docs/architecture/threat-model.md` не відповідає поточній реалізації. Токен може бути доступний шкідливому JavaScript у разі XSS; архітектурна власниця має відобразити цей ризик і фактично налаштовані контрзаходи без тверджень про вже впроваджений CSP.
 
 ## Використання ШІ
 

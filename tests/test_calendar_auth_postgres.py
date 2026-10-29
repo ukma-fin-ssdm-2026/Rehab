@@ -131,18 +131,17 @@ def test_block_and_unblock_do_not_revive_old_session(
     )
 
 
-def test_missing_real_progress_prevents_authenticated_write(
+def test_authenticated_calendar_write_runs_real_progress(
     authenticated_calendar, registered_users, postgres_schema
 ):
     _, headers = registered_users[0]
     response = authenticated_calendar.post(
         URL, headers=headers, json={"date": str(today_local()), "status": "sober"}
     )
-    assert response.status_code == 503
-    assert response.json()["code"] == "PROGRESS_SYNC_UNAVAILABLE"
+    assert response.status_code == 201
     with Session(postgres_schema) as session:
         assert (
-            entries.count_user_entries(session, registered_users[0][0]["user_id"]) == 0
+            entries.count_user_entries(session, registered_users[0][0]["user_id"]) == 1
         )
 
 
