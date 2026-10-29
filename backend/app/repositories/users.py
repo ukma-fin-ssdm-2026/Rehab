@@ -1,4 +1,3 @@
-"""User persistence operations. Callers own transactions and commits."""
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
