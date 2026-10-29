@@ -1,11 +1,9 @@
-"""Password handling and sign-in checks; does not create DB connections."""
 from fastapi import HTTPException
 
 from backend.app.security import _unauthorized
 
 
 def _hasher():
-    # Sofia adds pwdlib[argon2] to shared dependencies.
     from pwdlib import PasswordHash
     return PasswordHash.recommended()
 
