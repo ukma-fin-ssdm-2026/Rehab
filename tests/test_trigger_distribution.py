@@ -63,6 +63,7 @@ def test_trigger_distribution_uses_only_anonymous_categorized_relapses_in_last_3
 
 
 def test_trigger_distribution_rejects_future_reference_date() -> None:
+    tomorrow = dt.date.today() + dt.timedelta(days=1)
     with pytest.raises(ValueError, match="Дата звіту не може бути в майбутньому"):
-        calculate_trigger_distribution([], today=dt.date(2026, 10, 29))
+        calculate_trigger_distribution([], today=tomorrow)
 
