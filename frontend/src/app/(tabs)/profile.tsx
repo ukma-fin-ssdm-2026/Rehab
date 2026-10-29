@@ -8,19 +8,19 @@ import { theme } from '../../constants/theme';
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+
   async function handleLogout() {
     setSaving(true);
     try {
       await signOut();
       router.replace('/login');
     } catch {
-      setError('Не вдалося підтвердити вихід на сервері. Локальну сесію завершено.');
-      router.replace('/login');
+      router.replace('/login?logout=local');
     } finally {
       setSaving(false);
     }
   }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
@@ -34,11 +34,11 @@ export default function ProfileScreen() {
         <Text style={styles.email}>{user?.email ?? ''}</Text>
       </View>
       <Text style={styles.note}>Керування паролем та сповіщеннями буде доступне в наступних версіях.</Text>
-      {!!error && <Text style={styles.error}>{error}</Text>}
       <Button title="Вийти з акаунта" loading={saving} onPress={() => { void handleLogout(); }} />
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: theme.colors.background, padding: 24, gap: 18 },
   eyebrow: { color: theme.colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 },
@@ -52,5 +52,4 @@ const styles = StyleSheet.create({
   nickname: { color: theme.colors.primary },
   email: { color: theme.colors.text },
   note: { color: theme.colors.muted, lineHeight: 21 },
-  error: { color: theme.colors.danger },
 });
