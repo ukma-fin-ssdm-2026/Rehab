@@ -1,6 +1,6 @@
 // AI-GENERATED START
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { fetchAdminUsers, setUserBlocked, type AdminUser } from '../../api/admin';
 import { useAuth } from '../../auth/AuthProvider';
@@ -13,6 +13,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -28,6 +29,7 @@ export default function AdminUsers() {
   }, [load]);
 
   const toggle = async (user: AdminUser) => {
+    setConfirmId(null);
     setBusyId(user.user_id);
     setError(null);
     try {
@@ -62,12 +64,28 @@ export default function AdminUsers() {
           <Text style={item.is_blocked ? styles.blocked : styles.active}>
             {item.is_blocked ? 'Заблоковано' : 'Активний'}
           </Text>
-          {item.role !== 'admin' && (
+          {item.role !== 'admin' && confirmId !== item.user_id && (
             <Button
               title={item.is_blocked ? 'Розблокувати' : 'Заблокувати'}
               loading={busyId === item.user_id}
-              onPress={() => { void toggle(item); }}
+              onPress={() => setConfirmId(item.user_id)}
             />
+          )}
+          {item.role !== 'admin' && confirmId === item.user_id && (
+            <View style={styles.confirm}>
+              <Text style={styles.confirmText}>
+                {item.is_blocked
+                  ? `Розблокувати ${item.email}? Старі сесії не відновляться, потрібен новий вхід.`
+                  : `Заблокувати ${item.email}? Користувач одразу втратить доступ.`}
+              </Text>
+              <Button
+                title={item.is_blocked ? 'Так, розблокувати' : 'Так, заблокувати'}
+                onPress={() => { void toggle(item); }}
+              />
+              <Pressable accessibilityRole="button" onPress={() => setConfirmId(null)} style={styles.cancel}>
+                <Text style={styles.cancelText}>Скасувати</Text>
+              </Pressable>
+            </View>
           )}
         </View>
       )}
@@ -90,5 +108,9 @@ const styles = StyleSheet.create({
   blocked: { color: theme.colors.danger, fontWeight: '700' },
   active: { color: theme.colors.primaryDark, fontWeight: '700' },
   footer: { marginTop: 8 },
+  confirm: { gap: 8 },
+  confirmText: { color: theme.colors.text },
+  cancel: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  cancelText: { color: theme.colors.primaryDark, fontWeight: '700', fontSize: 16 },
 });
 // AI-GENERATED END
