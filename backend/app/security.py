@@ -35,7 +35,9 @@ def _unauthorized(message: str = "Недійсна або прострочена
 def _secret() -> str:
     secret = os.getenv("JWT_SECRET", "")
     if len(secret) < 32:
-        raise RuntimeError("JWT_SECRET має бути заданий і містити щонайменше 32 символи")
+        raise RuntimeError(
+            "JWT_SECRET має бути заданий і містити щонайменше 32 символи"
+        )
     return secret
 
 
