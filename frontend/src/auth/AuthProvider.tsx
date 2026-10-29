@@ -65,13 +65,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [onboardingPending, setOnboardingPending] = useState(false);
   const sessionVersion = useRef(0);
 
-  const clear = useCallback(() => {
+  const clear = useCallback((preserveEntry = false) => {
     sessionVersion.current += 1;
     setAccessToken(null);
     saveToken(null);
     persistPendingUser(null);
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       discardEntryLink(window.sessionStorage);
+      if (preserveEntry) rememberEntryLink(window.sessionStorage, window.location.pathname);
     }
     setUser(null);
     setRestoreError(false);
@@ -110,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    setSessionInvalidHandler(clear);
+    setSessionInvalidHandler(() => clear(true));
     const saved = getSavedToken();
     if (saved) {
       const version = sessionVersion.current;
