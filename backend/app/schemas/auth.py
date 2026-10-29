@@ -1,8 +1,3 @@
-"""Контракти реєстрації та входу Rehab (SEC-001, SEC-002, FR-011).
-
-Модуль не ініціалізує БД; використовується серверними маршрутами Auth.
-"""
-
 import datetime as dt
 import re
 from typing import Literal
@@ -33,18 +28,21 @@ class RegisterRequest(BaseModel):
     email: str = Field(min_length=3, max_length=254)
     password: str = Field(min_length=8, max_length=128)
 
-    @field_validator("name", "nickname")
+    @field_validator("name", "nickname", mode="before")
     @classmethod
-    def trim_nonempty(cls, value: str) -> str:
+    def trim_nonempty(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
         value = value.strip()
         if not value:
             raise ValueError("Поле не може бути порожнім")
         return value
 
-    @field_validator("email")
+    @field_validator("email", mode="before")
     @classmethod
-    def normalize_email(cls, value: str) -> str:
-        # Не обрізаємо пароль: пробіли в ньому є суттєвими.
+    def normalize_email(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
         value = value.strip().lower()
         if not EMAIL_PATTERN.fullmatch(value):
             raise ValueError("Некоректна email-адреса")
