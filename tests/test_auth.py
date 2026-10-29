@@ -59,10 +59,11 @@ def test_secret_is_required(monkeypatch):
 
 
 def test_argon2_password_hash():
-    pytest.importorskip("pwdlib")
     from backend.app.services.auth import hash_password, verify_password
     digest = hash_password(" strong pass ")
+    second = hash_password(" strong pass ")
     assert digest != " strong pass "
     assert digest.startswith("$argon2")
+    assert digest != second
     assert verify_password(" strong pass ", digest)
     assert not verify_password("wrong", digest)
