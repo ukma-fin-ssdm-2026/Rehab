@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { getStatisticsUrl } from '../../config/api';
+import { apiRequest } from '../../api/client';
 import { theme } from '../../constants/theme';
 
 type Statistics = {
@@ -28,15 +28,7 @@ export default function GoalsScreen() {
     setError('');
 
     try {
-      const response = await fetch(getStatisticsUrl('all'), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
+      setData(await apiRequest<Statistics>('/statistics?period=all'));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Не вдалося завантажити цілі',
