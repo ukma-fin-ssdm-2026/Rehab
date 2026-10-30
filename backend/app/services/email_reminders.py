@@ -31,7 +31,7 @@ SENDING_TIMEOUT = dt.timedelta(minutes=5)
 SUBJECT = "Нагадування Rehab"
 GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
 GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.send"
-GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_OAUTH_EXCHANGE_URL = "https://oauth2.googleapis.com/token"
 
 
 class SendRejected(Exception):
@@ -77,7 +77,7 @@ class GmailSender:
             refresh_token=refresh_token,
             client_id=client_id,
             client_secret=client_secret,
-            token_uri=GOOGLE_TOKEN_URL,
+            token_uri=GOOGLE_OAUTH_EXCHANGE_URL,
             scopes=[GMAIL_SCOPE],
         )
         self._session = AuthorizedSession(credentials)
