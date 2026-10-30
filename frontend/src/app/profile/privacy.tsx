@@ -9,14 +9,15 @@ type MentorResponse = { item: { mentor: { nickname: string; email: string } } | 
 
 export default function PrivacyScreen() {
   const { user } = useAuth();
+  return <PrivacyContent key={user?.user_id ?? 'guest'} />;
+}
+
+function PrivacyContent() {
   const [mentor, setMentor] = useState<MentorResponse['item']>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   useEffect(() => {
     let active = true;
-    setMentor(null);
-    setLoading(true);
-    setError(false);
     apiRequest<MentorResponse>('/mentorships/my-mentor').then(result => {
       if (active) setMentor(result.item);
     }).catch(() => {
@@ -25,7 +26,7 @@ export default function PrivacyScreen() {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [user?.user_id]);
+  }, []);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Приватність і доступ</Text>
