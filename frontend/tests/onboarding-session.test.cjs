@@ -104,11 +104,12 @@ test('private calendar details and onboarding have separate access rules', () =>
         return { AuthProvider() {}, useAuth: () => auth };
       }
       if (name === '../components/ui/ScreenState') return { ScreenState };
+      if (name === '../profile/ProfileProvider') return { ProfileProvider() {} };
       throw new Error(name);
     },
   }, { filename: layoutFile });
 
-  const navigation = exports.default().props.children.type;
+  const navigation = exports.default().props.children.props.children.type;
   const waiting = navigation();
   assert.equal(waiting.type, ScreenState);
   assert.equal(waiting.props.state, 'loading');
@@ -131,6 +132,12 @@ test('private calendar details and onboarding have separate access rules', () =>
   auth = { ...auth, onboardingPending: false };
   assert.equal(routeGroup('onboarding').props.guard, false);
   assert.equal(routeGroup('entry/[record_id]').props.guard, true);
+  for (const name of [
+    'profile/edit', 'profile/password', 'profile/notifications',
+    'profile/style', 'profile/privacy', 'profile/help',
+  ]) {
+    assert.equal(routeGroup(name).props.guard, true);
+  }
 
   auth = { user: null, loading: false, restoreError: false, onboardingPending: false };
   assert.equal(routeGroup('entry/[record_id]').props.guard, false);
