@@ -1,38 +1,10 @@
 # AI-GENERATED START
-"""Схеми адмінського API: акаунти й анонімна діаграма тригерів."""
+"""Схеми адмінського API: анонімна діаграма тригерів."""
 
 import datetime as dt
-from typing import Literal
-
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from backend.app.models import TriggerCategory
-
-
-class AdminUserOut(BaseModel):
-    """Публічний стан акаунта. Без password_hash і token_version."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    user_id: int
-    name: str
-    nickname: str
-    email: str
-    role: Literal["user", "mentor", "admin"]
-    is_blocked: bool
-
-
-class AdminUserList(BaseModel):
-    items: list[AdminUserOut]
-    total: int
-    limit: int
-    offset: int
-
-
-class BlockRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    is_blocked: bool = Field(..., description="true: заблокувати, false: розблокувати.")
 
 
 class TriggerStat(BaseModel):

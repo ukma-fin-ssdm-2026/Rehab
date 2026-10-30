@@ -1,5 +1,5 @@
 # AI-GENERATED START
-"""Адмінські маршрути: ролі, блокування, анонімна діаграма тригерів.
+"""Адмінські маршрути: ролі та анонімна діаграма тригерів.
 
 SQLAlchemy-запити виконуються на ізольованій PostgreSQL зі спільними
 міграціями. Записи календаря для аналітики підміняє list_relapse_entries.
@@ -76,8 +76,10 @@ def admin_user(session):
 
 
 ROUTES = [
-    ("get", "/api/v1/admin/users"),
-    ("patch", "/api/v1/admin/users/1/block"),
+    ("get", "/api/v1/admin/complaints"),
+    ("get", "/api/v1/admin/complaints/1"),
+    ("patch", "/api/v1/admin/complaints/1"),
+    ("get", "/api/v1/admin/overview"),
     ("get", "/api/v1/admin/trigger-distribution"),
 ]
 
@@ -85,7 +87,7 @@ ROUTES = [
 def call(client, method, url, headers=None):
     kwargs = {"headers": headers or {}}
     if method == "patch":
-        kwargs["json"] = {"is_blocked": True}
+        kwargs["json"] = {"decision": "rejected"}
     return getattr(client, method)(url, **kwargs)
 
 
@@ -108,92 +110,14 @@ def test_admin_routes_for_user_and_mentor_return_403(
     assert response.json()["code"] == "FORBIDDEN"
 
 
-def test_users_list_is_paginated_and_has_no_secrets(client, session, admin_user):
-    for _ in range(3):
-        make_user(session, "user")
+@pytest.mark.parametrize(
+    "method,url",
+    [("get", "/api/v1/admin/users"), ("patch", "/api/v1/admin/users/1/block")],
+)
+def test_old_account_list_and_block_routes_are_removed(client, admin_user, method, url):
+    response = call(client, method, url, auth(admin_user))
 
-    response = client.get(
-        "/api/v1/admin/users?limit=2&offset=1", headers=auth(admin_user)
-    )
-
-    body = response.json()
-    assert response.status_code == 200
-    assert (body["total"], body["limit"], body["offset"]) == (4, 2, 1)
-    assert len(body["items"]) == 2
-    for item in body["items"]:
-        assert set(item) == {
-            "user_id",
-            "name",
-            "nickname",
-            "email",
-            "role",
-            "is_blocked",
-        }
-    assert "password" not in response.text
-    assert "token" not in response.text
-
-
-def test_blocking_rejects_old_token_and_unblocking_does_not_restore_it(
-    client, session, admin_user
-):
-    target = make_user(session, "user")
-    old = auth(target)
-    assert client.get("/api/v1/probe", headers=old).status_code == 200
-    url = f"/api/v1/admin/users/{target.user_id}/block"
-
-    blocked = client.patch(url, json={"is_blocked": True}, headers=auth(admin_user))
-
-    assert blocked.status_code == 200
-    assert blocked.json()["is_blocked"] is True
-    rejected = client.get("/api/v1/probe", headers=old)
-    assert rejected.status_code == 403
-    assert rejected.json()["code"] == "ACCOUNT_BLOCKED"
-
-    unblocked = client.patch(url, json={"is_blocked": False}, headers=auth(admin_user))
-
-    assert unblocked.json()["is_blocked"] is False
-    assert client.get("/api/v1/probe", headers=old).status_code == 401
-    session.refresh(target)
-    assert client.get("/api/v1/probe", headers=auth(target)).status_code == 200
-
-
-def test_repeated_block_is_not_an_error_and_keeps_token_version(
-    client, session, admin_user
-):
-    target = make_user(session, "user")
-    url = f"/api/v1/admin/users/{target.user_id}/block"
-
-    first = client.patch(url, json={"is_blocked": True}, headers=auth(admin_user))
-    version = session.get(User, target.user_id).token_version
-    second = client.patch(url, json={"is_blocked": True}, headers=auth(admin_user))
-
-    assert first.status_code == second.status_code == 200
-    assert session.get(User, target.user_id).token_version == version
-
-
-def test_admin_cannot_block_self_or_another_admin(client, session, admin_user):
-    other = make_user(session, "admin", email="other-admin@example.test")
-
-    for target in (admin_user, other):
-        response = client.patch(
-            f"/api/v1/admin/users/{target.user_id}/block",
-            json={"is_blocked": True},
-            headers=auth(admin_user),
-        )
-
-        assert response.status_code == 403
-        assert response.json()["code"] == "ADMIN_BLOCK_NOT_ALLOWED"
-
-
-def test_block_unknown_user_returns_404(client, admin_user):
-    response = client.patch(
-        "/api/v1/admin/users/9999/block",
-        json={"is_blocked": True},
-        headers=auth(admin_user),
-    )
-
-    assert response.status_code == 404
-    assert response.json()["code"] == "USER_NOT_FOUND"
+    assert response.status_code in (404, 405)
 
 
 def _entries(counts, today):
@@ -229,7 +153,7 @@ def test_distribution_is_30_days_with_correct_shares_and_no_personal_data(
 ):
     from backend.app.core.clock import today_local
 
-    today = min(today_local(), dt.date.today())
+    today = today_local()
     captured = _patch_entries(
         monkeypatch,
         _entries(

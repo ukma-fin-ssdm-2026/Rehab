@@ -1,21 +1,24 @@
 # AI-GENERATED START
-"""Адмінський API (тільки роль admin): акаунти, блокування, діаграма тригерів.
+"""Адмінський API (тільки роль admin): скарги, агрегати, діаграма тригерів.
 
 Імпорти шару БД (модель User, репозиторії, годинник) відкладені до виклику,
 як у security.py, щоб `app` імпортувався без підключення до БД.
 """
 
 import datetime as dt
+from typing import Literal
 
 from fastapi import APIRouter, Depends, Query
 
-from backend.app.errors import COMMON_RESPONSES, api_error
+from backend.app.errors import COMMON_RESPONSES
 from backend.app.models import ErrorResponse
-from backend.app.schemas.admin import (
-    AdminUserList,
-    AdminUserOut,
-    BlockRequest,
-    TriggerDistributionOut,
+from backend.app.schemas.admin import TriggerDistributionOut
+from backend.app.schemas.complaints import (
+    AdminComplaintList,
+    AdminComplaintOut,
+    AdminOverview,
+    ComplaintDecision,
+    ComplaintOut,
 )
 from backend.app.security import CurrentUser, _db_session, require_role
 
@@ -28,61 +31,81 @@ ADMIN_RESPONSES = {
 REPORT_DAYS = 30
 
 
-@router.get("/users", response_model=AdminUserList, responses=ADMIN_RESPONSES)
-def list_users(
+COMPLAINT_RESPONSES = {
+    **ADMIN_RESPONSES,
+    404: {"model": ErrorResponse, "description": "Скаргу не знайдено"},
+}
+
+
+@router.get("/complaints", response_model=AdminComplaintList, responses=ADMIN_RESPONSES)
+def list_complaints(
+    status: Literal["pending", "approved", "rejected", "all"] = "pending",
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db=Depends(_db_session),
     _admin: CurrentUser = Depends(require_role("admin")),
-) -> AdminUserList:
-    """Сторінка акаунтів без хешів паролів і службових полів."""
-    from sqlalchemy import func, select
+) -> AdminComplaintList:
+    """Скарги з фігурантами; глобального списку акаунтів немає."""
+    from backend.app.services import complaints
 
-    from backend.app.db.models.user import User
-
-    total = db.scalar(select(func.count()).select_from(User)) or 0
-    rows = db.scalars(
-        select(User).order_by(User.user_id).limit(limit).offset(offset)
-    ).all()
-    return AdminUserList(
-        items=[AdminUserOut.model_validate(row) for row in rows],
+    rows, total = complaints.list_complaints(db, status, limit, offset)
+    return AdminComplaintList(
+        items=[complaints.to_admin_out(db, row) for row in rows],
         total=total,
         limit=limit,
         offset=offset,
     )
 
 
+@router.get(
+    "/complaints/{complaint_id}",
+    response_model=AdminComplaintOut,
+    responses=COMPLAINT_RESPONSES,
+)
+def get_complaint(
+    complaint_id: int,
+    db=Depends(_db_session),
+    _admin: CurrentUser = Depends(require_role("admin")),
+) -> AdminComplaintOut:
+    from backend.app.services import complaints
+
+    return complaints.to_admin_out(db, complaints.get_complaint(db, complaint_id))
+
+
 @router.patch(
-    "/users/{user_id}/block",
-    response_model=AdminUserOut,
+    "/complaints/{complaint_id}",
+    response_model=ComplaintOut,
     responses={
-        **ADMIN_RESPONSES,
-        404: {"model": ErrorResponse, "description": "Акаунт не знайдено"},
+        **COMPLAINT_RESPONSES,
+        409: {"model": ErrorResponse, "description": "Скаргу вже розглянуто"},
     },
 )
-def block_user(
-    user_id: int,
-    payload: BlockRequest,
+def decide_complaint(
+    complaint_id: int,
+    payload: ComplaintDecision,
     db=Depends(_db_session),
     admin: CurrentUser = Depends(require_role("admin")),
-) -> AdminUserOut:
-    """Блокує або розблокує акаунт. Розблокування не оживляє старі токени."""
-    from backend.app.repositories.users import get_user, set_blocked
+) -> ComplaintOut:
+    """Схвалення завершує зв'язок пари назавжди; відхилення його не відновлює."""
+    from backend.app.services import complaints
 
-    target = get_user(db, user_id)
-    if target is None:
-        raise api_error(404, "USER_NOT_FOUND", "Акаунт не знайдено")
-    if payload.is_blocked and (
-        target.user_id == admin.user_id or target.role == "admin"
-    ):
-        raise api_error(
-            403, "ADMIN_BLOCK_NOT_ALLOWED", "Адміністратора блокувати не можна"
-        )
-    # Повторне встановлення поточного стану не помилка й не чіпає token_version.
-    if target.is_blocked != payload.is_blocked:
-        target = set_blocked(db, user_id, payload.is_blocked)
-        db.commit()
-    return AdminUserOut.model_validate(target)
+    complaint = complaints.decide_complaint(
+        db, complaint_id, admin.user_id, payload.decision
+    )
+    db.commit()
+    return ComplaintOut.model_validate(complaint)
+
+
+@router.get("/overview", response_model=AdminOverview, responses=ADMIN_RESPONSES)
+def overview(
+    db=Depends(_db_session),
+    _admin: CurrentUser = Depends(require_role("admin")),
+) -> AdminOverview:
+    """Агрегати без персональних даних; межі днів — Europe/Kyiv."""
+    from backend.app.core.clock import today_local
+    from backend.app.services.complaints import admin_overview
+
+    return admin_overview(db, today_local())
 
 
 @router.get(
@@ -99,9 +122,7 @@ def trigger_distribution(
     from backend.app.repositories.entries import list_relapse_entries
     from backend.app.services.statistics import calculate_trigger_distribution
 
-    # calculate_trigger_distribution порівнює з dt.date.today() хоста, тож
-    # між 00:00 і 03:00 за Києвом today_local() може бути "завтра" для сервера.
-    today = min(today_local(), dt.date.today())
+    today = today_local()
     entries = list_relapse_entries(
         db, today - dt.timedelta(days=REPORT_DAYS - 1), today
     )
