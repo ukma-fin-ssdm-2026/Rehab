@@ -69,7 +69,7 @@ export async function apiRequest<T>(
     if (
       requestToken !== null &&
       requestToken === token &&
-      (response.status === 401 || (response.status === 403 && code === 'ACCOUNT_BLOCKED'))
+      response.status === 401
     ) {
       sessionInvalid?.();
     }
