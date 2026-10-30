@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../auth/AuthProvider';
+import { validateLogin } from '../auth/credentialForms';
 import { ApiError } from '../api/client';
 import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
@@ -19,14 +20,15 @@ export default function LoginScreen() {
   if (user) return <Redirect href="/" />;
 
   async function handleLogin() {
-    if (!email.trim() || !password) {
-      setError('Заповни email і пароль.');
+    const validation = validateLogin(email, password);
+    if (!validation.ok) {
+      setError(validation.error);
       return;
     }
     setSaving(true);
     setError('');
     try {
-      await signIn(email, password);
+      await signIn(validation.email, validation.password);
       router.replace('/');
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : 'Не вдалося зв’язатися із сервером.');
