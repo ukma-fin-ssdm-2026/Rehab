@@ -95,6 +95,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Frontend tests
+        run: npm run test:api
+
       - name: Web export
         env:
           EXPO_PUBLIC_API_URL: http://localhost:8000
