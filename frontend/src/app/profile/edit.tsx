@@ -1,25 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { updateProfile } from '../../api/profile';
 import { useAuth } from '../../auth/AuthProvider';
 import { FormField } from '../../components/ui/FormField';
 import { Button } from '../../components/ui/Button';
+import { ScreenState } from '../../components/ui/ScreenState';
 import { useProfile } from '../../profile/ProfileProvider';
+import type { ProfileOut } from '../../profile/types';
 import { profileStyles as styles } from '../../profile/styles';
 
-export default function EditProfileScreen() {
-  const { profile, refreshProfile } = useProfile();
+function EditProfileForm({ profile, refreshProfile }: {
+  profile: ProfileOut;
+  refreshProfile: () => Promise<void>;
+}) {
   const { refresh } = useAuth();
-  const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [name, setName] = useState(profile.name);
+  const [nickname, setNickname] = useState(profile.nickname);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    setName(profile?.name ?? '');
-    setNickname(profile?.nickname ?? '');
-  }, [profile?.user_id, profile?.name, profile?.nickname]);
 
   async function save() {
     const nextName = name.trim();
@@ -49,11 +48,21 @@ export default function EditProfileScreen() {
         <FormField label="Ім’я" value={name} onChangeText={setName} maxLength={110} />
         <FormField label="Нікнейм" value={nickname} onChangeText={setNickname}
           maxLength={60} autoCapitalize="none" />
-        <Text style={styles.muted}>Email: {profile?.email ?? ''}</Text>
+        <Text style={styles.muted}>Email: {profile.email}</Text>
         {!!error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
-        <Button title="Зберегти" disabled={!profile || saving} loading={saving}
+        <Button title="Зберегти" disabled={saving} loading={saving}
           onPress={() => { void save(); }} />
       </View>
     </ScrollView>
   );
+}
+
+export default function EditProfileScreen() {
+  const { profile, loading, error, refreshProfile } = useProfile();
+  if (!profile) {
+    return <ScreenState state={loading ? 'loading' : 'error'}
+      message={error ?? undefined} onRetry={() => { void refreshProfile(); }} />;
+  }
+  return <EditProfileForm key={profile.user_id} profile={profile}
+    refreshProfile={refreshProfile} />;
 }
