@@ -1,45 +1,102 @@
 @startuml
-title Rehab: implemented PostgreSQL schema — KT1 / calendar KT2
+!pragma layout smetana
+title Rehab: shared PostgreSQL foundation 0002 (API/UI integration follows)
+hide circle
+skinparam linetype ortho
+skinparam dpi 110
 entity users {
-  * user_id : integer <<identity, PK>>
+  * user_id : integer PK
   --
-  email : varchar(254) <<unique>>
-  name : varchar(100)
-  nickname : varchar(50)
-  password_hash : varchar(512)
-  role : user / mentor / admin
-  is_blocked : boolean
-  token_version : integer
-  tracking_start_date : date
-  best_streak : integer
-  created_at : timestamptz
+  email : unique
+  mentor_code : unique, 12 random chars
+  email_reminders_enabled : false
+  message_style : formal/humorous/zen/strict
+  password_hash, token_version
+  tracking_start_date, best_streak
 }
 entity day_records {
-  * record_id : integer <<identity, PK>>
+  * record_id : integer PK
   --
-  user_id : integer <<FK>>
-  date : date
-  status : sober / relapse
-  trigger_category : nullable varchar(16)
-  drinks : JSONB array
-  comment : nullable varchar(2000)
-  created_at : timestamptz
-  updated_at : timestamptz
+  user_id : FK
+  date, status, trigger_category
+  drinks : JSONB
+  comment, created_at, updated_at
+  first_relapse_at : nullable UTC
   unique(user_id, date)
 }
-entity goals {
-  * goal_id : integer <<identity, PK>>
+entity goals <<legacy>> {
+  * goal_id : integer PK
   --
-  user_id : integer <<FK>>
-  target_days : integer [legacy, ignored by application]
-  is_achieved : boolean
-  created_at : timestamptz
-  updated_at : timestamptz
+  user_id : FK
+  target_days, is_achieved
+  not used by fixed milestones
+}
+entity user_avatars {
+  * user_id : PK, FK
+  --
+  image_data : JPEG BYTEA <= 256 KiB
+  version, updated_at
+}
+entity mentorships {
+  * relationship_id : integer PK
+  --
+  mentor_id, mentee_id : FK
+  status : active/ended
+  ended_at, ended_by, ended_reason
+  unique(mentor_id, mentee_id)
+  unique active mentee_id
+}
+entity notifications {
+  * notification_id : integer PK
+  --
+  recipient_id, sender_id : FK
+  kind, event_key, business_date
+  relationship_id, record_id : FK
+  support_comment_id : nullable FK
+  created_at, read_at
+  unique(recipient_id, event_key)
+}
+entity support_comments {
+  * support_comment_id : integer PK
+  --
+  relationship_id : FK
+  relapse_notification_id : unique FK
+  author_id, recipient_id : FK
+  text : 1..2000 chars
+  created_at
+}
+entity complaints {
+  * complaint_id : integer PK
+  --
+  relationship_id : FK
+  reporter_id, reported_id : FK
+  support_comment_id : nullable FK
+  reason, evidence_text
+  status, reviewed_at, reviewed_by
+  unique pending reporter/reported pair
+}
+entity email_reminder_deliveries {
+  * delivery_id : integer PK
+  --
+  notification_id : unique FK
+  recipient_id : FK
+  business_date, status, attempts
+  claimed_at, sent_at, provider_message_id
 }
 users ||--o{ day_records
-users ||--o{ goals : legacy schema only
+users ||--o{ goals : legacy
+users ||--o| user_avatars
+users ||--o{ mentorships : mentor / mentee
+users ||--o{ notifications : recipient
+mentorships ||--o{ notifications
+mentorships ||--o{ support_comments
+mentorships ||--o{ complaints
+notifications ||--o| support_comments : relapse event
+support_comments |o--o{ notifications : support delivery
+support_comments |o--o{ complaints : optional evidence
+notifications ||--o| email_reminder_deliveries
 note bottom
-Mentorship, notifications and complaints are planned, not created by this migration.
-User and Goal ORM models are owned by Anastasiia and Mariia respectively.
+Main relations shown. All FK columns and constraints are in migration/ORM.
+Ending a relationship retains history; no historical notifications are sent by migration.
 end note
 @enduml

@@ -85,7 +85,7 @@ def test_main_app_register_calendar_goal_stats_and_logout(main_api):
 
     goals = main_api.get(f"{API}/goals", headers=headers)
     assert goals.status_code == 200, goals.text
-    assert [item["target_days"] for item in goals.json()["items"]] == [7, 30]
+    assert [item["target_days"] for item in goals.json()["items"]] == [7, 30, 90, 180, 365]
     assert goals.json()["items"][0]["is_achieved"] is False
     stats = main_api.get(f"{API}/statistics", headers=headers)
     assert stats.status_code == 200, stats.text

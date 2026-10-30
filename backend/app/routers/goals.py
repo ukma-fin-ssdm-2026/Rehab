@@ -14,7 +14,7 @@ router = APIRouter(prefix="/goals", tags=["Goals"])
     "",
     response_model=GoalList,
     summary="Отримати фіксовані етапи тверезості",
-    description="Повертає етапи 7 і 30 днів та їхній прогрес для поточного користувача.",
+    description="Повертає етапи 7, 30, 90, 180 і 365 днів та їхній прогрес для поточного користувача.",
     responses={**COMMON_RESPONSES},
 )
 def list_goals(

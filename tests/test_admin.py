@@ -1,9 +1,8 @@
 # AI-GENERATED START
 """Адмінські маршрути: ролі, блокування, анонімна діаграма тригерів.
 
-Справжні SQLAlchemy-запити виконуються на in-memory SQLite (лише таблиця
-users), без PostgreSQL. Це тестова заміна: PostgreSQL-поведінку перевіряють
-тести з conftest Поліни. Записи календаря підміняє list_relapse_entries.
+SQLAlchemy-запити виконуються на ізольованій PostgreSQL зі спільними
+міграціями. Записи календаря для аналітики підміняє list_relapse_entries.
 """
 
 import datetime as dt
@@ -12,9 +11,6 @@ import pytest
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.pool import StaticPool
 
 pytest.importorskip(
     "backend.app.db.base",
@@ -22,7 +18,6 @@ pytest.importorskip(
 )
 
 from backend.app import security  # noqa: E402
-from backend.app.db.base import Base  # noqa: E402
 from backend.app.db.models.user import User  # noqa: E402
 from backend.app.main import (  # noqa: E402
     http_exception_handler,
@@ -35,15 +30,9 @@ SECRET = "admin-test-secret-at-least-32-characters-long"
 
 
 @pytest.fixture
-def session(monkeypatch):
+def session(monkeypatch, calendar_db):
     monkeypatch.setenv("JWT_SECRET", SECRET)
-    engine = create_engine(
-        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-    )
-    Base.metadata.create_all(engine, tables=[User.__table__])
-    with Session(engine, expire_on_commit=False) as db:
-        yield db
-    engine.dispose()
+    yield calendar_db
 
 
 @pytest.fixture
