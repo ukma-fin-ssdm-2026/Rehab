@@ -60,11 +60,6 @@ def app_client(monkeypatch):
         account = get_user_by_email(db, email)
         if account is None or account.password_hash != "unit_hash_" + password:
             raise security._unauthorized("Неправильна електронна адреса або пароль")
-        if account.is_blocked:
-            from fastapi import HTTPException
-            raise HTTPException(status_code=403, detail={
-                "code": "ACCOUNT_BLOCKED", "message": "Ваш акаунт заблоковано",
-            })
         return account
 
     monkeypatch.setattr(router_module, "authenticate", authenticate)
@@ -127,15 +122,15 @@ def test_wrong_password_and_missing_token(app_client):
     assert client.get("/api/v1/auth/me").status_code == 401
 
 
-def test_blocked_account_cannot_use_token_or_login(app_client):
+def test_legacy_block_flag_no_longer_prevents_authentication(app_client):
     client, users = app_client
     register(client)
     token = login(client).json()["access_token"]
     users[1].is_blocked = True
     assert client.get("/api/v1/auth/me", headers={
         "Authorization": "Bearer " + token,
-    }).status_code == 403
-    assert login(client).status_code == 403
+    }).status_code == 200
+    assert login(client).status_code == 200
 
 
 def test_register_rejects_admin_role_and_invalid_fields(app_client):
