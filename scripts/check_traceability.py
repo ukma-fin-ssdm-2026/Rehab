@@ -43,7 +43,7 @@ def plan_cases(text: str) -> tuple[dict[int, str], list[str]]:
     issues: list[str] = []
     for line in text.splitlines():
         cells = table_cells(line)
-        if len(cells) != 7 or not CASE_CELL.fullmatch(cells[0]):
+        if len(cells) not in (7, 8) or not CASE_CELL.fullmatch(cells[0]):
             continue
         number = int(cells[0])
         req = cells[-1].replace("`", "").strip()
@@ -54,7 +54,7 @@ def plan_cases(text: str) -> tuple[dict[int, str], list[str]]:
         else:
             cases[number] = req
     if not cases:
-        issues.append("У тест-плані не знайдено таблиці кейсів із 7 колонками")
+        issues.append("У тест-плані не знайдено таблиці кейсів із 7 або 8 колонками")
     return cases, issues
 
 
