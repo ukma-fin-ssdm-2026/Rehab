@@ -43,6 +43,7 @@ export async function pickProfileAvatar(): Promise<PickedAvatar | null> {
     if (!response.ok) throw new Error('Не вдалося прочитати вибране фото.');
     return response.blob();
   });
+  if (!image) throw new Error('Не вдалося прочитати вибране фото.');
   if (image.size > MAX_AVATAR_BYTES) {
     throw new Error('Фото перевищує 5 МіБ. Обери менше зображення.');
   }
