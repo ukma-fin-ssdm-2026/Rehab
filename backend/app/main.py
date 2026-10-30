@@ -17,7 +17,15 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.app.routers import admin, auth, complaints, goals, health, statistics
+from backend.app.routers import (
+    admin,
+    auth,
+    complaints,
+    goals,
+    health,
+    jobs,
+    statistics,
+)
 
 # AI-GENERATED START
 # KT-1: календар на PostgreSQL (Поліна) замість in-memory stubs.
@@ -53,6 +61,13 @@ tags_metadata = [
     {
         "name": "Complaints",
         "description": "Скарга підопічного на ментора конкретного зв'язку.",
+    },
+    {
+        "name": "Jobs",
+        "description": (
+            "Службовий запуск нагадувань за розкладом; лише з секретом "
+            "X-Job-Token, не для користувачів."
+        ),
     },
     {
         "name": "Health",
@@ -170,4 +185,5 @@ app.include_router(statistics.router, prefix=API_PREFIX)
 app.include_router(health.router)
 app.include_router(admin.router, prefix=API_PREFIX)
 app.include_router(complaints.router, prefix=API_PREFIX)
+app.include_router(jobs.router)
 # AI-GENERATED END
