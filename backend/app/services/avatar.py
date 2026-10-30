@@ -23,7 +23,9 @@ def normalize_avatar(raw: bytes) -> bytes:
             register_heif_opener()
             with Image.open(BytesIO(raw)) as original:
                 if original.format not in ALLOWED_FORMATS:
-                    raise api_error(422, "INVALID_AVATAR", "Непідтримуваний формат фото")
+                    raise api_error(
+                        422, "INVALID_AVATAR", "Непідтримуваний формат фото"
+                    )
                 width, height = original.size
                 if width <= 0 or height <= 0 or width * height > MAX_IMAGE_PIXELS:
                     raise api_error(
