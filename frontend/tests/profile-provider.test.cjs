@@ -105,6 +105,7 @@ test('changing accounts hides old photo and preferences even before effects run'
   app.setUser({ user_id: 1, role: 'user' });
   app.render();
   app.runEffects();
+  await settled();
   assert.equal(app.requests.length, 1);
   app.requests[0].resolve({
     user_id: 1, has_avatar: true, message_style: 'zen',
@@ -114,6 +115,7 @@ test('changing accounts hides old photo and preferences even before effects run'
   app.setUser({ user_id: 2, role: 'user' });
   assert.equal(app.render().profile, null);
   app.runEffects();
+  await settled();
   assert.equal(app.requests.length, 2);
   app.requests[1].resolve({
     user_id: 2, has_avatar: false, message_style: 'formal',
@@ -129,9 +131,11 @@ test('late response for previous account never replaces current profile', async 
   app.setUser({ user_id: 12, role: 'user' });
   app.render();
   app.runEffects();
+  await settled();
   app.setUser({ user_id: 13, role: 'user' });
   app.render();
   app.runEffects();
+  await settled();
   app.requests[1].resolve({ user_id: 13, message_style: 'strict' });
   await settled();
   assert.equal(app.render().profile.user_id, 13);
@@ -147,5 +151,17 @@ test('admin or signed-out sessions never request private profile data', () => {
   app.setUser({ user_id: 1, role: 'admin' });
   app.render();
   app.runEffects();
+  assert.equal(app.requests.length, 0);
+});
+
+test('cancelled profile effect makes no request after switching accounts', async () => {
+  const app = harness();
+  app.setUser({ user_id: 19, role: 'user' });
+  app.render();
+  app.runEffects();
+  app.setUser(null);
+  app.render();
+  app.runEffects();
+  await settled();
   assert.equal(app.requests.length, 0);
 });
