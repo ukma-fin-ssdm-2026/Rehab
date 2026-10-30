@@ -45,6 +45,12 @@ def normalize_avatar(raw: bytes) -> bytes:
                     image.save(out, format="JPEG", quality=quality, optimize=True)
                     if out.tell() <= MAX_RESULT_BYTES:
                         return out.getvalue()
-    except (UnidentifiedImageError, OSError, ValueError, SyntaxError) as exc:
+    except (
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        OSError,
+        ValueError,
+        SyntaxError,
+    ) as exc:
         raise api_error(422, "INVALID_AVATAR", "Не вдалося прочитати фото") from exc
     raise api_error(422, "INVALID_AVATAR", "Фото неможливо стиснути до 256 KiB")
