@@ -41,11 +41,15 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [userId]);
 
   useEffect(() => {
+    let active = true;
     if (userId !== null) {
-      void refreshProfile();
+      void Promise.resolve().then(() => {
+        if (active) return refreshProfile();
+      });
     }
     const versionRef = requestVersion;
     return () => {
+      active = false;
       versionRef.current += 1;
     };
   }, [userId, refreshProfile]);
