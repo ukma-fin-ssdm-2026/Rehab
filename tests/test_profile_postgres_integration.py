@@ -155,7 +155,7 @@ def test_password_error_preserves_session_success_revokes_prior_jwts(
         },
     )
     assert wrong.status_code == 400, wrong.text
-    assert wrong.json()["detail"]["code"] == "CURRENT_PASSWORD_INCORRECT"
+    assert wrong.json()["code"] == "CURRENT_PASSWORD_INCORRECT"
     assert profile_api.get(f"{API}/auth/me", headers=old_headers).status_code == 200
 
     # A separate simultaneous login simulates an older second device.
