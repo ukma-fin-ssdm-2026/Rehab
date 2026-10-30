@@ -25,7 +25,7 @@ export default function Index() {
       onRetry={() => { void retryRestore(); }} />;
   }
   if (!user) return <Redirect href="/login" />;
-  if (user.role === 'admin') return <Redirect href="/admin/users" />;
+  if (user.role === 'admin') return <Redirect href="/admin/complaints" />;
   if (onboardingPending) return <Redirect href="/onboarding" />;
   if (entryLink === undefined) return <ScreenState state="loading" />;
   return <Redirect href={entryLink ? entryLink as Href : '/(tabs)/home'} />;
