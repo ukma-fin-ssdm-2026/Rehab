@@ -9,6 +9,8 @@ import base64
 from io import BytesIO
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from PIL import Image
 from sqlalchemy.orm import Session
 
@@ -256,6 +258,28 @@ def test_avatar_private_replace_failed_upload_and_persistence(
     assert again.json()["avatar_version"] == 2
     assert again.json()["data_url"] != data_url
 
+    # Re-create the API application and its SQL sessions (simulated API restart).
+    restarted = FastAPI()
+    restarted.include_router(profile_router.router, prefix=API)
+
+    def independent_database():
+        with Session(postgres_schema, expire_on_commit=False) as session:
+            try:
+                yield session
+            except BaseException:
+                session.rollback()
+                raise
+
+    restarted.dependency_overrides[profile_router._db_session] = independent_database
+    with TestClient(restarted) as fresh_client:
+        fresh_avatar = fresh_client.get(f"{API}/profile/avatar", headers=headers)
+        assert fresh_avatar.status_code == 200, fresh_avatar.text
+        assert fresh_avatar.json()["avatar_version"] == 2
+        assert fresh_avatar.json()["data_url"] == again.json()["data_url"]
+        assert fresh_client.get(
+            f"{API}/profile", headers=headers
+        ).json()["has_avatar"] is True
+
     deleted = profile_api.delete(f"{API}/profile/avatar", headers=headers)
     assert deleted.status_code == 204
     assert deleted.headers["cache-control"] == "no-store"
@@ -270,3 +294,26 @@ def test_avatar_private_replace_failed_upload_and_persistence(
     ).json()["has_avatar"] is False
     with Session(postgres_schema) as db:
         assert db.get(UserAvatar, first["user_id"]) is None
+
+
+def test_real_heic_codec_upload_is_normalized_in_postgres(
+    profile_api, registered_users
+):
+    """Synthetic HEIC exercises libheif; a real iPhone 48MP file remains manual."""
+    from pillow_heif import register_heif_opener
+
+    register_heif_opener()
+    output = BytesIO()
+    Image.new("RGB", (1200, 900), "#135e73").save(
+        output, format="HEIF", quality=70
+    )
+    assert 0 < output.tell() <= 5 * 1024 * 1024
+    _, headers = registered_users[0]
+    response = upload(profile_api, headers, output.getvalue(), "image/heic")
+    assert response.status_code == 200, response.text
+    saved = profile_api.get(f"{API}/profile/avatar", headers=headers)
+    assert saved.status_code == 200
+    result = base64.b64decode(saved.json()["data_url"].split(",", 1)[1])
+    with Image.open(BytesIO(result)) as image:
+        assert image.format == "JPEG"
+        assert max(image.size) <= 512
