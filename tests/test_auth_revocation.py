@@ -37,12 +37,10 @@ def test_revoked_token(monkeypatch):
     assert error.value.status_code == 401
 
 
-def test_blocked_user(monkeypatch):
+def test_historical_block_flag_does_not_reject_valid_token(monkeypatch):
     user = SimpleNamespace(user_id=7, role="user", is_blocked=True, token_version=0)
-    with pytest.raises(HTTPException) as error:
-        check_token(monkeypatch, user, security.create_access_token(7, 0))
-    assert error.value.status_code == 403
-    assert error.value.detail["code"] == "ACCOUNT_BLOCKED"
+    current = check_token(monkeypatch, user, security.create_access_token(7, 0))
+    assert (current.user_id, current.role) == (7, "user")
 
 
 def test_role_comes_from_database(monkeypatch):
@@ -57,9 +55,9 @@ def test_unknown_account(monkeypatch):
         check_token(monkeypatch, user, security.create_access_token(8, 0))
     assert error.value.status_code == 401
 
-def test_blocking_takes_precedence_over_revocation(monkeypatch):
+def test_revocation_still_rejects_old_token_with_legacy_flag(monkeypatch):
     user = SimpleNamespace(user_id=7, role="user", is_blocked=True, token_version=1)
     with pytest.raises(HTTPException) as error:
         check_token(monkeypatch, user, security.create_access_token(7, 0))
-    assert error.value.status_code == 403
-    assert error.value.detail["code"] == "ACCOUNT_BLOCKED"
+    assert error.value.status_code == 401
+    assert error.value.detail["code"] == "UNAUTHORIZED"
