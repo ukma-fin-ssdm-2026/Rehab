@@ -32,6 +32,7 @@ function ProtectedNavigation() {
         <Stack.Screen name="profile/style" />
         <Stack.Screen name="profile/privacy" />
         <Stack.Screen name="profile/help" />
+        <Stack.Screen name="support/report" />
       </Stack.Protected>
       <Stack.Protected guard={!loading && !!user && user.role === 'admin'}>
         <Stack.Screen name="admin" />
