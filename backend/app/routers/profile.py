@@ -1,6 +1,7 @@
 import base64
 
 from fastapi import APIRouter, Depends, Request, Response
+from starlette.concurrency import run_in_threadpool
 
 from backend.app.errors import api_error
 from backend.app.repositories.users import lock_user_for_update
@@ -95,7 +96,7 @@ async def put_avatar(
             raise api_error(413, "AVATAR_TOO_LARGE", "Фото перевищує 5 MiB")
         raw.extend(chunk)
 
-    processed = normalize_avatar(bytes(raw))
+    processed = await run_in_threadpool(normalize_avatar, bytes(raw))
     account = lock_user_for_update(db, user.user_id)
     if account is None:
         raise api_error(401, "UNAUTHORIZED", "Недійсна сесія")
