@@ -45,7 +45,7 @@ export function AvatarView({ profile, size = 82 }: { profile: ProfileOut; size?:
 
   return (
     <View style={frame}>
-      {valid ? (
+      {valid && avatar ? (
         <Image source={{ uri: avatar.dataUrl }}
           style={{ width: size, height: size }} accessibilityLabel="Фото профілю" />
       ) : (
