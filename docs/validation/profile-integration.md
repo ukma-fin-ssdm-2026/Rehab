@@ -1,9 +1,14 @@
 # Перевірка профілю з PostgreSQL — КТ-Б / КТ-В
 
-Стан на 30.10.2026: інтеграційні сценарії підготовлено у
-`tests/test_profile_postgres_integration.py`. Їх **не слід позначати пройденими**,
-доки не буде реального результату pytest на ізольованій PostgreSQL. Міграція
-Поліни `0002_team_foundation` є у `develop`, а PR профілю №212 — draft.
+Стан на 30.10.2026: інтеграційні сценарії реалізовано у
+`tests/test_profile_postgres_integration.py`. **Підтверджено GitHub Actions**:
+[CI Pipeline, коміт `4fc6e31`](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41096315893)
+запустив ізольовану PostgreSQL 16, успішно виконав Alembic і всі **374/374**
+серверних pytest-тести (покриття backend **94%**, 1 попередження сторонньої
+бібліотеки). У тому ж CI пройшли frontend lint, typecheck і web export.
+Code Quality і Lab07 Traceability для цього коміту теж успішні.
+Це не є підтвердженням онлайн-розгортання, реального перезапуску Render чи iPhone.
+PR профілю №212 ще draft; наступні навігаційні коміти перевіряються окремо.
 
 ## Захист тестової БД
 
@@ -85,7 +90,10 @@ frontend). Після цього перевірити згенерований O
 ## Фактичний стан перевірок
 
 Frontend на коміті `5df59f1`: **66/66** Node-тестів, typecheck і web
-export успішні, lint 0 помилок/2 попередження у файлах адмінки Софії.
-Звіт підтверджено локальним PowerShell-логом. Backend PostgreSQL suite,
-синтетичний HEIC, реальні фото iPhone та production restart **поки
-не перевірені**. GitHub CI для профілю стоїть у черзі.
+export успішні, lint 0 помилок/2 попередження у файлах адмінки Софії,
+підтверджено локальним PowerShell-логом. На коміті `4fc6e31` CI підтвердив:
+**374/374 pytest** (включно з PostgreSQL/JWT/синтетичним HEIC), покриття
+**94%**, пройдені frontend lint/typecheck/export, Code Quality, RTM.
+Усі показники стосуються конкретних комітів, не автоматично поточного HEAD.
+Реальні фото iPhone (24/48 Мпікселів), integration main.py з profile router,
+розгорнутий Render і restart після деплою **не підтверджені**.
