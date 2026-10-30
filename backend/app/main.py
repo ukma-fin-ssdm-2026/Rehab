@@ -17,7 +17,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.app.routers import admin, auth, goals, health, statistics
+from backend.app.routers import admin, auth, complaints, goals, health, statistics
 
 # AI-GENERATED START
 # KT-1: календар на PostgreSQL (Поліна) замість in-memory stubs.
@@ -46,9 +46,13 @@ tags_metadata = [
     {
         "name": "Admin",
         "description": (
-            "Лише для ролі admin: акаунти, блокування й анонімна діаграма "
-            "тригерів за 30 днів."
+            "Лише для ролі admin: розгляд скарг, агрегати й анонімна діаграма "
+            "тригерів за 30 днів. Глобального списку акаунтів немає."
         ),
+    },
+    {
+        "name": "Complaints",
+        "description": "Скарга підопічного на ментора конкретного зв'язку.",
     },
     {
         "name": "Health",
@@ -70,7 +74,7 @@ app = FastAPI(
     description=(
         "Code-First API: специфікація OpenAPI генерується автоматично з коду.\n\n"
         "Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). "
-        "У цій версії замість БД використовуються дані-заглушки в пам'яті."
+        "Дані зберігаються в PostgreSQL (Neon у публічній версії)."
     ),
     version="1.0.0",
     openapi_tags=tags_metadata,
@@ -165,4 +169,5 @@ app.include_router(statistics.router, prefix=API_PREFIX)
 # AI-GENERATED START
 app.include_router(health.router)
 app.include_router(admin.router, prefix=API_PREFIX)
+app.include_router(complaints.router, prefix=API_PREFIX)
 # AI-GENERATED END
