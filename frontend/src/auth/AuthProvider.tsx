@@ -19,6 +19,7 @@ type AuthContextValue = {
   restoreError: boolean;
   onboardingPending: boolean;
   finishOnboarding(): void;
+  finishPasswordChange(): void;
   signIn(email: string, password: string): Promise<UserAccount>;
   signUp(data: RegistrationData): Promise<UserAccount>;
   signOut(): Promise<void>;
@@ -194,7 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Context.Provider value={{
       user, loading, restoreError, onboardingPending,
-      finishOnboarding,
+      finishOnboarding, finishPasswordChange: clear,
       signIn, signUp, signOut, refresh, retryRestore,
     }}>
       {children}
