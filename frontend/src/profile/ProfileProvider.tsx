@@ -41,16 +41,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [userId]);
 
   useEffect(() => {
-    setProfile(null);
     if (userId !== null) {
       void refreshProfile();
-    } else {
-      ++requestVersion.current;
-      setError(null);
-      setLoading(false);
     }
+    const versionRef = requestVersion;
     return () => {
-      ++requestVersion.current;
+      versionRef.current += 1;
     };
   }, [userId, refreshProfile]);
 
@@ -58,7 +54,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   return (
     <Context.Provider value={{
-      profile: currentProfile, loading, error, refreshProfile,
+      profile: currentProfile,
+      loading: userId !== null && loading,
+      error: userId !== null ? error : null,
+      refreshProfile,
     }}>
       {children}
     </Context.Provider>
