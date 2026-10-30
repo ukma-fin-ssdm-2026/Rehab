@@ -8,6 +8,9 @@
 - `frontend/src/profile/types.ts`: `ProfileOut`, `ProfileContextValue`, `MessageStyle` і запити/відповіді.
 - `frontend/src/api/profile.ts`: клієнт `GET /profile`, `PATCH /profile`, `PUT /profile/password`, `PATCH /profile/preferences` та три avatar-операції через наявний `apiRequest` і JWT.
 - `frontend/src/profile/ProfileProvider.tsx`: `profile`, `loading`, `error`, `refreshProfile()`; кеш відокремлено за `user_id`, дані попереднього акаунта не відображаються після зміни користувача. **Не встановлено в кореневий layout**, поки `GET /profile` не працює з реальною БД. Немає підміни даних тестовими production-моками.
+- `backend/app/routers/profile.py`, `backend/app/services/profile.py`: підготовлені захищені маршрути GET/PATCH /profile, PUT /profile/password, PATCH /profile/preferences; редагування змінює лише дозволені поля, невірний пароль повертає 400 без відкликання JWT, успіх змінює Argon2-хеш і token_version.
+- `backend/app/services/avatar.py`: підготовлена обробка JPEG/PNG/WebP/HEIC/HEIF із перевіркою 5 MiB/64 Мпікселів і нормалізацією до JPEG ≤256 KiB; робота з BYTEA через UserAvatar після foundation. Піновані залежності Pillow і pillow-heif додані в requirements.txt, потребують review Софії та Linux CI.
+- `frontend/src/app/profile/*`: підготовлені форми редагування і пароля, налаштування пошти та стилю, тексти приватності й FAQ. Живий маршрут і провайдер не підключено до кореневого стеку, доки API не інтегровано.
 
 Поля `ProfileOut`: `user_id`, `name`, `nickname`, `email`, `has_avatar`, `avatar_version`, `email_reminders_enabled`, `message_style`. Підтримувані стилі: `formal`, `humorous`, `zen`, `strict`. Поки фото відсутнє, клієнтський контракт допускає `avatar_version=null`; із появою фото версія має бути додатним цілим числом. Це узгоджувана деталь відсутнього фото, оскільки у ТЗ зазначено лише наявність поля й версію від 1 для збереженого фото.
 
@@ -15,16 +18,16 @@
 
 ## Залежність від спільної міграції
 
-Поліна володіє новими колонками `users.email_reminders_enabled` (false) і `users.message_style` (formal), таблицею `user_avatars` з `BYTEA` і єдиною міграцією після `0001_initial`. До її foundation PR сервер профілю не може достовірно читати/зберігати ці значення. **Тут не змінено ORM, Alembic, `backend/app/main.py`, requirements, frontend root layout або живий профіль.**
+Поліна володіє новими колонками `users.email_reminders_enabled` (false) і `users.message_style` (formal), таблицею `user_avatars` з `BYTEA` і єдиною міграцією після `0001_initial`. До її foundation PR сервер профілю не може достовірно читати/зберігати ці значення. **Тут не змінено ORM, Alembic, `backend/app/main.py`, frontend root layout або живий профіль.** `requirements.txt` доповнено лише кодеками аватара. Прямі HTTP-маршрути й екрани профілю підготовлені, але не зареєстровані у production.
 
 Після погодженого foundation PR:
 
-1. Реалізувати `backend/app/routers/profile.py` та `services/profile.py`, перевірити власника через JWT і встановлювати `Cache-Control: no-store` для приватного фото. Пароль хешувати Argon2, при успіху підвищувати `token_version`, не завершуючи сесію при невірному поточному паролі.
-2. Зробити вибір фото лише з галереї через `expo-image-picker` для Expo SDK 57. Сервер: Pillow, pillow-heif, EXIF-орієнтація, 512×512, JPEG до 256 KiB, без EXIF/GPS. 5 MiB на файл, до 64 Мпікселів на декодування; виміряти HEIC із iPhone і пам'ять Render Free.
+1. Після міграції інтегрувати готові `backend/app/routers/profile.py` та `services/profile.py` в основний FastAPI через Софію, перевірити реальну PostgreSQL, `Cache-Control: no-store`, відмову чужому ID й відкликання попередніх JWT. Не позначати готовим до застосування до цього.
+2. Встановити `expo-image-picker` **через `npx expo install expo-image-picker` із Expo SDK 57**, комітити згенеровані package.json/package-lock.json разом. Наразі цього пакета немає, тому кнопку галереї не підключено. Після додавання перевірити frontend npm ci/typecheck/export. Серверний код нормалізації вже підготовлено, але виміряти HEIC 24/48 Мпікселів на iPhone і пам'ять Render Free ще потрібно.
 3. Підключити `ProfileProvider` і маршрути `/profile/edit`, `/profile/password`, `/profile/notifications`, `/profile/style`, `/profile/privacy`, `/profile/help` у захищений стек; оновити наявну вкладку профілю. Викликати `AuthProvider.refresh()` після зміни імені/нікнейма. Не створювати фіктивний успіх у production.
 4. Зробити локальні тести схем/пароля/аватара/сесій; після інтеграції — справжнє приймання з двома тестовими акаунтами й iPhone Safari.
 
-Тести з цього PR обмежуються схемами та контрактами клієнта. Вони не означають, що endpoint, завантаження HEIC або збереження після перезапуску перевірені.
+Додано тести схем, базової серверної логіки, HTTP-контракту, перетворення JPEG/PNG/WebP, профільного клієнта й provider. Ізольовано на локальному Pillow перевірено перетворення JPEG/PNG/WebP, відкидання порожніх/пошкоджених/завеликих файлів; цей допоміжний прогін не є повним pytest нового PR. Усі нові pytest/Node-тести на точному HEAD, HEIC/24-МП/48-МП на iPhone, пам'ять Render і збереження після перезапуску **ще не підтверджені**.
 
 ## Передача іншим модулям
 
