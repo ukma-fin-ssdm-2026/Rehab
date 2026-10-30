@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { useAuth } from '../auth/AuthProvider';
+import { validateRegistration } from '../auth/credentialForms';
 import { ApiError } from '../api/client';
 import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
@@ -18,14 +19,15 @@ export default function RegisterScreen() {
   if (user) return <Redirect href="/" />;
 
   async function handleRegister() {
-    if (!name.trim() || !nickname.trim() || !email.trim() || password.length < 8) {
-      setError('Заповни всі поля, пароль має містити щонайменше 8 символів.');
+    const validation = validateRegistration({ name, nickname, email, password });
+    if (!validation.ok) {
+      setError(validation.error);
       return;
     }
     setError('');
     setSaving(true);
     try {
-      await signUp({ name, nickname, email, password });
+      await signUp(validation.data);
       router.replace('/onboarding');
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : 'Не вдалося зв’язатися із сервером.');
