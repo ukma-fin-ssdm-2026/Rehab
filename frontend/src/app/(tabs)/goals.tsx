@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
-import { FIXED_GOAL_DAYS } from '../../constants/goals';
+import { FIXED_GOAL_DAYS, GOAL_LABELS, GOAL_DESCRIPTIONS } from '../../constants/goals';
 
 export default function GoalsScreen() {
   const { data, loading, error, reload: loadGoals } = useProgressStatistics();
@@ -25,7 +25,7 @@ export default function GoalsScreen() {
       <Text style={styles.eyebrow}>МАЛЕНЬКІ КРОКИ</Text>
       <Text style={styles.title}>Мої цілі</Text>
       <Text style={styles.subtitle}>
-        Фіксовані етапи 7 і 30 днів за безперервною серією.
+        Етапи 7, 30, 90, 180 і 365 днів за безперервною серією.
       </Text>
 
       <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
@@ -55,7 +55,7 @@ export default function GoalsScreen() {
                 <Text style={styles.activeBadgeText}>ПОТОЧНИЙ ЕТАП</Text>
               </View>
               <Text style={styles.activeTitle}>
-                {activeGoal} днів тверезості
+                {GOAL_LABELS[activeGoal]} тверезості
               </Text>
               <Text style={styles.activeDescription}>
                 Рухайся до наступного етапу один день за раз.
@@ -109,14 +109,12 @@ export default function GoalsScreen() {
                   </Text>
                 </View>
                 <View style={styles.goalInfo}>
-                  <Text style={styles.goalTitle}>{days} днів</Text>
+                  <Text style={styles.goalTitle}>{GOAL_LABELS[days]}</Text>
                   <Text style={styles.goalDescription}>
                     Прогрес: {isCompleted ? days : Math.min(data.current_streak, days)} із {days} днів
                   </Text>
                   <Text style={styles.goalDescription}>
-                    {days === 7
-                      ? 'Перший тиждень твого шляху'
-                      : 'Місяць послідовності та турботи про себе'}
+                    {GOAL_DESCRIPTIONS[days]}
                   </Text>
                   <Text
                     style={[

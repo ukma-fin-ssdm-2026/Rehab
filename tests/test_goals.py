@@ -48,6 +48,9 @@ def test_list_returns_fixed_milestones_without_user_goal_rows(calendar_db, db_us
         "items": [
             {"target_days": 7, "is_achieved": False, "progress_days": 1},
             {"target_days": 30, "is_achieved": False, "progress_days": 1},
+            {"target_days": 90, "is_achieved": False, "progress_days": 1},
+            {"target_days": 180, "is_achieved": False, "progress_days": 1},
+            {"target_days": 365, "is_achieved": False, "progress_days": 1},
         ]
     }
     assert calendar_db.query(Goal).filter_by(user_id=db_users[0]).count() == 0
@@ -62,7 +65,7 @@ def test_legacy_personal_goal_rows_do_not_change_fixed_milestones(calendar_db, d
     response = client.get(API_URL)
 
     assert response.status_code == 200
-    assert [item["target_days"] for item in response.json()["items"]] == [7, 30]
+    assert [item["target_days"] for item in response.json()["items"]] == [7, 30, 90, 180, 365]
 
 
 def test_goal_collection_requires_authentication(calendar_db):
