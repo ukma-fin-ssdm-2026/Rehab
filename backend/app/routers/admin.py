@@ -122,9 +122,7 @@ def trigger_distribution(
     from backend.app.repositories.entries import list_relapse_entries
     from backend.app.services.statistics import calculate_trigger_distribution
 
-    # calculate_trigger_distribution порівнює з dt.date.today() хоста, тож
-    # між 00:00 і 03:00 за Києвом today_local() може бути "завтра" для сервера.
-    today = min(today_local(), dt.date.today())
+    today = today_local()
     entries = list_relapse_entries(
         db, today - dt.timedelta(days=REPORT_DAYS - 1), today
     )

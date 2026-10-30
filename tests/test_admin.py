@@ -153,7 +153,7 @@ def test_distribution_is_30_days_with_correct_shares_and_no_personal_data(
 ):
     from backend.app.core.clock import today_local
 
-    today = min(today_local(), dt.date.today())
+    today = today_local()
     captured = _patch_entries(
         monkeypatch,
         _entries(
