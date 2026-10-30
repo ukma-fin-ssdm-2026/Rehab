@@ -1,7 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from backend.app.db.models.user import User
+from backend.app.core.mentor_codes import generate_mentor_code
 
 
 def get_user(db: Session, user_id: int) -> User | None:
@@ -26,17 +28,29 @@ def create_user(
     password_hash: str,
     tracking_start_date,
 ) -> User:
-    account = User(
-        name=name,
-        nickname=nickname,
-        email=email.strip().lower(),
-        password_hash=password_hash,
-        role="user",
-        tracking_start_date=tracking_start_date,
-    )
-    db.add(account)
-    db.flush()
-    return account
+    for _ in range(8):
+        account = User(
+            name=name,
+            nickname=nickname,
+            email=email.strip().lower(),
+            password_hash=password_hash,
+            role="user",
+            tracking_start_date=tracking_start_date,
+            mentor_code=generate_mentor_code(),
+        )
+        try:
+            # A code collision must not discard the caller's other writes.
+            with db.begin_nested():
+                db.add(account)
+                db.flush()
+            return account
+        except IntegrityError as error:
+            constraint = getattr(
+                getattr(error.orig, "diag", None), "constraint_name", None
+            )
+            if constraint != "uq_users_mentor_code":
+                raise
+    raise RuntimeError("Could not allocate a unique mentorship code")
 
 
 def set_blocked(db: Session, user_id: int, blocked: bool) -> User:

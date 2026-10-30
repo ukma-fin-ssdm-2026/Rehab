@@ -52,6 +52,9 @@ class DayRecord(Base):
         JSONB, nullable=False, default=list, server_default=text("'[]'::jsonb")
     )
     comment: Mapped[str | None] = mapped_column(String(2000))
+    first_relapse_at: Mapped[dt.datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
