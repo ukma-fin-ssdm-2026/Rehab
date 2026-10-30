@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Request, Response
 from starlette.concurrency import run_in_threadpool
@@ -107,6 +108,7 @@ async def put_avatar(
     else:
         avatar.image_data = processed
         avatar.version += 1
+        avatar.updated_at = datetime.now(timezone.utc)
     db.commit()
     response.headers["Cache-Control"] = "no-store"
     return AvatarUploadOut(has_avatar=True, avatar_version=avatar.version)
