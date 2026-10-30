@@ -126,10 +126,9 @@ def get_avatar(
     if avatar is None:
         raise api_error(404, "AVATAR_NOT_FOUND", "Фото профілю відсутнє")
     response.headers["Cache-Control"] = "no-store"
+    encoded = base64.b64encode(avatar.image_data).decode("ascii")
     return AvatarDataOut(
-        data_url="data:image/jpeg;base64," + base64.b64encode(
-            avatar.image_data
-        ).decode("ascii"),
+        data_url=f"data:image/jpeg;base64,{encoded}",
         avatar_version=avatar.version,
     )
 
