@@ -14,6 +14,7 @@ from backend.app.services.sobriety import count_sober_days
 StatisticsPeriod = Literal["all", "week", "month", "year"]
 
 VALID_PERIODS = ("all", "week", "month", "year")
+GOAL_MILESTONES = (7, 30)
 
 
 def get_period_start(
@@ -83,13 +84,14 @@ def get_goal_progress(
     if total_sober_days < 0:
         raise ValueError("Кількість тверезих днів не може бути від'ємною")
 
-    if total_sober_days < 7:
-        return 7, [], total_sober_days
+    first_goal, second_goal = GOAL_MILESTONES
+    if total_sober_days < first_goal:
+        return first_goal, [], total_sober_days
 
-    if total_sober_days < 30:
-        return 30, [7], total_sober_days
+    if total_sober_days < second_goal:
+        return second_goal, [first_goal], total_sober_days
 
-    return None, [7, 30], total_sober_days
+    return None, list(GOAL_MILESTONES), total_sober_days
 
 
 def calculate_statistics(
@@ -174,9 +176,7 @@ def get_days_remaining(sober_days: int) -> int:
     if sober_days < 0:
         raise ValueError("Кількість тверезих днів не може бути від'ємною")
 
-    goals = (7, 30)
-
-    for goal in goals:
+    for goal in GOAL_MILESTONES:
         if sober_days < goal:
             return goal - sober_days
 
