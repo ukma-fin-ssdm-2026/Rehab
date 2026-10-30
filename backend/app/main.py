@@ -53,7 +53,7 @@ app = FastAPI(
         "Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). "
         "У цій версії замість БД використовуються дані-заглушки в пам'яті."
     ),
-    version="1.0.0",
+    version="1.0.1",
     openapi_tags=tags_metadata,
 )
 
