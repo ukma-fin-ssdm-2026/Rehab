@@ -273,7 +273,9 @@ class GoalMilestoneOut(BaseModel):
 class GoalList(BaseModel):
     """Фіксований перелік етапів поточного користувача."""
 
-    items: list[GoalMilestoneOut] = Field(..., description="Етапи 7 і 30 днів.")
+    items: list[GoalMilestoneOut] = Field(
+        ..., description="Етапи 7, 30, 90, 180 і 365 днів."
+    )
 
 
 # ---------- Статистика ----------
@@ -334,7 +336,7 @@ class StatisticsOut(BaseModel):
 
     active_goal_days: int | None = Field(
         ...,
-        description="Найближчий невиконаний етап 7/30 днів або null після обох.",
+        description="Найближчий невиконаний етап 7/30/90/180/365 днів або null після всіх п’яти.",
     )
 
     has_goals: bool = Field(

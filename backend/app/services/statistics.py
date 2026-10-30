@@ -14,7 +14,7 @@ from backend.app.services.sobriety import count_sober_days
 StatisticsPeriod = Literal["all", "week", "month", "year"]
 
 VALID_PERIODS = ("all", "week", "month", "year")
-FIXED_GOAL_DAYS = (7, 30)
+FIXED_GOAL_DAYS = (7, 30, 90, 180, 365)
 
 
 def calculate_goal_progress(
@@ -22,7 +22,7 @@ def calculate_goal_progress(
     current_streak: int,
     longest_streak: int,
 ) -> tuple[bool, int | None, list[int], int]:
-    """Обчислює фіксовані етапи 7 і 30 днів.
+    """Обчислює фіксовані етапи 7, 30, 90, 180 і 365 днів.
 
     Історичне виконання визначається за найдовшою серією, а видимий
     прогрес активного етапу — за поточною. Етапи належать застосунку,
@@ -204,9 +204,6 @@ def calculate_trigger_distribution(
     entries: Iterable[EntryOut], *, today: dt.date
 ) -> dict[str, object]:
     """Повертає анонімний розподіл категорій зривів за останні 30 днів."""
-    if today > dt.date.today():
-        raise ValueError("Дата звіту не може бути в майбутньому")
-
     period_start = today - dt.timedelta(days=29)
     counts = {category.value: 0 for category in TriggerCategory}
     for entry in entries:

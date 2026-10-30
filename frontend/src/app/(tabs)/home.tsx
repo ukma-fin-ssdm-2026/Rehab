@@ -9,7 +9,7 @@ import {
 import { router } from 'expo-router';
 import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
-import { FIXED_GOAL_DAYS } from '../../constants/goals';
+import { FIXED_GOAL_DAYS, GOAL_LABELS } from '../../constants/goals';
 
 export default function HomeScreen() {
   const { data, loading, error, reload: loadStatistics } = useProgressStatistics();
@@ -72,7 +72,7 @@ export default function HomeScreen() {
             ) : (
               <>
                 <Text style={styles.goalNumber}>
-                  {activeGoal} днів
+                  {GOAL_LABELS[activeGoal]}
                 </Text>
                 <Text style={styles.muted}>
                   Прогрес: {goalProgress} із {activeGoal}
