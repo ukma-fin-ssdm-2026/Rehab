@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../../auth/AuthProvider';
 import { Button } from '../../components/ui/Button';
 import { useProfile } from '../../profile/ProfileProvider';
 import { AvatarView } from '../../profile/AvatarView';
-import { deleteProfileAvatar } from '../../api/profile';
+import { deleteProfileAvatar, uploadProfileAvatar } from '../../api/profile';
+import { pickProfileAvatar, type PickedAvatar } from '../../profile/avatarPicker';
 import { theme } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const [saving, setSaving] = useState(false);
   const [deleteRequested, setDeleteRequested] = useState(false);
+  const [selected, setSelected] = useState<PickedAvatar | null>(null);
   const [error, setError] = useState('');
   const { profile, error: loadError, refreshProfile } = useProfile();
 
@@ -22,6 +24,31 @@ export default function ProfileScreen() {
       router.replace('/login');
     } catch {
       router.replace('/login?logout=local');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function selectPhoto() {
+    setError('');
+    try {
+      const photo = await pickProfileAvatar();
+      if (photo) setSelected(photo);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Не вдалося вибрати фото.');
+    }
+  }
+
+  async function savePhoto() {
+    if (!selected || saving) return;
+    setSaving(true);
+    setError('');
+    try {
+      await uploadProfileAvatar(selected.image, selected.mimeType);
+      await refreshProfile();
+      setSelected(null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Не вдалося зберегти фото.');
     } finally {
       setSaving(false);
     }
@@ -54,6 +81,23 @@ export default function ProfileScreen() {
         <Text style={styles.name}>{profile?.name ?? user?.name ?? 'Завантаження…'}</Text>
         <Text style={styles.nickname}>@{profile?.nickname ?? user?.nickname ?? ''}</Text>
         <Text style={styles.email}>{profile?.email ?? user?.email ?? ''}</Text>
+      </View>
+      <View style={styles.photoActions}>
+        <Button title="Обрати фото з галереї" disabled={saving || !profile}
+          onPress={() => { void selectPhoto(); }} />
+        {selected && (
+          <View style={styles.preview}>
+            <Image source={{ uri: selected.uri }} style={styles.previewImage}
+              accessibilityLabel="Попередній перегляд нового фото" />
+            <Text style={styles.note}>Фото ще не збережено.</Text>
+            <Button title="Зберегти фото" loading={saving}
+              onPress={() => { void savePhoto(); }} />
+            <Pressable accessibilityRole="button" disabled={saving}
+              onPress={() => setSelected(null)}>
+              <Text style={styles.link}>Скасувати вибір</Text>
+            </Pressable>
+          </View>
+        )}
       </View>
       {profile?.has_avatar && (
         <Pressable accessibilityRole="button" disabled={saving}
@@ -109,6 +153,9 @@ const styles = StyleSheet.create({
   email: { color: theme.colors.text },
   note: { color: theme.colors.muted, lineHeight: 21 },
   error: { color: theme.colors.danger },
+  photoActions: { gap: 12 },
+  preview: { alignItems: 'center', gap: 12, padding: 12 },
+  previewImage: { width: 112, height: 112, borderRadius: 32 },
   remove: { color: theme.colors.danger, fontWeight: '700' },
   link: { color: theme.colors.primaryDark, fontWeight: '600' },
   menu: { backgroundColor: theme.colors.surface, borderRadius: 16, padding: 16, gap: 12 },
