@@ -66,9 +66,14 @@ from backend.app.routers import profile
 app.include_router(profile.router, prefix=API_PREFIX)
 ```
 
-Погодити разом із Софією спільний `requirements.txt` та скасування
-застарілого повного блокування акаунта (`auth`, `security`, `admin`,
-frontend). Після цього перевірити згенерований OpenAPI.
+У `feat/profile` вже прибрано перевірки `is_blocked` з `auth.py` і
+`security.py`, стару frontend-обробку `ACCOUNT_BLOCKED` та оновлено тести
+JWT. Залежності профілю (Pillow/HEIC) й пошти Софії (Gmail API) збережено
+разом у `requirements.txt`. Видалення старих адмінських маршрутів і їхніх
+тестів містить **окремий PR №220 Софії**; після його злиття потрібні
+синхронізація й повторний CI. Підключення `profile.router` в `main.py`
+виконується за командним погодженням, після цього перевірити OpenAPI.
+Історичні дані `is_blocked` не виправляти напряму в production Neon.
 
 ## Реальне приймання після deployment
 
