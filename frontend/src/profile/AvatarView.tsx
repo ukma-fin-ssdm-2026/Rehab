@@ -15,7 +15,9 @@ export function AvatarView({ profile, size = 82 }: { profile: ProfileOut; size?:
 
   useEffect(() => {
     let cancelled = false;
-    if (profile.has_avatar && profile.avatar_version !== null) {
+    if (!profile.has_avatar || profile.avatar_version === null) {
+      setAvatar(null);
+    } else {
       getProfileAvatar().then(result => {
         if (!cancelled && result.avatar_version === profile.avatar_version) {
           setAvatar({
