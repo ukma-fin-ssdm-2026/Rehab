@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await refresh();
     } catch (cause) {
       if (!(cause instanceof ApiError &&
-        (cause.status === 401 || cause.code === 'ACCOUNT_BLOCKED'))) {
+        cause.status === 401)) {
         setRestoreError(true);
       }
     } finally {
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }).catch(cause => {
         if (active && version === sessionVersion.current &&
           !(cause instanceof ApiError &&
-          (cause.status === 401 || cause.code === 'ACCOUNT_BLOCKED'))) {
+          cause.status === 401)) {
           setRestoreError(true);
         }
       }).finally(() => {
