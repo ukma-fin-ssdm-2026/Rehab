@@ -82,7 +82,11 @@ async def put_avatar(
 
     mime = request.headers.get("content-type", "").split(";", 1)[0].lower()
     if mime not in {
-        "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/heic",
+        "image/heif",
     }:
         raise api_error(422, "INVALID_AVATAR", "Непідтримуваний формат фото")
     raw = bytearray()
