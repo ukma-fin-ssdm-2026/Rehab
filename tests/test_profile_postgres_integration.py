@@ -9,7 +9,6 @@ import base64
 from io import BytesIO
 
 import pytest
-from fastapi.testclient import TestClient
 from PIL import Image
 from sqlalchemy.orm import Session
 
@@ -250,7 +249,7 @@ def test_avatar_private_replace_failed_upload_and_persistence(
         assert stored is not None
         assert stored.version == 2
         assert stored.mime_type == "image/jpeg"
-        assert stored.image_data.startswith(b"\\xff\\xd8")
+        assert stored.image_data[:2] == bytes((0xFF, 0xD8))
         assert len(stored.image_data) <= 256 * 1024
 
     again = profile_api.get(f"{API}/profile/avatar", headers=headers)
