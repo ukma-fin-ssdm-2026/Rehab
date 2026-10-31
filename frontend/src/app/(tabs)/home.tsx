@@ -1,3 +1,6 @@
+import { useUnreadMessages } from '../../messages/useMessages';
+import { useProfile } from '../../profile/ProfileProvider';
+import { messageText } from '../../messages/catalog';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +15,9 @@ import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS, GOAL_LABELS } from '../../constants/goals';
 
 export default function HomeScreen() {
+  const unread = useUnreadMessages();
+  const { profile } = useProfile();
+  const motivation = profile ? messageText('home.motivation', profile.message_style).body : '';
   const { data, loading, error, reload: loadStatistics } = useProgressStatistics();
   const completedGoals = data?.completed_goal_days ?? [];
   const activeGoal = FIXED_GOAL_DAYS.find(days => !completedGoals.includes(days)) ?? null;
@@ -19,10 +25,15 @@ export default function HomeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
+          <Text style={styles.retryText}>✉ Повідомлення{unread.data ? ` (${unread.data.count})` : unread.error ? ' · !' : '…'}</Text>
+        </Pressable>
+      </View>
       <Text style={styles.title}>Привіт!</Text>
       <Text style={styles.subtitle}>
-        Кожен день — це твій власний крок уперед.
+        {motivation}
       </Text>
 
       <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
@@ -107,6 +118,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
   container: {
     flexGrow: 1,
     backgroundColor: theme.colors.background,

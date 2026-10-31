@@ -10,7 +10,9 @@ import { theme } from '../constants/theme';
 
 export default function LoginScreen() {
   const { user, signIn } = useAuth();
-  const { logout } = useLocalSearchParams<{ logout?: string }>();
+  const { logout, password: passwordState } = useLocalSearchParams<{
+    logout?: string; password?: string;
+  }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -42,6 +44,11 @@ export default function LoginScreen() {
           <Text style={styles.brand}>Rehab</Text>
           <Text style={styles.title}>Раді тебе бачити</Text>
           <Text style={styles.subtitle}>Увійди, щоб продовжити свій шлях до змін.</Text>
+          {passwordState === 'changed' ? (
+            <Text style={styles.success} accessibilityRole="alert">
+              Пароль змінено. Увійди з новим паролем.
+            </Text>
+          ) : null}
           {logout === 'local' ? (
             <Text style={styles.error} accessibilityRole="alert">
               Локальний вихід виконано, але сервер не підтвердив завершення сесії.
@@ -73,5 +80,6 @@ const styles = StyleSheet.create({
   subtitle: { textAlign: 'center', color: theme.colors.muted, lineHeight: 22 },
   form: { marginTop: 20, gap: 14 },
   error: { color: theme.colors.danger },
+  success: { color: theme.colors.primaryDark },
   link: { color: theme.colors.primaryDark, textAlign: 'center', padding: 12, fontWeight: '600' },
 });

@@ -91,15 +91,6 @@ def get_current_user(
     account = get_user(db, user_id)
     if account is None:
         raise _unauthorized()
-    if account.is_blocked:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "code": "ACCOUNT_BLOCKED",
-                "message": "Ваш акаунт заблоковано",
-                "details": None,
-            },
-        )
     if account.token_version != version:
         raise _unauthorized()
     if account.role not in ALLOWED_ROLES:

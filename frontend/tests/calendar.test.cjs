@@ -91,8 +91,9 @@ test('navigation waits for session restore before mounting protected routes', ()
     'expo-router': { Stack },
     '../auth/AuthProvider': { AuthProvider() {}, useAuth: () => auth },
     '../components/ui/ScreenState': { ScreenState },
+    '../profile/ProfileProvider': { ProfileProvider() {} },
   });
-  const navigation = root.default().props.children.type;
+  const navigation = root.default().props.children.props.children.type;
   assert.equal(navigation().type, ScreenState);
   assert.equal(navigation().props.state, 'loading');
   auth = { user: { role: 'user' }, loading: false, restoreError: false };

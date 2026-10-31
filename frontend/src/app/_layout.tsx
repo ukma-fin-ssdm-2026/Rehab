@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { AuthProvider, useAuth } from '../auth/AuthProvider';
 import { ScreenState } from '../components/ui/ScreenState';
+import { ProfileProvider } from '../profile/ProfileProvider';
 
 function ProtectedNavigation() {
   const { user, loading, restoreError, retryRestore, onboardingPending } = useAuth();
@@ -25,6 +26,14 @@ function ProtectedNavigation() {
         <Stack.Screen name="add-entry" />
         <Stack.Screen name="entry/[record_id]" />
         <Stack.Screen name="placeholders" />
+        <Stack.Screen name="profile/edit" />
+        <Stack.Screen name="profile/password" />
+        <Stack.Screen name="profile/notifications" />
+        <Stack.Screen name="profile/style" />
+        <Stack.Screen name="profile/privacy" />
+        <Stack.Screen name="profile/help" />
+        <Stack.Screen name="support/report" />
+        <Stack.Screen name="mentee" />
       </Stack.Protected>
       <Stack.Protected guard={!loading && !!user && user.role === 'admin'}>
         <Stack.Screen name="admin" />
@@ -36,7 +45,9 @@ function ProtectedNavigation() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <ProtectedNavigation />
+      <ProfileProvider>
+        <ProtectedNavigation />
+      </ProfileProvider>
     </AuthProvider>
   );
 }

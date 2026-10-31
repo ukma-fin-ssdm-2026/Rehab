@@ -1,5 +1,3 @@
-from fastapi import HTTPException
-
 from backend.app.security import _unauthorized
 
 
@@ -26,13 +24,4 @@ def authenticate(db, email: str, password: str):
     user = get_user_by_email(db, email)
     if user is None or not verify_password(password, user.password_hash):
         raise _unauthorized("Неправильна електронна адреса або пароль")
-    if user.is_blocked:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "code": "ACCOUNT_BLOCKED",
-                "message": "Ваш акаунт заблоковано",
-                "details": None,
-            },
-        )
     return user
