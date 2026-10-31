@@ -2,12 +2,15 @@
 """Скарги й адмінка (ТЗ С-1, С-2, С-5) на ізольованій PostgreSQL."""
 
 import datetime as dt
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import event, select, text
+from sqlalchemy.orm import Session
 
 from backend.app import security
 from backend.app.core.clock import BUSINESS_TIMEZONE
@@ -343,6 +346,50 @@ def test_overview_counts_are_exact(db, admin_user):
     assert overview.active_relationships == 2
     assert overview.pending_complaints == 1
     assert overview.current_date == today
+
+
+def test_reciprocal_complaints_do_not_deadlock(db, pair, postgres_schema):
+    """Both participants can report their own mentor at the same time."""
+    from backend.app.services.complaints import submit_complaint
+    from backend.app.schemas.complaints import ComplaintCreate
+
+    mentor, mentee, forward = pair
+    reverse = link(db, mentee, mentor)
+    requests = [
+        (mentee.user_id, forward.relationship_id),
+        (mentor.user_id, reverse.relationship_id),
+    ]
+    db.commit()
+    insert_barrier = Barrier(2)
+
+    def synchronize_inserts(conn, cursor, statement, parameters, context, executemany):
+        if statement.lstrip().upper().startswith("INSERT INTO COMPLAINTS"):
+            insert_barrier.wait(timeout=10)
+
+    def submit(actor_id, relationship_id):
+        with Session(postgres_schema) as session:
+            session.execute(text("SET LOCAL lock_timeout='5s'"))
+            complaint = submit_complaint(
+                session,
+                actor_id,
+                ComplaintCreate(
+                    relationship_id=relationship_id, reason="Review reason"
+                ),
+            )
+            complaint_id = complaint.complaint_id
+            session.commit()
+            return complaint_id
+
+    event.listen(postgres_schema, "before_cursor_execute", synchronize_inserts)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [pool.submit(submit, *request) for request in requests]
+            complaint_ids = [future.result(timeout=15) for future in futures]
+    finally:
+        event.remove(postgres_schema, "before_cursor_execute", synchronize_inserts)
+
+    assert len(set(complaint_ids)) == 2
+    assert len(db.scalars(select(Complaint)).all()) == 2
 
 
 # AI-GENERATED END

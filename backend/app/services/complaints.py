@@ -41,7 +41,11 @@ def _lock_relationship(db: Session, relationship_id: int) -> Mentorship:
     )
     if mentee_id is None:
         raise _not_found()
-    db.scalar(select(User.user_id).where(User.user_id == mentee_id).with_for_update())
+    db.scalar(
+        select(User.user_id)
+        .where(User.user_id == mentee_id)
+        .with_for_update(key_share=True)
+    )
     return db.scalar(
         select(Mentorship)
         .where(Mentorship.relationship_id == relationship_id)
