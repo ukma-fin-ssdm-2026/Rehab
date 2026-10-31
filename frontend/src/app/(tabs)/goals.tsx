@@ -1,3 +1,5 @@
+import { useProfile } from '../../profile/ProfileProvider';
+import { messageText } from '../../messages/catalog';
 import {
   ActivityIndicator,
   Pressable,
@@ -11,6 +13,8 @@ import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS, GOAL_LABELS, GOAL_DESCRIPTIONS } from '../../constants/goals';
 
 export default function GoalsScreen() {
+  const { profile } = useProfile();
+  const motivation = profile ? messageText('goals.motivation', profile.message_style).body : '';
   const { data, loading, error, reload: loadGoals } = useProgressStatistics();
 
   const completed = data?.completed_goal_days ?? [];
@@ -58,7 +62,7 @@ export default function GoalsScreen() {
                 {GOAL_LABELS[activeGoal]} тверезості
               </Text>
               <Text style={styles.activeDescription}>
-                Рухайся до наступного етапу один день за раз.
+                {motivation}
               </Text>
               <View style={styles.progressTrack}>
                 <View
