@@ -121,9 +121,18 @@ Detect hardcoded secrets..............Passed
 | Bandit 1.9.4 | `python -m bandit -r backend` | `No issues identified.`, 1939 рядків, 0 пропущених (`#nosec`) |
 | pip-audit 2.10.1 | `python -m pip_audit -r requirements.txt` | `No known vulnerabilities found` |
 
-**Статус SEC-01:** демонстраційні токени в `backend/app` замінено на JWT (PyJWT) з перевіркою підпису, алгоритму, терміну дії та `token_version`; роль і блокування перевіряються за акаунтом у БД. Старий `src/api` не використовується як сервер.
+**Статус SEC-01:** демонстраційні токени в `backend/app` замінено на JWT (PyJWT) з перевіркою підпису, алгоритму, терміну дії та `token_version`; роль перевіряється за акаунтом у БД; у КТ-Б глобальне блокування прибрано. Старий `src/api` не використовується як сервер.
 
 **CI:** Bandit для `backend` додано до workflow `code-quality.yml`; Black і Flake8 там уже були, pip-audit виконує `dependency-audit.yml`.
 
 Як і раніше, відсутність знахідок не доводить повної безпеки: права доступу й авторизацію перевіряють автоматизовані тести (`tests/test_auth*.py`, `tests/test_admin.py`).
 <!-- AI-GENERATED END -->
+
+## КТ-Б, 31.10.2026
+
+Інтегровано поточний backend/app: профіль, менторство, повідомлення,
+скарги/admin/job. Повторено Flake8 і Bandit без зауважень, RTM пройдено.
+Перевірки не виконували реальну Gmail-відправку. Детальний фактичний протокол:
+[kt-b-integration.md](../validation/kt-b-integration.md).
+
+Фінально: Bandit 0 findings / 4111 LOC; backend 460 passed після інтеграції №222, coverage 94%; frontend 85 passed, lint/typecheck/export успішні. Black та Flake8 без зауважень.

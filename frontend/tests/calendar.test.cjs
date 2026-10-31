@@ -107,7 +107,7 @@ test('navigation waits for session restore before mounting protected routes', ()
     return node.props?.name ? [node.props.name] : activeScreens(node.props?.children);
   };
   auth = { user: { role: 'user' }, loading: false, restoreError: false, onboardingPending: false };
-  assert.ok(activeScreens(navigation()).includes('messages'));
+  assert.equal(activeScreens(navigation()).filter(name => name === 'messages').length, 1);
   auth = { ...auth, onboardingPending: true };
   assert.ok(!activeScreens(navigation()).includes('messages'));
   auth = { ...auth, user: { role: 'admin' }, onboardingPending: false };

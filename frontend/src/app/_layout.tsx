@@ -25,7 +25,6 @@ function ProtectedNavigation() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="add-entry" />
         <Stack.Screen name="entry/[record_id]" />
-        <Stack.Screen name="messages" />
         <Stack.Screen name="placeholders" />
         <Stack.Screen name="profile/edit" />
         <Stack.Screen name="profile/password" />
@@ -35,6 +34,7 @@ function ProtectedNavigation() {
         <Stack.Screen name="profile/help" />
         <Stack.Screen name="support/report" />
         <Stack.Screen name="mentee" />
+        <Stack.Screen name="messages" />
       </Stack.Protected>
       <Stack.Protected guard={!loading && !!user && user.role === 'admin'}>
         <Stack.Screen name="admin" />

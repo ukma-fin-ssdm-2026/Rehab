@@ -51,7 +51,7 @@ function Message({id}:{id:number}) {
         <Pressable style={styles.button} disabled={busy || !text.trim() || [...text.trim()].length>2000} onPress={()=>void submit()}><Text style={styles.buttonText}>{busy ? 'Надсилання…' : 'Надіслати підтримку'}</Text></Pressable>
       </View>}
       {!!sendError && <Text style={styles.error}>{sendError}</Text>}
-      {data.can_report_mentor && data.support_comment && <Pressable onPress={()=>router.push({pathname:'/support/report',params:{relationship_id:String(data.relationship_id),support_comment_id:String(data.support_comment?.support_comment_id)}})}><Text style={styles.link}>Поскаржитися</Text></Pressable>}
+      {data.can_report_mentor && data.support_comment && <Pressable onPress={()=>router.push({pathname:'/support/report',params:{relationship_id:String(data.relationship_id),notification_id:String(data.notification_id)}})}><Text style={styles.link}>Поскаржитися</Text></Pressable>}
     </>}
   </ScrollView>;
 }

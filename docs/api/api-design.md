@@ -1,3 +1,11 @@
+> **Поточний контракт КТ-Б:** джерело істини — згенерований
+> [OpenAPI](openapi-generated.yaml) та [Swagger UI](index.html). API працює
+> з PostgreSQL і JWT; доступні profile, mentorships, notifications,
+> complaints, admin та internal jobs. Глобального account block немає.
+> Історичні розділи нижче описують лабораторний JWT-stub, а не чинну
+> авторизацію чи перелік доступних маршрутів. Нова інтеграція та її
+> фактичні перевірки — [протокол КТ-Б](../validation/kt-b-integration.md).
+
 # Документація проєктування API — «Рехаб»
 
 ## Огляд архітектури

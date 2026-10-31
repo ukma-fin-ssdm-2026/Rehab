@@ -55,3 +55,13 @@
 Сервер перевіряє право, час і власника; клієнтська кнопка лише пояснює обмеження.
 Схеми Pydantic `EntryCreate/EntryUpdate/EntryOut` визначають HTTP-контракт;
 SQLAlchemy `DayRecord` визначає збереження в `day_records`. Це різні моделі.
+
+## Інтеграція КТ-Б
+
+Основний `backend.app.main` монтує auth/profile/mentorship/calendar/goals/statistics/
+notifications/complaints/admin та захищений internal job. Запис календаря,
+перерахунок прогресу й emit_relapse_once належать одній SQL-транзакції.
+Порядок writer-lock: users (FOR NO KEY UPDATE) → mentorships → day_records/
+notifications/complaints. Ментор має тільки читання історії чинного підопічного;
+після завершення або схвалення скарги доступ і нова підтримка закриваються.
+Job створює inbox/outbox, робить commit, потім надсилає через Gmail поза транзакцією.

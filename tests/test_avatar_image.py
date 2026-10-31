@@ -41,7 +41,11 @@ def test_avatar_respects_exif_rotation():
         assert saved.getexif().get(274) is None
 
 
-@pytest.mark.parametrize("raw", [b"", b"not-an-image", b"X" * (5 * 1024 * 1024 + 1)])
+@pytest.mark.parametrize(
+    "raw",
+    [b"", b"not-an-image", b"X" * (5 * 1024 * 1024 + 1)],
+    ids=["empty", "malformed", "oversized"],
+)
 def test_avatar_rejects_empty_malformed_or_oversized_files(raw):
     with pytest.raises(HTTPException) as error:
         normalize_avatar(raw)

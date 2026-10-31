@@ -5,8 +5,8 @@ info:
   description: 'Code-First API: специфікація OpenAPI генерується автоматично з коду.
 
 
-    Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). Акаунти, календар,
-    профілі та повідомлення зберігаються в PostgreSQL.'
+    Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). Дані зберігаються
+    в PostgreSQL (Neon у публічній версії).'
   version: 1.0.0
 paths:
   /api/v1/auth/register:
@@ -85,224 +85,6 @@ paths:
           description: Successful Response
       security:
       - BearerAuth: []
-  /api/v1/calendar/entries:
-    post:
-      tags:
-      - Calendar
-      summary: Створити відмітку дня
-      operationId: create_entry_api_v1_calendar_entries_post
-      security:
-      - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EntryCreate'
-      responses:
-        '201':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EntryOut'
-        '401':
-          description: Відсутній або недійсний Bearer-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '409':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Conflict
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Service Unavailable
-    get:
-      tags:
-      - Calendar
-      summary: List Entries
-      operationId: list_entries_api_v1_calendar_entries_get
-      security:
-      - BearerAuth: []
-      parameters:
-      - name: from
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: From
-      - name: to
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: To
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 30
-          title: Limit
-      - name: offset
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Offset
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EntryList'
-        '401':
-          description: Відсутній або недійсний Bearer-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-  /api/v1/calendar/entries/{record_id}:
-    get:
-      tags:
-      - Calendar
-      summary: Get Entry
-      operationId: get_entry_api_v1_calendar_entries__record_id__get
-      security:
-      - BearerAuth: []
-      parameters:
-      - name: record_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          minimum: 1
-          title: Record Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EntryOut'
-        '401':
-          description: Відсутній або недійсний Bearer-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-    patch:
-      tags:
-      - Calendar
-      summary: Update Entry
-      operationId: update_entry_api_v1_calendar_entries__record_id__patch
-      security:
-      - BearerAuth: []
-      parameters:
-      - name: record_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          minimum: 1
-          title: Record Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EntryUpdate'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EntryOut'
-        '401':
-          description: Відсутній або недійсний Bearer-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Помилка валідації вхідних даних
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Forbidden
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Service Unavailable
   /api/v1/profile:
     get:
       tags:
@@ -433,6 +215,368 @@ paths:
           description: Successful Response
       security:
       - BearerAuth: []
+  /api/v1/mentorships/code:
+    get:
+      tags:
+      - Mentorship
+      summary: Own Code
+      operationId: own_code_api_v1_mentorships_code_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MentorCodeOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/my-mentor:
+    get:
+      tags:
+      - Mentorship
+      summary: My Mentor
+      operationId: my_mentor_api_v1_mentorships_my_mentor_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipItem'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/my-mentees:
+    get:
+      tags:
+      - Mentorship
+      summary: My Mentees
+      operationId: my_mentees_api_v1_mentorships_my_mentees_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships:
+    post:
+      tags:
+      - Mentorship
+      summary: Join
+      operationId: join_api_v1_mentorships_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MentorshipCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipOut'
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/{relationship_id}:
+    get:
+      tags:
+      - Mentorship
+      summary: Relationship
+      operationId: relationship_api_v1_mentorships__relationship_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Mentorship
+      summary: Leave
+      operationId: leave_api_v1_mentorships__relationship_id__delete
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships/{relationship_id}/calendar/entries:
+    get:
+      tags:
+      - Mentorship
+      summary: Mentee Entries
+      operationId: mentee_entries_api_v1_mentorships__relationship_id__calendar_entries_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      - name: from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: From
+      - name: to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: To
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships/{relationship_id}/calendar/entries/{record_id}:
+    get:
+      tags:
+      - Mentorship
+      summary: Mentee Entry
+      operationId: mentee_entry_api_v1_mentorships__relationship_id__calendar_entries__record_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Record Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships/{relationship_id}/statistics:
+    get:
+      tags:
+      - Mentorship
+      summary: Mentee Statistics
+      operationId: mentee_statistics_api_v1_mentorships__relationship_id__statistics_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      - name: period
+        in: query
+        required: false
+        schema:
+          enum:
+          - all
+          - week
+          - month
+          - year
+          type: string
+          default: all
+          title: Period
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/v1/notifications:
     get:
       tags:
@@ -654,6 +798,224 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/calendar/entries:
+    post:
+      tags:
+      - Calendar
+      summary: Створити відмітку дня
+      operationId: create_entry_api_v1_calendar_entries_post
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+    get:
+      tags:
+      - Calendar
+      summary: List Entries
+      operationId: list_entries_api_v1_calendar_entries_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: From
+      - name: to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: To
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+  /api/v1/calendar/entries/{record_id}:
+    get:
+      tags:
+      - Calendar
+      summary: Get Entry
+      operationId: get_entry_api_v1_calendar_entries__record_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Record Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+    patch:
+      tags:
+      - Calendar
+      summary: Update Entry
+      operationId: update_entry_api_v1_calendar_entries__record_id__patch
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Record Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
   /api/v1/goals:
     get:
       tags:
@@ -762,16 +1124,28 @@ paths:
                 additionalProperties: true
                 type: object
                 title: Response Ready Ready Get
-  /api/v1/admin/users:
+  /api/v1/admin/complaints:
     get:
       tags:
       - Admin
-      summary: List Users
-      description: Сторінка акаунтів без хешів паролів і службових полів.
-      operationId: list_users_api_v1_admin_users_get
+      summary: List Complaints
+      description: Скарги з фігурантами; глобального списку акаунтів немає.
+      operationId: list_complaints_api_v1_admin_complaints_get
       security:
       - BearerAuth: []
       parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          enum:
+          - pending
+          - approved
+          - rejected
+          - all
+          type: string
+          default: pending
+          title: Status
       - name: limit
         in: query
         required: false
@@ -795,7 +1169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminUserList'
+                $ref: '#/components/schemas/AdminComplaintList'
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -814,35 +1188,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/admin/users/{user_id}/block:
-    patch:
+  /api/v1/admin/complaints/{complaint_id}:
+    get:
       tags:
       - Admin
-      summary: Block User
-      description: Блокує або розблокує акаунт. Розблокування не оживляє старі токени.
-      operationId: block_user_api_v1_admin_users__user_id__block_patch
+      summary: Get Complaint
+      operationId: get_complaint_api_v1_admin_complaints__complaint_id__get
       security:
       - BearerAuth: []
       parameters:
-      - name: user_id
+      - name: complaint_id
         in: path
         required: true
         schema:
           type: integer
-          title: User Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BlockRequest'
+          title: Complaint Id
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminUserOut'
+                $ref: '#/components/schemas/AdminComplaintOut'
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -862,11 +1229,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Акаунт не знайдено
+          description: Скаргу не знайдено
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+      - Admin
+      summary: Decide Complaint
+      description: Схвалення завершує зв'язок пари назавжди; відхилення його не відновлює.
+      operationId: decide_complaint_api_v1_admin_complaints__complaint_id__patch
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: complaint_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Complaint Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintDecision'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Скаргу не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Скаргу вже розглянуто
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/admin/overview:
+    get:
+      tags:
+      - Admin
+      summary: Overview
+      description: Агрегати без персональних даних; межі днів — Europe/Kyiv.
+      operationId: overview_api_v1_admin_overview_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOverview'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
   /api/v1/admin/trigger-distribution:
     get:
       tags:
@@ -901,23 +1360,127 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       security:
       - BearerAuth: []
+  /api/v1/complaints:
+    post:
+      tags:
+      - Complaints
+      summary: Create Complaint
+      description: Скаржник — власник JWT; на кого скарга, сервер бере зі зв'язку.
+      operationId: create_complaint_api_v1_complaints_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Скаржитися може лише підопічний
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Зв'язок або коментар не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Скарга вже розглядається
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /internal/jobs/reminders:
+    post:
+      tags:
+      - Jobs
+      summary: Run Reminders
+      description: Створює нагадування за поточну київську дату й обробляє поштову
+        чергу.
+      operationId: run_reminders_internal_jobs_reminders_post
+      parameters:
+      - name: x-job-token
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Job-Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderJobResult'
+        '401':
+          description: Недійсний секрет
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Job уже виконується
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Job не налаштовано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AdminUserList:
+    AdminComplaintList:
       properties:
         items:
           items:
-            $ref: '#/components/schemas/AdminUserOut'
+            $ref: '#/components/schemas/AdminComplaintOut'
           type: array
           title: Items
         total:
           type: integer
+          minimum: 0.0
           title: Total
         limit:
           type: integer
+          maximum: 100.0
+          minimum: 1.0
           title: Limit
         offset:
           type: integer
+          minimum: 0.0
           title: Offset
       type: object
       required:
@@ -925,41 +1488,91 @@ components:
       - total
       - limit
       - offset
-      title: AdminUserList
-    AdminUserOut:
+      title: AdminComplaintList
+    AdminComplaintOut:
       properties:
-        user_id:
+        complaint_id:
           type: integer
-          title: User Id
-        name:
+          title: Complaint Id
+        relationship_id:
+          type: integer
+          title: Relationship Id
+        reason:
           type: string
-          title: Name
-        nickname:
-          type: string
-          title: Nickname
-        email:
-          type: string
-          title: Email
-        role:
+          title: Reason
+        support_comment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Support Comment Id
+        status:
           type: string
           enum:
-          - user
-          - mentor
-          - admin
-          title: Role
-        is_blocked:
-          type: boolean
-          title: Is Blocked
+          - pending
+          - approved
+          - rejected
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+        reporter:
+          $ref: '#/components/schemas/ComplaintParty'
+        reported:
+          $ref: '#/components/schemas/ComplaintParty'
+        evidence:
+          anyOf:
+          - $ref: '#/components/schemas/ComplaintEvidence'
+          - type: 'null'
       type: object
       required:
-      - user_id
-      - name
-      - nickname
-      - email
-      - role
-      - is_blocked
-      title: AdminUserOut
-      description: Публічний стан акаунта. Без password_hash і token_version.
+      - complaint_id
+      - relationship_id
+      - reason
+      - support_comment_id
+      - status
+      - created_at
+      - reviewed_at
+      - reporter
+      - reported
+      - evidence
+      title: AdminComplaintOut
+    AdminOverview:
+      properties:
+        registrations_last_30_days:
+          type: integer
+          minimum: 0.0
+          title: Registrations Last 30 Days
+        active_mentors:
+          type: integer
+          minimum: 0.0
+          title: Active Mentors
+        active_relationships:
+          type: integer
+          minimum: 0.0
+          title: Active Relationships
+        pending_complaints:
+          type: integer
+          minimum: 0.0
+          title: Pending Complaints
+        current_date:
+          type: string
+          format: date
+          title: Current Date
+      type: object
+      required:
+      - registrations_last_30_days
+      - active_mentors
+      - active_relationships
+      - pending_complaints
+      - current_date
+      title: AdminOverview
     AvatarDataOut:
       properties:
         data_url:
@@ -989,17 +1602,115 @@ components:
       - has_avatar
       - avatar_version
       title: AvatarUploadOut
-    BlockRequest:
+    ComplaintCreate:
       properties:
-        is_blocked:
-          type: boolean
-          title: Is Blocked
-          description: 'true: заблокувати, false: розблокувати.'
+        relationship_id:
+          type: integer
+          minimum: 1.0
+          title: Relationship Id
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Reason
+        support_comment_id:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Support Comment Id
       additionalProperties: false
       type: object
       required:
-      - is_blocked
-      title: BlockRequest
+      - relationship_id
+      - reason
+      title: ComplaintCreate
+    ComplaintDecision:
+      properties:
+        decision:
+          type: string
+          enum:
+          - approved
+          - rejected
+          title: Decision
+      additionalProperties: false
+      type: object
+      required:
+      - decision
+      title: ComplaintDecision
+    ComplaintEvidence:
+      properties:
+        text:
+          type: string
+          title: Text
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - text
+      - created_at
+      title: ComplaintEvidence
+    ComplaintOut:
+      properties:
+        complaint_id:
+          type: integer
+          title: Complaint Id
+        relationship_id:
+          type: integer
+          title: Relationship Id
+        reason:
+          type: string
+          title: Reason
+        support_comment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Support Comment Id
+        status:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+      type: object
+      required:
+      - complaint_id
+      - relationship_id
+      - reason
+      - support_comment_id
+      - status
+      - created_at
+      - reviewed_at
+      title: ComplaintOut
+    ComplaintParty:
+      properties:
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+      type: object
+      required:
+      - nickname
+      - email
+      title: ComplaintParty
+      description: 'Тільки фігуранти скарги: без ролі, коду, налаштувань чи фото.'
     ContactOut:
       properties:
         nickname:
@@ -1361,6 +2072,26 @@ components:
       - tracking_start_date
       - current_date
       title: MeResponse
+    MentorCodeOut:
+      properties:
+        code:
+          type: string
+          title: Code
+      type: object
+      required:
+      - code
+      title: MentorCodeOut
+    MentorshipCreate:
+      properties:
+        code:
+          type: string
+          pattern: ^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{12}$
+          title: Code
+      additionalProperties: false
+      type: object
+      required:
+      - code
+      title: MentorshipCreate
     NotificationList:
       properties:
         items:
@@ -1597,6 +2328,140 @@ components:
       - email
       - password
       title: RegisterRequest
+    RelationshipContact:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+      type: object
+      required:
+      - user_id
+      - nickname
+      - email
+      title: RelationshipContact
+    RelationshipItem:
+      properties:
+        item:
+          anyOf:
+          - $ref: '#/components/schemas/RelationshipOut'
+          - type: 'null'
+      type: object
+      required:
+      - item
+      title: RelationshipItem
+    RelationshipList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RelationshipOut'
+          type: array
+          title: Items
+        total:
+          type: integer
+          minimum: 0.0
+          title: Total
+        limit:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Limit
+        offset:
+          type: integer
+          minimum: 0.0
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: RelationshipList
+    RelationshipOut:
+      properties:
+        relationship_id:
+          type: integer
+          title: Relationship Id
+        status:
+          type: string
+          enum:
+          - active
+          - ended
+          title: Status
+        mentor:
+          $ref: '#/components/schemas/RelationshipContact'
+        mentee:
+          $ref: '#/components/schemas/RelationshipContact'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+        ended_reason:
+          anyOf:
+          - type: string
+            enum:
+            - mentor_left
+            - mentee_left
+            - complaint
+          - type: 'null'
+          title: Ended Reason
+      type: object
+      required:
+      - relationship_id
+      - status
+      - mentor
+      - mentee
+      - created_at
+      - ended_at
+      - ended_reason
+      title: RelationshipOut
+    ReminderJobResult:
+      properties:
+        created_in_app:
+          type: integer
+          minimum: 0.0
+          title: Created In App
+        queued_email:
+          type: integer
+          minimum: 0.0
+          title: Queued Email
+        sent:
+          type: integer
+          minimum: 0.0
+          title: Sent
+        skipped:
+          type: integer
+          minimum: 0.0
+          title: Skipped
+          description: Пропущені нагадування й листи.
+        failed:
+          type: integer
+          minimum: 0.0
+          title: Failed
+        unknown:
+          type: integer
+          minimum: 0.0
+          title: Unknown
+      type: object
+      required:
+      - created_in_app
+      - queued_email
+      - sent
+      - skipped
+      - failed
+      - unknown
+      title: ReminderJobResult
     StatisticsOut:
       properties:
         period:
@@ -1868,13 +2733,23 @@ tags:
   description: 'Щоденні відмітки користувача (DayRecord): тверезий день або зрив.
     FR-001, FR-002, FR-003, FR-008.'
 - name: Goals
-  description: 'Цілі тверезості (Goal): цільова кількість днів і прогрес. FR-004,
-    FR-005.'
+  description: 'Фіксовані етапи тверезості: 7, 30, 90, 180 і 365 днів. FR-004, FR-005.'
 - name: Admin
-  description: 'Лише для ролі admin: акаунти, блокування й анонімна діаграма тригерів
-    за 30 днів.'
+  description: 'Лише для ролі admin: розгляд скарг, агрегати й анонімна діаграма тригерів
+    за 30 днів. Глобального списку акаунтів немає.'
+- name: Complaints
+  description: Скарга підопічного на ментора конкретного зв'язку.
+- name: Jobs
+  description: Службовий запуск нагадувань за розкладом; лише з секретом X-Job-Token,
+    не для користувачів.
 - name: Health
   description: 'Перевірки стану сервісу: /health і /ready.'
 - name: Statistics
-  description: 'Статистика тверезості: кількість днів, серії та автоматичні етапи
-    на 7, 30, 90, 180 і 365 днів.'
+  description: 'Статистика тверезості: кількість днів, серії та автоматичні цілі на
+    7, 30, 90, 180 і 365 днів.'
+- name: Profile
+  description: Власний профіль, пароль, фото й налаштування.
+- name: Mentorship
+  description: Менторство за кодом; календар і статистика лише для читання.
+- name: Notifications
+  description: Приватні повідомлення, нагадування й коментарі підтримки.

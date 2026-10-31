@@ -1,0 +1,32 @@
+# AI-GENERATED START
+# Щоденні нагадування (ТЗ С-4). Виклик службового endpoint розгорнутого API;
+# сервер до 20:00 за Києвом нічого не створює, тож кілька запусків безпечні.
+# schedule працює лише з default branch (main); до того — ручний запуск.
+name: Daily reminders
+
+on:
+  schedule:
+    # UTC: покриває 20:00 Kyiv і взимку (UTC+2), і влітку (UTC+3), з повторами.
+    - cron: "0,15,30,45 17-21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-reminders
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Call reminders job
+        env:
+          REHAB_API_URL: ${{ secrets.REHAB_API_URL }}
+          REMINDERS_JOB_TOKEN: ${{ secrets.REMINDERS_JOB_TOKEN }}
+        run: python3 scripts/run_reminders_job.py
+# AI-GENERATED END
