@@ -129,13 +129,14 @@ test('private calendar details and onboarding have separate access rules', () =>
   assert.equal(routeGroup('onboarding').props.guard, true);
   assert.equal(routeGroup('entry/[record_id]').props.guard, false);
   assert.equal(routeGroup('support/report').props.guard, false);
+  assert.equal(routeGroup('mentee').props.guard, false);
 
   auth = { ...auth, onboardingPending: false };
   assert.equal(routeGroup('onboarding').props.guard, false);
   assert.equal(routeGroup('entry/[record_id]').props.guard, true);
   for (const name of [
     'profile/edit', 'profile/password', 'profile/notifications',
-    'profile/style', 'profile/privacy', 'profile/help', 'support/report',
+    'profile/style', 'profile/privacy', 'profile/help', 'support/report', 'mentee',
   ]) {
     assert.equal(routeGroup(name).props.guard, true);
   }
@@ -143,9 +144,11 @@ test('private calendar details and onboarding have separate access rules', () =>
   auth = { user: null, loading: false, restoreError: false, onboardingPending: false };
   assert.equal(routeGroup('entry/[record_id]').props.guard, false);
   assert.equal(routeGroup('support/report').props.guard, false);
+  assert.equal(routeGroup('mentee').props.guard, false);
 
   auth = { user: { user_id: 1, role: 'admin' }, loading: false,
     restoreError: false, onboardingPending: false };
   assert.equal(routeGroup('entry/[record_id]').props.guard, false);
   assert.equal(routeGroup('support/report').props.guard, false);
+  assert.equal(routeGroup('mentee').props.guard, false);
 });
