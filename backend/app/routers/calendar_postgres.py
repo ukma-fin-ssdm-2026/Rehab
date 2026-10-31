@@ -1,6 +1,4 @@
-"""PostgreSQL calendar router for the coordinated KT-1 switch.
-
-Not registered in main.py until the real auth and progress modules are ready.
+"""PostgreSQL calendar writes, progress and relapse events in one transaction.
 AI-GENERATED START: prepared with ChatGPT; HTTP/SQL transaction tests included.
 """
 
@@ -23,6 +21,7 @@ from backend.app.models import (
     ErrorResponse,
 )
 from backend.app.repositories import entries
+from backend.app.services.notifications import emit_relapse_once
 from backend.app.security import CurrentUser, get_current_user
 
 router = APIRouter(prefix="/calendar/entries", tags=["Calendar"])
@@ -46,11 +45,24 @@ def get_progress_sync() -> ProgressSync:
 
 
 def _write(
-    db: Session, user: CurrentUser, operation, progress: ProgressSync
+    db: Session,
+    user: CurrentUser,
+    operation,
+    progress: ProgressSync,
+    *,
+    record_id: int | None = None,
 ) -> EntryOut:
     try:
+        entries.lock_calendar_owner(db, user.user_id)
+        previous_status = (
+            entries.get_own_entry(db, user.user_id, record_id, lock=True).status.value
+            if record_id is not None
+            else None
+        )
         result = operation()
         progress(db, user.user_id, today_local())
+        db.flush()
+        emit_relapse_once(db, result.record_id, previous_status)
         db.commit()
         return result
     except entries.EntryNotFound as error:
@@ -161,6 +173,7 @@ def update_entry(
         user,
         lambda: entries.update_entry(db, user.user_id, record_id, body),
         progress,
+        record_id=record_id,
     )
 
 

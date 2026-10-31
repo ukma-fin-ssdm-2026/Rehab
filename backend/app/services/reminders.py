@@ -35,7 +35,7 @@ def create_due_reminders(db, now: datetime) -> dict[str, int]:
             person = db.scalar(
                 select(User)
                 .where(User.user_id == user_id)
-                .with_for_update()
+                .with_for_update(key_share=True)
                 .execution_options(populate_existing=True)
             )
             explicit = (
