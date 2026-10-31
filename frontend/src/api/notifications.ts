@@ -1,4 +1,5 @@
 import { apiRequest } from './client';
+import { getMessageVariation } from '../messages/rotation';
 
 export type Contact = { nickname: string; email: string };
 export type SupportComment = {
@@ -14,10 +15,10 @@ export type Notification = {
 };
 export type NotificationPage = { items: Notification[]; total: number; limit: number; offset: number };
 export const listNotifications = (limit = 30, offset = 0): Promise<NotificationPage> =>
-  apiRequest(`/notifications?limit=${limit}&offset=${offset}`);
+  apiRequest(`/notifications?limit=${limit}&offset=${offset}&variant=${getMessageVariation()}`);
 export const getUnreadCount = (): Promise<{count: number}> => apiRequest('/notifications/unread-count');
-export const getNotification = (id: number): Promise<Notification> => apiRequest(`/notifications/${id}`);
-export const markNotificationRead = (id: number): Promise<Notification> => apiRequest(`/notifications/${id}/read`, {method: 'PATCH'});
+export const getNotification = (id: number): Promise<Notification> => apiRequest(`/notifications/${id}?variant=${getMessageVariation()}`);
+export const markNotificationRead = (id: number): Promise<Notification> => apiRequest(`/notifications/${id}/read?variant=${getMessageVariation()}`, {method: 'PATCH'});
 export async function sendSupport(id: number, text: string): Promise<SupportComment> {
   const trimmed = text.trim();
   if (!trimmed || [...trimmed].length > 2000) throw new Error('Введіть від 1 до 2000 символів');

@@ -603,6 +603,15 @@ paths:
           minimum: 0
           default: 0
           title: Offset
+      - name: variant
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 0
+          default: 0
+          title: Variant
       responses:
         '200':
           description: Successful Response
@@ -665,6 +674,15 @@ paths:
           type: integer
           minimum: 1
           title: Notification Id
+      - name: variant
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 0
+          default: 0
+          title: Variant
       responses:
         '200':
           description: Successful Response
@@ -706,6 +724,15 @@ paths:
           type: integer
           minimum: 1
           title: Notification Id
+      - name: variant
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 0
+          default: 0
+          title: Variant
       requestBody:
         content:
           application/json:

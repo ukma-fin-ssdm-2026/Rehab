@@ -29,7 +29,7 @@ test('inbox lifecycle polls while focused, drops old owners and cancels on blur'
   'expo-router':{useFocusEffect:fn=>{focus=fn;}},'../auth/AuthProvider':{useAuth:()=>({user:{user_id:owner}})},
   '../profile/ProfileProvider':{useProfile:()=>({profile:{message_style:'formal'}})},
   '../api/notifications':{markNotificationRead:loader,getUnreadCount:loader,listNotifications:loader},
-  '../progress/request':request,'./inbox':inbox,
+  '../progress/request':request,'./inbox':inbox,'./useMessageText':{useMessageVariation:()=>0},
  },{window:browser,document,setInterval:fn=>{timer=fn;return 1;},clearInterval:()=>{timer=null;}});
  function render(){cursor=0;refCursor=0;return hooks.useMessageResource(loader,true);}
  const flush=()=>new Promise(resolve=>setImmediate(resolve));

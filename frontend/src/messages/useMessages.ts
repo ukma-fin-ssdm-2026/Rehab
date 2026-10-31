@@ -5,6 +5,7 @@ import { useProfile } from '../profile/ProfileProvider';
 import { listNotifications, getUnreadCount, markNotificationRead } from '../api/notifications';
 import { createLatestRequest } from '../progress/request';
 import { loadInboxPages } from './inbox';
+import { useMessageVariation } from './useMessageText';
 
 export function useMessageResource<T>(loader: () => Promise<T>, poll = false) {
   const { user } = useAuth();
@@ -41,21 +42,23 @@ export function useUnreadMessages() {
 }
 
 export function useInbox(visible: number) {
+  const variation=useMessageVariation();
   const {profile}=useProfile();
   const style=profile?.message_style;
   const load=useCallback(()=>{
-    void style;
+    void style; void variation;
     return loadInboxPages(listNotifications,visible);
-  },[visible,style]);
+  },[visible,style,variation]);
   return useMessageResource(load,true);
 }
 
 export function useMessage(id: number) {
+  const variation=useMessageVariation();
   const {profile}=useProfile();
   const style=profile?.message_style;
   const load=useCallback(()=>{
-    void style;
+    void style; void variation;
     return Number.isInteger(id) && id > 0 ? markNotificationRead(id) : Promise.reject(new Error('Некоректний номер повідомлення'));
-  },[id,style]);
+  },[id,style,variation]);
   return useMessageResource(load,true);
 }

@@ -13,7 +13,6 @@ function Inbox() {
   const [visible,setVisible]=useState(30);
   const {data,loading,error,reload}=useInbox(visible);
   return <ScrollView contentContainerStyle={styles.container}>
-    <Pressable onPress={()=>router.back()}><Text style={styles.link}>← Назад</Text></Pressable>
     <Text style={styles.title}>Повідомлення</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження повідомлень" />}
     {!!error && <View style={styles.card}><Text style={styles.error}>{error}</Text><Pressable onPress={()=>void reload()}><Text style={styles.link}>Спробувати ще раз</Text></Pressable></View>}

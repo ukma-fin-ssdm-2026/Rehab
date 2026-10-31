@@ -10,6 +10,7 @@ import {
 import { ApiError, setAccessToken, setSessionInvalidHandler } from '../api/client';
 import { isOnboardingPending, saveOnboardingPending } from './onboardingSession';
 import { discardEntryLink, rememberEntryLink } from './returnEntry';
+import { beginCopySession, clearCopySession } from '../messages/rotation';
 
 const KEY = 'rehab.auth.token';
 
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clear = useCallback((preserveEntry = false) => {
     sessionVersion.current += 1;
     setAccessToken(null);
+    clearCopySession();
     saveToken(null);
     persistPendingUser(null);
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(saved);
     const account = await getMyAccount();
     if (version === sessionVersion.current && getSavedToken() === saved) {
+      beginCopySession(account.user_id);
       setUser(account);
       setOnboardingPending(pendingForUser(account.user_id));
       setRestoreError(false);
@@ -119,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(saved);
       getMyAccount().then(account => {
         if (active && version === sessionVersion.current && getSavedToken() === saved) {
+          beginCopySession(account.user_id);
           setUser(account);
           setOnboardingPending(pendingForUser(account.user_id));
         }
@@ -161,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Спробу входу перервано через зміну сесії.');
     }
     setAccessToken(result.access_token);
+    beginCopySession(result.user.user_id, true);
     saveToken(result.access_token);
     setRestoreError(false);
     setOnboardingPending(beginOnboarding);

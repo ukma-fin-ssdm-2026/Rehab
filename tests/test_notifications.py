@@ -10,6 +10,18 @@ from backend.app.db.models.notification import Notification
 from backend.app.services.notifications import emit_relapse_once
 
 
+def test_variant_changes_only_automatic_copy_and_keeps_ownership(inbox):
+    client, db, mentor, mentee, mh, eh, relation, record, notice = inbox
+    url=f"/api/v1/notifications/{notice.notification_id}"
+    first=client.get(url+'?variant=0',headers=mh)
+    second=client.get(url+'?variant=1',headers=mh)
+    assert first.status_code == second.status_code == 200
+    assert first.json()['body'] != second.json()['body']
+    assert first.json()['notification_id'] == second.json()['notification_id']
+    assert client.get(url+'?variant=1',headers=eh).status_code == 404
+    assert client.get(url+'?variant=4',headers=mh).status_code == 422
+
+
 @pytest.fixture
 def inbox(authenticated_calendar, registered_users, calendar_db):
     from backend.app.routers.notifications import router

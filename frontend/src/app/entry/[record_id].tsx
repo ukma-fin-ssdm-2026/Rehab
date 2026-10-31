@@ -1,6 +1,8 @@
+import { useProfile } from '../../profile/ProfileProvider';
+import { relapseLabel } from '../../messages/catalog';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { getEntry, updateEntry, type CalendarEntry, type DayStatus, type TriggerCategory } from '../../api/calendar';
 import { ApiError } from '../../api/client';
 import { canEdit, drinkTypes, triggers } from '../../calendar/rules';
@@ -8,6 +10,7 @@ import { StatusFields } from '../../calendar/StatusFields';
 import { styles } from '../../calendar/styles';
 
 export default function EntryDetailsScreen() {
+  const {profile}=useProfile();
   const { record_id } = useLocalSearchParams<{ record_id: string }>();
   const id = Number(record_id);
   const [entry, setEntry] = useState<CalendarEntry | null>(null);
@@ -61,9 +64,6 @@ export default function EntryDetailsScreen() {
   }
 
   return <ScrollView contentContainerStyle={styles.container}>
-    <Pressable disabled={saving} onPress={() => router.replace('/(tabs)/calendar')}>
-      <Text style={styles.back}>← Календар</Text>
-    </Pressable>
     <Text style={styles.title}>Деталі запису</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження запису" />}
     {!!error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
@@ -72,7 +72,7 @@ export default function EntryDetailsScreen() {
     {entry && !loading && <>
       <View style={styles.card}>
         <Text style={styles.label}>Дата: {entry.date}</Text>
-        <Text>Статус: {entry.status === 'sober' ? 'Тверезість' : 'Зрив'}</Text>
+        <Text>Статус: {entry.status === 'sober' ? 'Тверезість' : relapseLabel(profile?.message_style ?? 'formal')}</Text>
         <Text>Тригер: {triggers.find(item => item.value === entry.trigger_category)?.label ?? 'Не вказано'}</Text>
         <Text style={styles.label}>Напої</Text>
         {entry.drinks.length ? entry.drinks.map((drink, index) => <Text key={index}>

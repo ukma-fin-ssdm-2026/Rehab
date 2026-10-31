@@ -1,3 +1,5 @@
+import { useProfile } from '../../profile/ProfileProvider';
+import { useMessageText } from '../../messages/useMessageText';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -20,6 +22,8 @@ const periods: { label: string; value: Period }[] = [
 ];
 
 export default function StatisticsScreen() {
+  const {profile}=useProfile();
+  const messageText=useMessageText();
   const [period, setPeriod] = useState<Period>('week');
   const { data, loading, error, reload: loadStatistics } = useProgressStatistics(period);
 
@@ -34,7 +38,7 @@ export default function StatisticsScreen() {
       <Text style={styles.eyebrow}>ТВОЯ ДИНАМІКА</Text>
       <Text style={styles.title}>Статистика</Text>
       <Text style={styles.subtitle}>
-        Подивись на свій шлях за обраний період.
+        {profile && profile.message_style!=='formal' ? messageText('home.motivation',profile.message_style).body : 'Подивись на свій шлях за обраний період.'}
       </Text>
 
       <View style={styles.periods}>

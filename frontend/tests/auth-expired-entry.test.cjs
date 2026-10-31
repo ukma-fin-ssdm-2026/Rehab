@@ -58,6 +58,7 @@ function createSession(pathname, token = 'expired-token') {
     exports, module: { exports },
     window: { location: { pathname }, sessionStorage: storage },
     require: name => {
+      if (name === '../messages/rotation') return {beginCopySession(){},clearCopySession(){}};
       if (name === 'react') return react;
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
       if (name === 'react-native') return { Platform: { OS: 'web' } };

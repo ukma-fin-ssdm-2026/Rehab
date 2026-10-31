@@ -1,5 +1,5 @@
 import { useProfile } from '../../profile/ProfileProvider';
-import { messageText } from '../../messages/catalog';
+import { useMessageText } from '../../messages/useMessageText';
 import {
   ActivityIndicator,
   Pressable,
@@ -13,6 +13,7 @@ import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS, GOAL_LABELS, GOAL_DESCRIPTIONS } from '../../constants/goals';
 
 export default function GoalsScreen() {
+  const messageText=useMessageText();
   const { profile } = useProfile();
   const motivation = profile ? messageText('goals.motivation', profile.message_style).body : '';
   const { data, loading, error, reload: loadGoals } = useProgressStatistics();
@@ -28,11 +29,6 @@ export default function GoalsScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.eyebrow}>МАЛЕНЬКІ КРОКИ</Text>
       <Text style={styles.title}>Мої цілі</Text>
-      <Text style={styles.subtitle}>
-        Етапи 7, 30, 90, 180 і 365 днів за безперервною серією.
-      </Text>
-
-      <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
 
       {loading && (
         <View style={styles.message}>
@@ -144,6 +140,8 @@ export default function GoalsScreen() {
               Відзнака зберігається після нового зриву. Виправлення минулих записів може змінити рекорд і відзнаки.
             </Text>
           </View>
+          <Text style={styles.muted}>Етапи 7, 30, 90, 180 і 365 днів за безперервною серією.</Text>
+          <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
         </>
       )}
     </ScrollView>

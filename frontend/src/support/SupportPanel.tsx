@@ -5,7 +5,8 @@ import type { Relationship } from '../api/mentorship';
 import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
 import { ScreenState } from '../components/ui/ScreenState';
-import { messageText, type MessageStyle } from '../messages/catalog';
+import { type MessageStyle } from '../messages/catalog';
+import { useMessageText } from '../messages/useMessageText';
 import { styles } from './styles';
 import { useSupportData } from './useSupportData';
 
@@ -13,6 +14,7 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
   messageStyle?: MessageStyle;
   onReport?: (relationshipId: number) => void;
 }) {
+  const messageText=useMessageText();
   const { data, loading, error, busy, reload, join, leave, loadMore } = useSupportData();
   const [code, setCode] = useState('');
   const [copyStatus, setCopyStatus] = useState('');

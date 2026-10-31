@@ -73,7 +73,7 @@ def comment_out(db, comment):
     )
 
 
-def notification_out(db, item):
+def notification_out(db, item, variation: int = 0):
     receiver = db.get(User, item.recipient_id)
     relationship = (
         db.scalar(
@@ -134,6 +134,7 @@ def notification_out(db, item):
             "nickname": sender.nickname if sender else "",
             "date": item.business_date.isoformat(),
         },
+        variation=variation,
     )
     return NotificationOut(
         notification_id=item.notification_id,
