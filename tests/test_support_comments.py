@@ -1,8 +1,28 @@
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
+from threading import Barrier
+
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from backend.app.services.notifications import send_support
 from sqlalchemy import select, func
 from tests.test_notifications import inbox  # noqa: F401
 from backend.app.db.models.notification import Notification
 from backend.app.db.models.support_comment import SupportComment
 from backend.app.services.mentorship import end_relationship
+
+
+def send_support_in_session(engine, barrier, mentor_id, notification_id):
+    """Each competing request uses its own transaction and starts at the barrier."""
+    with Session(engine) as session:
+        barrier.wait(timeout=10)
+        try:
+            send_support(session, mentor_id, notification_id, "Я поруч")
+            session.commit()
+            return 201
+        except HTTPException as error:
+            session.rollback()
+            return error.status_code
 
 
 def test_support_is_plain_immutable_and_visible_to_its_recipient(inbox):
@@ -78,27 +98,16 @@ def test_current_recipient_style_changes_copy_without_changing_support(inbox):
 
 
 def test_simultaneous_support_creates_one_comment(inbox, postgres_schema):
-    from concurrent.futures import ThreadPoolExecutor
-    from threading import Barrier
-    from sqlalchemy.orm import Session
-    from fastapi import HTTPException
-    from backend.app.services.notifications import send_support
-
     client, db, mentor, mentee, mh, eh, relation, record, notice = inbox
     barrier = Barrier(2)
 
-    def send():
-        with Session(postgres_schema) as session:
-            barrier.wait(timeout=10)
-            try:
-                send_support(
-                    session, mentor["user_id"], notice.notification_id, "Я поруч"
-                )
-                session.commit()
-                return 201
-            except HTTPException as error:
-                session.rollback()
-                return error.status_code
+    send = partial(
+        send_support_in_session,
+        postgres_schema,
+        barrier,
+        mentor["user_id"],
+        notice.notification_id,
+    )
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         jobs = [pool.submit(send) for _ in range(2)]
@@ -115,27 +124,16 @@ def test_simultaneous_support_creates_one_comment(inbox, postgres_schema):
 
 
 def test_support_racing_with_end_keeps_access_closed(inbox, postgres_schema):
-    from concurrent.futures import ThreadPoolExecutor
-    from threading import Barrier
-    from sqlalchemy.orm import Session
-    from fastapi import HTTPException
-    from backend.app.services.notifications import send_support
-
     client, db, mentor, mentee, mh, eh, relation, record, notice = inbox
     barrier = Barrier(2)
 
-    def send():
-        with Session(postgres_schema) as session:
-            barrier.wait(timeout=10)
-            try:
-                send_support(
-                    session, mentor["user_id"], notice.notification_id, "Я поруч"
-                )
-                session.commit()
-                return 201
-            except HTTPException as error:
-                session.rollback()
-                return error.status_code
+    send = partial(
+        send_support_in_session,
+        postgres_schema,
+        barrier,
+        mentor["user_id"],
+        notice.notification_id,
+    )
 
     def end():
         with Session(postgres_schema) as session:

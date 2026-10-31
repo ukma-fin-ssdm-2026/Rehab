@@ -11,7 +11,7 @@ import { messageStyles as styles } from '../../messages/styles';
 export default function MessageScreen() {
   const {notification_id}=useLocalSearchParams<{notification_id:string}>();
   const {user}=useAuth();
-  const id=/^[1-9]\d*$/.test(notification_id ?? '') ? Number(notification_id) : NaN;
+  const id=/^[1-9]\d*$/.test(notification_id ?? '') ? Number(notification_id) : Number.NaN;
   return <Message key={`${user?.user_id}:${notification_id}`} id={id} />;
 }
 function Message({id}:{id:number}) {
