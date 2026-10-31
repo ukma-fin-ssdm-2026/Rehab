@@ -86,10 +86,11 @@ test('late account block from another session does not revoke current JWT', asyn
   assert.equal(invalidations, 0);
 });
 
-test('401 and account block still revoke the active JWT', async () => {
+test('only 401 revokes JWT; mentorship and legacy 403 keep the session', async () => {
   for (const [status, code] of [
     [401, 'UNAUTHORIZED'],
     [403, 'ACCOUNT_BLOCKED'],
+    [403, 'MENTORSHIP_INACTIVE'],
   ]) {
     const client = createClient(async () => errorResponse(status, code));
     let invalidations = 0;
@@ -99,7 +100,7 @@ test('401 and account block still revoke the active JWT', async () => {
     await assert.rejects(client.apiRequest('/auth/me'), error =>
       error.status === status && error.code === code
     );
-    assert.equal(invalidations, 1);
+    assert.equal(invalidations, status === 401 ? 1 : 0);
   }
 });
 
