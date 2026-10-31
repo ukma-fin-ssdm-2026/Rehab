@@ -25,6 +25,7 @@ function ProtectedNavigation() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="add-entry" />
         <Stack.Screen name="entry/[record_id]" />
+        <Stack.Screen name="messages" />
         <Stack.Screen name="placeholders" />
         <Stack.Screen name="profile/edit" />
         <Stack.Screen name="profile/password" />
