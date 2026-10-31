@@ -1,6 +1,6 @@
-"""PostgreSQL calendar router for the coordinated KT-1 switch.
+"""PostgreSQL calendar writes with atomic progress and first-relapse events.
 
-Not registered in main.py until the real auth and progress modules are ready.
+Registered in main.py; the caller owns one transaction for all three changes.
 AI-GENERATED START: prepared with ChatGPT; HTTP/SQL transaction tests included.
 """
 
@@ -9,10 +9,15 @@ import datetime as dt
 from importlib import import_module
 
 from fastapi import APIRouter, Depends, Path, Query, Request, Response
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.app.core.clock import today_local
+from backend.app.db.models.user import User
+from backend.app.db.models.mentorship import Mentorship
+from backend.app.db.models.entry import DayRecord
+from backend.app.services.notifications import emit_relapse_once
 from backend.app.db.session import get_db
 from backend.app.errors import COMMON_RESPONSES, api_error
 from backend.app.models import (
@@ -46,11 +51,38 @@ def get_progress_sync() -> ProgressSync:
 
 
 def _write(
-    db: Session, user: CurrentUser, operation, progress: ProgressSync
+    db: Session,
+    user: CurrentUser,
+    operation,
+    progress: ProgressSync,
+    record_id: int | None = None,
 ) -> EntryOut:
     try:
+        # Shared writer order: mentee user -> active relationship -> calendar row.
+        db.scalar(
+            select(User.user_id).where(User.user_id == user.user_id).with_for_update()
+        )
+        db.scalar(
+            select(Mentorship)
+            .where(Mentorship.mentee_id == user.user_id, Mentorship.status == "active")
+            .with_for_update()
+        )
+        previous_status = None
+        if record_id is not None:
+            previous = db.scalar(
+                select(DayRecord)
+                .where(
+                    DayRecord.record_id == record_id, DayRecord.user_id == user.user_id
+                )
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            if previous is None:
+                raise entries.EntryNotFound("Entry not found")
+            previous_status = previous.status
         result = operation()
         progress(db, user.user_id, today_local())
+        emit_relapse_once(db, result.record_id, previous_status)
         db.commit()
         return result
     except entries.EntryNotFound as error:
@@ -161,6 +193,7 @@ def update_entry(
         user,
         lambda: entries.update_entry(db, user.user_id, record_id, body),
         progress,
+        record_id=record_id,
     )
 
 
