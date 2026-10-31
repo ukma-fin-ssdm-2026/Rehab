@@ -141,12 +141,18 @@ def test_main_app_isolates_accounts_and_admin_revokes_session(
         json={"is_blocked": True},
     )
     assert response.status_code == 200, response.text
-    assert main_api.get(f"{API}/auth/me", headers=second_headers).status_code == 403
+    # До інтеграції PR №220 застарілий admin endpoint ще доступний,
+    # але старий JWT відхиляється через token_version, а не is_blocked.
+    assert main_api.get(f"{API}/auth/me", headers=second_headers).status_code == 401
     blocked_login = main_api.post(
         f"{API}/auth/login",
         json={"email": second["email"], "password": PASSWORD},
     )
-    assert blocked_login.status_code == 403
+    assert blocked_login.status_code == 200, blocked_login.text
+    flagged_headers = {
+        "Authorization": f"Bearer {blocked_login.json()['access_token']}"
+    }
+    assert main_api.get(f"{API}/auth/me", headers=flagged_headers).status_code == 200
 
     unblock = main_api.patch(
         f"{API}/admin/users/{second['user_id']}/block",
@@ -155,6 +161,7 @@ def test_main_app_isolates_accounts_and_admin_revokes_session(
     )
     assert unblock.status_code == 200, unblock.text
     assert main_api.get(f"{API}/auth/me", headers=second_headers).status_code == 401
+    assert main_api.get(f"{API}/auth/me", headers=flagged_headers).status_code == 401
     assert main_api.get(f"{API}/auth/me", headers=first_headers).status_code == 200
     fresh_headers = login(main_api, second["email"])
     assert main_api.get(f"{API}/auth/me", headers=fresh_headers).status_code == 200

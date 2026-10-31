@@ -145,14 +145,20 @@ def test_blocking_rejects_old_token_and_unblocking_does_not_restore_it(
 
     assert blocked.status_code == 200
     assert blocked.json()["is_blocked"] is True
+    # Застарілий admin endpoint ще існує до PR №220, але не блокує
+    # акаунт глобально. Зміна token_version відкликає старий JWT.
     rejected = client.get("/api/v1/probe", headers=old)
-    assert rejected.status_code == 403
-    assert rejected.json()["code"] == "ACCOUNT_BLOCKED"
+    assert rejected.status_code == 401
+    assert rejected.json()["code"] == "UNAUTHORIZED"
+    session.refresh(target)
+    while_flagged = auth(target)
+    assert client.get("/api/v1/probe", headers=while_flagged).status_code == 200
 
     unblocked = client.patch(url, json={"is_blocked": False}, headers=auth(admin_user))
 
     assert unblocked.json()["is_blocked"] is False
     assert client.get("/api/v1/probe", headers=old).status_code == 401
+    assert client.get("/api/v1/probe", headers=while_flagged).status_code == 401
     session.refresh(target)
     assert client.get("/api/v1/probe", headers=auth(target)).status_code == 200
 
