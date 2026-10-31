@@ -25,3 +25,5 @@ emit_relapse_once(db, record_id, previous_status) — services/notifications.py.
 Два старі frontend-тести приведено до вже чинного ТЗ: 403, зокрема MENTORSHIP_INACTIVE, не завершує JWT-сесію; admin переходить у /admin/complaints, а не глобальний список користувачів. Runtime авторизацію не змінено.
 
 Успішні приватні відповіді notification router мають Cache-Control: no-store. У контракті OpenAPI detail/read описано 404, support — також 403 та 409; спільні 401/422 збережені.
+
+Паралельна інтеграція №222 врахована у КТ-Б. tests/test_calendar_message_flow.py збережено разом із розширеним прийманням test_kt_b_integration.py; основний app має всі готові routers, а users-lock лишається FOR NO KEY UPDATE.

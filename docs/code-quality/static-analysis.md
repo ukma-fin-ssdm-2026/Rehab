@@ -135,4 +135,4 @@ Detect hardcoded secrets..............Passed
 Перевірки не виконували реальну Gmail-відправку. Детальний фактичний протокол:
 [kt-b-integration.md](../validation/kt-b-integration.md).
 
-Фінально: Bandit 0 findings / 4111 LOC; backend 458 passed, coverage 94%; frontend 85 passed, lint/typecheck/export успішні. Black та Flake8 без зауважень.
+Фінально: Bandit 0 findings / 4111 LOC; backend 460 passed після інтеграції №222, coverage 94%; frontend 85 passed, lint/typecheck/export успішні. Black та Flake8 без зауважень.

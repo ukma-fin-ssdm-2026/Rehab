@@ -100,4 +100,19 @@ test('navigation waits for session restore before mounting protected routes', ()
   assert.equal(navigation().type, Stack);
   auth = { user: null, loading: false, restoreError: true, retryRestore: async () => {} };
   assert.equal(navigation().props.state, 'error');
+  const activeScreens = node => {
+    if (!node) return [];
+    if (Array.isArray(node)) return node.flatMap(activeScreens);
+    if (node.type === Stack.Protected && !node.props.guard) return [];
+    return node.props?.name ? [node.props.name] : activeScreens(node.props?.children);
+  };
+  auth = { user: { role: 'user' }, loading: false, restoreError: false, onboardingPending: false };
+  assert.equal(activeScreens(navigation()).filter(name => name === 'messages').length, 1);
+  auth = { ...auth, onboardingPending: true };
+  assert.ok(!activeScreens(navigation()).includes('messages'));
+  auth = { ...auth, user: { role: 'admin' }, onboardingPending: false };
+  assert.ok(!activeScreens(navigation()).includes('messages'));
+  auth = { ...auth, user: null };
+  assert.ok(!activeScreens(navigation()).includes('messages'));
+
 });
