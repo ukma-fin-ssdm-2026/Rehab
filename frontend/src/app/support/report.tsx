@@ -11,6 +11,7 @@ import { Button } from '../../components/ui/Button';
 import { FormField } from '../../components/ui/FormField';
 import { ScreenState } from '../../components/ui/ScreenState';
 import { theme } from '../../constants/theme';
+import { useAuth } from '../../auth/AuthProvider';
 
 function positiveId(value: string | undefined): number | null {
   const id = Number(value);
@@ -19,7 +20,13 @@ function positiveId(value: string | undefined): number | null {
 
 // Відкривається з картки ментора (relationship_id) або з повідомлення підтримки
 // (relationship_id + notification_id): тоді доказ підставляється автоматично.
-export default function ReportMentor() {
+export default function ReportMentorRoute() {
+  const { user } = useAuth();
+  const params = useLocalSearchParams<{ relationship_id?: string; notification_id?: string }>();
+  return <ReportMentor key={`${user?.user_id}:${params.relationship_id}:${params.notification_id}`} />;
+}
+
+function ReportMentor() {
   const params = useLocalSearchParams<{ relationship_id?: string; notification_id?: string }>();
   const relationshipId = positiveId(params.relationship_id);
   const notificationId = positiveId(params.notification_id);
@@ -37,7 +44,9 @@ export default function ReportMentor() {
     if (!notificationId) return;
     setEvidenceState('loading');
     try {
-      setEvidence(await fetchEvidence(notificationId));
+      const comment = await fetchEvidence(notificationId);
+      if (!comment) throw new Error('Коментар недоступний');
+      setEvidence(comment);
       setEvidenceState('idle');
     } catch {
       setEvidenceState('error');
@@ -45,10 +54,13 @@ export default function ReportMentor() {
   }, [notificationId]);
 
   useEffect(() => {
-    void loadEvidence();
+    let active = true;
+    void Promise.resolve().then(() => { if (active) return loadEvidence(); });
+    return () => { active = false; };
   }, [loadEvidence]);
 
   const send = async () => {
+    if (busy || (notificationId && evidenceState !== 'idle')) return;
     const text = reason.trim();
     if (!text) return setFieldError('Опиши причину скарги.');
     if (text.length > COMPLAINT_REASON_MAX) {
@@ -120,7 +132,7 @@ export default function ReportMentor() {
       <Button
         title="Надіслати скаргу"
         loading={busy}
-        disabled={evidenceState === 'loading'}
+        disabled={!!notificationId && evidenceState !== 'idle'}
         onPress={() => { void send(); }}
       />
     </ScrollView>

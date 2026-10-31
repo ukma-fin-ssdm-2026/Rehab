@@ -103,32 +103,24 @@ def test_logout_revokes_calendar_access(
     )
 
 
-def test_block_and_unblock_do_not_revive_old_session(
+def test_revoking_sessions_keeps_previous_jwt_invalid(
     authenticated_calendar, registered_users, calendar_db
 ):
-    account, headers = registered_users[0]
-    users.set_blocked(calendar_db, account["user_id"], True)
+    account, old_headers = registered_users[0]
+    user = calendar_db.get(User, account["user_id"])
+    users.revoke_sessions(calendar_db, user)
     calendar_db.commit()
-    assert authenticated_calendar.get(URL, headers=headers).status_code == 403
-    assert (
-        authenticated_calendar.post(
-            "/api/v1/auth/login", json={"email": account["email"], "password": PASSWORD}
-        ).status_code
-        == 403
-    )
-    users.set_blocked(calendar_db, account["user_id"], False)
-    calendar_db.commit()
-    assert authenticated_calendar.get(URL, headers=headers).status_code == 401
+
+    assert authenticated_calendar.get(URL, headers=old_headers).status_code == 401
+
     login = authenticated_calendar.post(
-        "/api/v1/auth/login", json={"email": account["email"], "password": PASSWORD}
+        "/api/v1/auth/login",
+        json={"email": account["email"], "password": PASSWORD},
     )
-    assert login.status_code == 200
-    assert (
-        authenticated_calendar.get(
-            URL, headers={"Authorization": f"Bearer {login.json()['access_token']}"}
-        ).status_code
-        == 200
-    )
+    assert login.status_code == 200, login.text
+    fresh = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    assert authenticated_calendar.get(URL, headers=fresh).status_code == 200
+    assert authenticated_calendar.get(URL, headers=old_headers).status_code == 401
 
 
 def test_authenticated_calendar_write_runs_real_progress(

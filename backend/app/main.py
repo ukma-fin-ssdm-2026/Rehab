@@ -24,6 +24,9 @@ from backend.app.routers import (
     goals,
     health,
     jobs,
+    mentorship,
+    notifications,
+    profile,
     statistics,
 )
 
@@ -47,8 +50,7 @@ tags_metadata = [
     {
         "name": "Goals",
         "description": (
-            "Цілі тверезості (Goal): цільова кількість днів і прогрес. "
-            "FR-004, FR-005."
+            "Фіксовані етапи тверезості: 7, 30, 90, 180 і 365 днів. " "FR-004, FR-005."
         ),
     },
     {
@@ -77,10 +79,27 @@ tags_metadata = [
         "name": "Statistics",
         "description": (
             "Статистика тверезості: кількість днів, серії "
-            "та автоматичні цілі на 7 і 30 днів."
+            "та автоматичні цілі на 7, 30, 90, 180 і 365 днів."
         ),
     },
 ]
+
+tags_metadata.extend(
+    [
+        {
+            "name": "Profile",
+            "description": "Власний профіль, пароль, фото й налаштування.",
+        },
+        {
+            "name": "Mentorship",
+            "description": "Менторство за кодом; календар і статистика лише для читання.",
+        },
+        {
+            "name": "Notifications",
+            "description": "Приватні повідомлення, нагадування й коментарі підтримки.",
+        },
+    ]
+)
 
 
 app = FastAPI(
@@ -176,6 +195,9 @@ async def validation_exception_handler(
 
 # AI-GENERATED START
 app.include_router(auth.router, prefix=API_PREFIX)
+app.include_router(profile.router, prefix=API_PREFIX)
+app.include_router(mentorship.router, prefix=API_PREFIX)
+app.include_router(notifications.router, prefix=API_PREFIX)
 # AI-GENERATED END
 app.include_router(calendar.router, prefix=API_PREFIX)
 app.include_router(goals.router, prefix=API_PREFIX)

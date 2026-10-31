@@ -315,4 +315,37 @@ def test_two_concurrent_workers_send_each_delivery_once(calendar_db, factory):
         assert set(db.scalars(select(EmailReminderDelivery.status))) == {"sent"}
 
 
+def test_job_without_sender_still_expires_queue(job_client, calendar_db, factory):
+    old_day = TODAY - dt.timedelta(days=1)
+    pending = queue(calendar_db, make_user(calendar_db, "old-pending"), old_day)
+    failed = queue(
+        calendar_db,
+        make_user(calendar_db, "old-failed"),
+        old_day,
+        status="failed",
+        attempts=1,
+    )
+    sending = queue(
+        calendar_db,
+        make_user(calendar_db, "stale-sending"),
+        status="sending",
+        claimed_at=EVENING - dt.timedelta(minutes=6),
+        attempts=1,
+    )
+    current = queue(calendar_db, make_user(calendar_db, "current-pending"))
+    job_client.app.dependency_overrides[jobs.get_sender] = lambda: None
+
+    response = job_client.post(
+        "/internal/jobs/reminders", headers={"X-Job-Token": TOKEN}
+    )
+
+    assert response.status_code == 200, response.text
+    assert (
+        status(factory, pending).status == status(factory, failed).status == "skipped"
+    )
+    assert status(factory, sending).status == "unknown"
+    assert status(factory, current).status == "pending"
+    assert job_client.sender.sent == []
+
+
 # AI-GENERATED END

@@ -1,7 +1,12 @@
 <!-- AI-GENERATED START -->
 # Онлайн-розгортання Rehab: Render + Neon 
 
-**Статус:** онлайн-середовище створено 29.10.2026 з гілки `codex/midterm-admin-deploy-sofiia`. 29.10.2026 Поліна застосувала початкову Alembic-міграцію `0001_initial` до онлайн-БД після перевірки на ізольованій гілці Neon. Реєстрація, календар, цілі, статистика та перерахунок перевірені через публічний API. Перезапуск API, блокування адміном та iPhone/Safari перевірено спільно 29.10.2026 (розділ 6). Відкрита проблема КТ-1: екран цілей показує «Усі цілі виконано», хоча етапи 7 і 30 днів не виконані (передано Марії). Докази: [neon-migration-verification.md](../development/neon-migration-verification.md).
+**Статус КТ-Б:** код профілю, менторства, календарних подій, повідомлень,
+скарг/admin і job зведено локально. Новий обсяг ще не підтверджений онлайн.
+Історичні перевірки 29.10.2026 нижче не є доказом готовності цієї версії.
+Поточне локальне приймання: [kt-b-integration.md](../validation/kt-b-integration.md).
+Gmail OAuth ще не налаштовано; реальне надсилання листів не перевірене.
+
 
 | Компонент | Адреса |
 |---|---|
@@ -27,7 +32,7 @@ flowchart LR
 | Backend | Render Web Service, Free | `render.yaml` (`rehab-api`) |
 | БД | Neon, Free | міграції `alembic/` |
 
-Платні ресурси не вмикаємо.
+Платні ресурси не вмикаємо. Для інтегрованої версії потрібна `0002_team_foundation`; нових міграцій КТ-Б немає.
 
 ## 2. Змінні середовища
 
@@ -41,13 +46,14 @@ flowchart LR
 | `EXPO_PUBLIC_API_URL` | Frontend | HTTPS-адреса API **без** `/api/v1`; після зміни потрібна нова збірка |
 | `PYTHON_VERSION` / `NODE_VERSION` | API / Frontend | `3.12.8` / `22.13.0` (задано в `render.yaml`) |
 
-`APP_ENV` код зараз **не читає**, тому його не задаємо. Перевірено пошуком по `backend/`: використовуються лише `DATABASE_URL`, `TEST_DATABASE_URL` (тільки тести), `JWT_SECRET`, `CORS_ORIGINS`.
+`APP_ENV` код не читає. Додаткові змінні нагадувань наведено у розділі 7; жоден поштовий секрет не передається frontend.
 
 CORS: дозволені методи `GET, POST, PATCH, PUT, DELETE, OPTIONS`, заголовки `Authorization` і `Content-Type` (тести: `tests/test_health.py`).
 
 ## 3. Порядок розгортання
 
-1. **Neon:** використовувати наявний проєкт Софії `rough-lake-01450787`, гілку `production`, БД `neondb`. Новий проєкт чи другу онлайн-БД не створювати. Доступ Поліни наданий через запрошення до організації.
+1. **Відновлення:** перед production-міграцією створити перевірену контрольну точку/копію; тестові прогони виконувати окремо.
+2. **Neon:** використовувати наявний проєкт Софії `rough-lake-01450787`, гілку `production`, БД `neondb`. Новий проєкт чи другу онлайн-БД не створювати. Доступ Поліни наданий через запрошення до організації.
 2. **Міграції (одноразово, з підготовленого локального середовища)**, з кореня репозиторію, з адресою онлайн-БД у `DATABASE_URL`:
    ```bash
    python -m alembic upgrade head
@@ -95,3 +101,65 @@ Render присипляє API після 15 хвилин без запитів, 
 
 Android не входить до перевірок і не вказується як перевірений.
 <!-- AI-GENERATED END -->
+
+## 7. Gmail і ручний запуск нагадувань
+
+Поточний факт: командою підтверджено, що OAuth ще не налаштовували.
+Створення inbox/outbox та обробка доставок перевіряються локально з підмінним
+sender; це не є підтвердженням отримання справжнього листа.
+
+### Одноразове налаштування власницею скриньки
+
+1. У Google Cloud вибрати командний проєкт, увімкнути Gmail API, налаштувати
+   OAuth consent та створити OAuth client типу Desktop app. Авторизується
+   тільки `rehab.support.web@gmail.com`, не користувачі Rehab.
+2. Дозволити лише scope `https://www.googleapis.com/auth/gmail.send`.
+   Завантажити client JSON поза репозиторієм. Якщо застосунок у Testing,
+   додати командну адресу до test users. Для Gmail refresh token у Testing
+   має 7-денний строк; для подальшої роботи узгодити допустимий publishing status
+   та повторно отримати токен, не заявляючи про верифікацію без її проходження.
+3. Локально встановити інструмент авторизації та запустити:
+
+   ```powershell
+   .venv/Scripts/python.exe -m pip install google-auth-oauthlib==1.5.0
+   .venv/Scripts/python.exe scripts/authorize_gmail.py authorize --client-secrets "$HOME/Downloads/client_secret.json"
+   ```
+
+   Вхід у Google та надання дозволу виконує власниця. Результат за замовчуванням
+   у `~/.rehab/gmail-oauth.json`, поза Git. Не надсилати цей файл у чат/PR.
+4. Перенести значення в Render API Environment: `GMAIL_CLIENT_ID`,
+   `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`, `MAIL_FROM=rehab.support.web@gmail.com`.
+   Додати випадковий `REMINDERS_JOB_TOKEN` щонайменше 32 символи.
+5. Через приватні environment-змінні запустити технічний лист:
+
+   ```powershell
+   .venv/Scripts/python.exe scripts/authorize_gmail.py test-send --to rehab.support.web@gmail.com
+   ```
+
+   Скрипт робить дві відправки з окремими sender, перевіряючи оновлення access token.
+   Власниця перевіряє фактичне отримання у пошті. Зафіксувати дату й результат
+   без токенів. Після перенесення секретів прибрати тимчасові приватні JSON.
+
+Google: [Gmail Python quickstart](https://developers.google.com/workspace/gmail/api/quickstart/python),
+[строки OAuth refresh token](https://developers.google.com/identity/protocols/oauth2).
+
+### Job і розклад
+
+Після 20:00 Europe/Kyiv job створює одне нагадування за поточну дату лише
+за відсутності явного календарного запису; email додається тільки при opt-in.
+Зриви й авторські коментарі на пошту не надсилаються. До 20:00 нуль створених
+нагадувань — очікуваний результат. Production endpoint не приймає довільний час.
+
+Для ручного HTTPS-запуску після розгортання налаштувати приватні environment
+`REHAB_API_URL` і `REMINDERS_JOB_TOKEN`, потім:
+
+```powershell
+.venv/Scripts/python.exe scripts/run_reminders_job.py
+```
+
+У Actions secrets потрібні тільки ці дві змінні; Gmail/БД там не потрібні.
+`.github/workflows/reminders.yml` має cron 17–21 UTC кожні 15 хвилин,
+ubuntu-latest і concurrency. Schedule запрацює з default branch після
+погодженого main; до цього перевіряємо ручний endpoint, не зливаємо main заради таймера.
+Фактичний запуск може затримуватися. Завислий/невизначений лист → unknown,
+без сліпого повтору. Вимкнення пошти або явний запис скасовують ще не надіслану копію.

@@ -109,7 +109,10 @@ def run_reminders(
     """Створює нагадування за поточну київську дату й обробляє поштову чергу."""
     from sqlalchemy.orm import Session
 
-    from backend.app.services.email_reminders import deliver_pending_reminders
+    from backend.app.services.email_reminders import (
+        deliver_pending_reminders,
+        maintain_reminder_queue,
+    )
 
     def db_factory() -> Session:
         return Session(engine, expire_on_commit=False)
@@ -122,6 +125,7 @@ def run_reminders(
             created = create_due_reminders(db, now)
             db.commit()
         if sender is None:
+            maintain_reminder_queue(db_factory, now)
             # Листи лишаються в черзі pending; наступної доби їх позначить skipped.
             log.warning("reminder job: GMAIL_NOT_CONFIGURED")
             delivered = {"sent": 0, "skipped": 0, "failed": 0, "unknown": 0}

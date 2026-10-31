@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.clock import today_local, utc_now
 from backend.app.db.models.entry import DayRecord
+from backend.app.db.models.mentorship import Mentorship
 from backend.app.models import DayStatus, EntryCreate, EntryOut, EntryUpdate
 
 EDIT_WINDOW = dt.timedelta(hours=48)
@@ -27,15 +28,23 @@ class EntryDateOutOfRange(ValueError):
     """Date is outside the account's tracking interval."""
 
 
-def _tracking_start(db: Session, user_id: int) -> dt.date:
+def lock_calendar_owner(db: Session, user_id: int) -> dt.date:
     # Serialize mutations for one user so a future statistics recomputation
     # observes a complete history within the same transaction.
     start = db.scalar(
-        text("SELECT tracking_start_date FROM users WHERE user_id=:id FOR UPDATE"),
+        text(
+            "SELECT tracking_start_date FROM users WHERE user_id=:id FOR NO KEY UPDATE"
+        ),
         {"id": user_id},
     )
     if start is None:
         raise EntryDateOutOfRange("Tracking has not started for this account")
+    db.scalar(
+        select(Mentorship)
+        .where(Mentorship.mentee_id == user_id, Mentorship.status == "active")
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
     return start
 
 
@@ -44,7 +53,7 @@ def _out(record: DayRecord) -> EntryOut:
 
 
 def create_entry(db: Session, user_id: int, body: EntryCreate) -> EntryOut:
-    start = _tracking_start(db, user_id)
+    start = lock_calendar_owner(db, user_id)
     if not start <= body.date <= today_local():
         raise EntryDateOutOfRange("Date must be within the tracking interval")
     record = DayRecord(
@@ -74,14 +83,14 @@ def _own_record(db: Session, user_id: int, record_id: int, *, lock=False):
     return record
 
 
-def get_own_entry(db: Session, user_id: int, record_id: int) -> EntryOut:
-    return _out(_own_record(db, user_id, record_id))
+def get_own_entry(db: Session, user_id: int, record_id: int, *, lock=False) -> EntryOut:
+    return _out(_own_record(db, user_id, record_id, lock=lock))
 
 
 def update_entry(
     db: Session, user_id: int, record_id: int, body: EntryUpdate
 ) -> EntryOut:
-    _tracking_start(db, user_id)
+    lock_calendar_owner(db, user_id)
     record = _own_record(db, user_id, record_id, lock=True)
     now = utc_now()
     if now - record.created_at > EDIT_WINDOW:

@@ -5,8 +5,8 @@ info:
   description: 'Code-First API: специфікація OpenAPI генерується автоматично з коду.
 
 
-    Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). У цій версії
-    замість БД використовуються дані-заглушки в пам''яті.'
+    Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). Дані зберігаються
+    в PostgreSQL (Neon у публічній версії).'
   version: 1.0.0
 paths:
   /api/v1/auth/register:
@@ -85,6 +85,719 @@ paths:
           description: Successful Response
       security:
       - BearerAuth: []
+  /api/v1/profile:
+    get:
+      tags:
+      - Profile
+      summary: Get Profile
+      operationId: get_profile_api_v1_profile_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileOut'
+      security:
+      - BearerAuth: []
+    patch:
+      tags:
+      - Profile
+      summary: Patch Profile
+      operationId: patch_profile_api_v1_profile_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+  /api/v1/profile/password:
+    put:
+      tags:
+      - Profile
+      summary: Put Password
+      operationId: put_password_api_v1_profile_password_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfilePasswordRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+  /api/v1/profile/preferences:
+    patch:
+      tags:
+      - Profile
+      summary: Patch Preferences
+      operationId: patch_preferences_api_v1_profile_preferences_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfilePreferencesRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+  /api/v1/profile/avatar:
+    get:
+      tags:
+      - Profile
+      summary: Get Avatar
+      operationId: get_avatar_api_v1_profile_avatar_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarDataOut'
+      security:
+      - BearerAuth: []
+    put:
+      tags:
+      - Profile
+      summary: Put Avatar
+      operationId: put_avatar_api_v1_profile_avatar_put
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarUploadOut'
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - Profile
+      summary: Delete Avatar
+      operationId: delete_avatar_api_v1_profile_avatar_delete
+      responses:
+        '204':
+          description: Successful Response
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/code:
+    get:
+      tags:
+      - Mentorship
+      summary: Own Code
+      operationId: own_code_api_v1_mentorships_code_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MentorCodeOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/my-mentor:
+    get:
+      tags:
+      - Mentorship
+      summary: My Mentor
+      operationId: my_mentor_api_v1_mentorships_my_mentor_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipItem'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/my-mentees:
+    get:
+      tags:
+      - Mentorship
+      summary: My Mentees
+      operationId: my_mentees_api_v1_mentorships_my_mentees_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships:
+    post:
+      tags:
+      - Mentorship
+      summary: Join
+      operationId: join_api_v1_mentorships_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MentorshipCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipOut'
+      security:
+      - BearerAuth: []
+  /api/v1/mentorships/{relationship_id}:
+    get:
+      tags:
+      - Mentorship
+      summary: Relationship
+      operationId: relationship_api_v1_mentorships__relationship_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Mentorship
+      summary: Leave
+      operationId: leave_api_v1_mentorships__relationship_id__delete
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships/{relationship_id}/calendar/entries:
+    get:
+      tags:
+      - Mentorship
+      summary: Mentee Entries
+      operationId: mentee_entries_api_v1_mentorships__relationship_id__calendar_entries_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      - name: from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: From
+      - name: to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: To
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships/{relationship_id}/calendar/entries/{record_id}:
+    get:
+      tags:
+      - Mentorship
+      summary: Mentee Entry
+      operationId: mentee_entry_api_v1_mentorships__relationship_id__calendar_entries__record_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Record Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/mentorships/{relationship_id}/statistics:
+    get:
+      tags:
+      - Mentorship
+      summary: Mentee Statistics
+      operationId: mentee_statistics_api_v1_mentorships__relationship_id__statistics_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: relationship_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Relationship Id
+      - name: period
+        in: query
+        required: false
+        schema:
+          enum:
+          - all
+          - week
+          - month
+          - year
+          type: string
+          default: all
+          title: Period
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/notifications:
+    get:
+      tags:
+      - Notifications
+      summary: Inbox
+      operationId: inbox_api_v1_notifications_get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 30
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationList'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/notifications/unread-count:
+    get:
+      tags:
+      - Notifications
+      summary: Unread
+      operationId: unread_api_v1_notifications_unread_count_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCount'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /api/v1/notifications/{notification_id}:
+    get:
+      tags:
+      - Notifications
+      summary: Detail
+      operationId: detail_api_v1_notifications__notification_id__get
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: notification_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Notification Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Повідомлення не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/notifications/{notification_id}/read:
+    patch:
+      tags:
+      - Notifications
+      summary: Read
+      operationId: read_api_v1_notifications__notification_id__read_patch
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: notification_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Notification Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/EmptyBody'
+              - type: 'null'
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Повідомлення не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/notifications/{notification_id}/support:
+    post:
+      tags:
+      - Notifications
+      summary: Support
+      operationId: support_api_v1_notifications__notification_id__support_post
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: notification_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          title: Notification Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportCommentCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCommentOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Повідомлення не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Менторство завершено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Підтримку вже надіслано або статус запису змінено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/v1/calendar/entries:
     post:
       tags:
@@ -308,7 +1021,8 @@ paths:
       tags:
       - Goals
       summary: Отримати фіксовані етапи тверезості
-      description: Повертає етапи 7 і 30 днів та їхній прогрес для поточного користувача.
+      description: Повертає етапи 7, 30, 90, 180 і 365 днів та їхній прогрес для поточного
+        користувача.
       operationId: list_goals_api_v1_goals_get
       responses:
         '200':
@@ -337,8 +1051,8 @@ paths:
       - Statistics
       summary: Отримати статистику тверезості
       description: Повертає кількість тверезих днів, днів із вживанням, поточну й
-        найдовшу серії, а також прогрес цілей 7 і 30 днів. Дані обчислюються з календарних
-        записів поточного користувача.
+        найдовшу серії, а також прогрес цілей 7, 30, 90, 180 і 365 днів. Дані обчислюються
+        з календарних записів поточного користувача.
       operationId: get_statistics_api_v1_statistics_get
       security:
       - BearerAuth: []
@@ -410,16 +1124,28 @@ paths:
                 additionalProperties: true
                 type: object
                 title: Response Ready Ready Get
-  /api/v1/admin/users:
+  /api/v1/admin/complaints:
     get:
       tags:
       - Admin
-      summary: List Users
-      description: Сторінка акаунтів без хешів паролів і службових полів.
-      operationId: list_users_api_v1_admin_users_get
+      summary: List Complaints
+      description: Скарги з фігурантами; глобального списку акаунтів немає.
+      operationId: list_complaints_api_v1_admin_complaints_get
       security:
       - BearerAuth: []
       parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          enum:
+          - pending
+          - approved
+          - rejected
+          - all
+          type: string
+          default: pending
+          title: Status
       - name: limit
         in: query
         required: false
@@ -443,7 +1169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminUserList'
+                $ref: '#/components/schemas/AdminComplaintList'
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -462,35 +1188,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/admin/users/{user_id}/block:
-    patch:
+  /api/v1/admin/complaints/{complaint_id}:
+    get:
       tags:
       - Admin
-      summary: Block User
-      description: Блокує або розблокує акаунт. Розблокування не оживляє старі токени.
-      operationId: block_user_api_v1_admin_users__user_id__block_patch
+      summary: Get Complaint
+      operationId: get_complaint_api_v1_admin_complaints__complaint_id__get
       security:
       - BearerAuth: []
       parameters:
-      - name: user_id
+      - name: complaint_id
         in: path
         required: true
         schema:
           type: integer
-          title: User Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BlockRequest'
+          title: Complaint Id
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminUserOut'
+                $ref: '#/components/schemas/AdminComplaintOut'
         '401':
           description: Відсутній або недійсний Bearer-токен
           content:
@@ -510,11 +1229,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Акаунт не знайдено
+          description: Скаргу не знайдено
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+      - Admin
+      summary: Decide Complaint
+      description: Схвалення завершує зв'язок пари назавжди; відхилення його не відновлює.
+      operationId: decide_complaint_api_v1_admin_complaints__complaint_id__patch
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: complaint_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Complaint Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintDecision'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Скаргу не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Скаргу вже розглянуто
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/admin/overview:
+    get:
+      tags:
+      - Admin
+      summary: Overview
+      description: Агрегати без персональних даних; межі днів — Europe/Kyiv.
+      operationId: overview_api_v1_admin_overview_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOverview'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Потрібна роль admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
   /api/v1/admin/trigger-distribution:
     get:
       tags:
@@ -549,23 +1360,127 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       security:
       - BearerAuth: []
+  /api/v1/complaints:
+    post:
+      tags:
+      - Complaints
+      summary: Create Complaint
+      description: Скаржник — власник JWT; на кого скарга, сервер бере зі зв'язку.
+      operationId: create_complaint_api_v1_complaints_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintOut'
+        '401':
+          description: Відсутній або недійсний Bearer-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Помилка валідації вхідних даних
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Скаржитися може лише підопічний
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Зв'язок або коментар не знайдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Скарга вже розглядається
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+  /internal/jobs/reminders:
+    post:
+      tags:
+      - Jobs
+      summary: Run Reminders
+      description: Створює нагадування за поточну київську дату й обробляє поштову
+        чергу.
+      operationId: run_reminders_internal_jobs_reminders_post
+      parameters:
+      - name: x-job-token
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Job-Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderJobResult'
+        '401':
+          description: Недійсний секрет
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Job уже виконується
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Job не налаштовано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AdminUserList:
+    AdminComplaintList:
       properties:
         items:
           items:
-            $ref: '#/components/schemas/AdminUserOut'
+            $ref: '#/components/schemas/AdminComplaintOut'
           type: array
           title: Items
         total:
           type: integer
+          minimum: 0.0
           title: Total
         limit:
           type: integer
+          maximum: 100.0
+          minimum: 1.0
           title: Limit
         offset:
           type: integer
+          minimum: 0.0
           title: Offset
       type: object
       required:
@@ -573,52 +1488,243 @@ components:
       - total
       - limit
       - offset
-      title: AdminUserList
-    AdminUserOut:
+      title: AdminComplaintList
+    AdminComplaintOut:
       properties:
-        user_id:
+        complaint_id:
           type: integer
-          title: User Id
-        name:
+          title: Complaint Id
+        relationship_id:
+          type: integer
+          title: Relationship Id
+        reason:
           type: string
-          title: Name
+          title: Reason
+        support_comment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Support Comment Id
+        status:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+        reporter:
+          $ref: '#/components/schemas/ComplaintParty'
+        reported:
+          $ref: '#/components/schemas/ComplaintParty'
+        evidence:
+          anyOf:
+          - $ref: '#/components/schemas/ComplaintEvidence'
+          - type: 'null'
+      type: object
+      required:
+      - complaint_id
+      - relationship_id
+      - reason
+      - support_comment_id
+      - status
+      - created_at
+      - reviewed_at
+      - reporter
+      - reported
+      - evidence
+      title: AdminComplaintOut
+    AdminOverview:
+      properties:
+        registrations_last_30_days:
+          type: integer
+          minimum: 0.0
+          title: Registrations Last 30 Days
+        active_mentors:
+          type: integer
+          minimum: 0.0
+          title: Active Mentors
+        active_relationships:
+          type: integer
+          minimum: 0.0
+          title: Active Relationships
+        pending_complaints:
+          type: integer
+          minimum: 0.0
+          title: Pending Complaints
+        current_date:
+          type: string
+          format: date
+          title: Current Date
+      type: object
+      required:
+      - registrations_last_30_days
+      - active_mentors
+      - active_relationships
+      - pending_complaints
+      - current_date
+      title: AdminOverview
+    AvatarDataOut:
+      properties:
+        data_url:
+          type: string
+          title: Data Url
+        avatar_version:
+          type: integer
+          minimum: 1.0
+          title: Avatar Version
+      type: object
+      required:
+      - data_url
+      - avatar_version
+      title: AvatarDataOut
+    AvatarUploadOut:
+      properties:
+        has_avatar:
+          type: boolean
+          const: true
+          title: Has Avatar
+        avatar_version:
+          type: integer
+          minimum: 1.0
+          title: Avatar Version
+      type: object
+      required:
+      - has_avatar
+      - avatar_version
+      title: AvatarUploadOut
+    ComplaintCreate:
+      properties:
+        relationship_id:
+          type: integer
+          minimum: 1.0
+          title: Relationship Id
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Reason
+        support_comment_id:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Support Comment Id
+      additionalProperties: false
+      type: object
+      required:
+      - relationship_id
+      - reason
+      title: ComplaintCreate
+    ComplaintDecision:
+      properties:
+        decision:
+          type: string
+          enum:
+          - approved
+          - rejected
+          title: Decision
+      additionalProperties: false
+      type: object
+      required:
+      - decision
+      title: ComplaintDecision
+    ComplaintEvidence:
+      properties:
+        text:
+          type: string
+          title: Text
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - text
+      - created_at
+      title: ComplaintEvidence
+    ComplaintOut:
+      properties:
+        complaint_id:
+          type: integer
+          title: Complaint Id
+        relationship_id:
+          type: integer
+          title: Relationship Id
+        reason:
+          type: string
+          title: Reason
+        support_comment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Support Comment Id
+        status:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        reviewed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reviewed At
+      type: object
+      required:
+      - complaint_id
+      - relationship_id
+      - reason
+      - support_comment_id
+      - status
+      - created_at
+      - reviewed_at
+      title: ComplaintOut
+    ComplaintParty:
+      properties:
         nickname:
           type: string
           title: Nickname
         email:
           type: string
           title: Email
-        role:
-          type: string
-          enum:
-          - user
-          - mentor
-          - admin
-          title: Role
-        is_blocked:
-          type: boolean
-          title: Is Blocked
       type: object
       required:
-      - user_id
-      - name
       - nickname
       - email
-      - role
-      - is_blocked
-      title: AdminUserOut
-      description: Публічний стан акаунта. Без password_hash і token_version.
-    BlockRequest:
+      title: ComplaintParty
+      description: 'Тільки фігуранти скарги: без ролі, коду, налаштувань чи фото.'
+    ContactOut:
       properties:
-        is_blocked:
-          type: boolean
-          title: Is Blocked
-          description: 'true: заблокувати, false: розблокувати.'
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
       additionalProperties: false
       type: object
       required:
-      - is_blocked
-      title: BlockRequest
+      - nickname
+      - email
+      title: ContactOut
     DayStatus:
       type: string
       enum:
@@ -651,6 +1757,11 @@ components:
       - other
       title: DrinkType
       description: Тип алкогольного напою.
+    EmptyBody:
+      properties: {}
+      additionalProperties: false
+      type: object
+      title: EmptyBody
     EntryCreate:
       properties:
         status:
@@ -848,7 +1959,7 @@ components:
             $ref: '#/components/schemas/GoalMilestoneOut'
           type: array
           title: Items
-          description: Етапи 7 і 30 днів.
+          description: Етапи 7, 30, 90, 180 і 365 днів.
       type: object
       required:
       - items
@@ -961,6 +2072,232 @@ components:
       - tracking_start_date
       - current_date
       title: MeResponse
+    MentorCodeOut:
+      properties:
+        code:
+          type: string
+          title: Code
+      type: object
+      required:
+      - code
+      title: MentorCodeOut
+    MentorshipCreate:
+      properties:
+        code:
+          type: string
+          pattern: ^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{12}$
+          title: Code
+      additionalProperties: false
+      type: object
+      required:
+      - code
+      title: MentorshipCreate
+    NotificationList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NotificationOut'
+          type: array
+          title: Items
+        total:
+          type: integer
+          minimum: 0.0
+          title: Total
+        limit:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Limit
+        offset:
+          type: integer
+          minimum: 0.0
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: NotificationList
+    NotificationOut:
+      properties:
+        notification_id:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Notification Id
+        kind:
+          type: string
+          enum:
+          - daily_reminder
+          - relapse
+          - support_comment
+          title: Kind
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        read_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Read At
+        business_date:
+          type: string
+          format: date
+          title: Business Date
+        relationship_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Relationship Id
+        record_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Record Id
+        sender:
+          anyOf:
+          - $ref: '#/components/schemas/ContactOut'
+          - type: 'null'
+        title:
+          type: string
+          title: Title
+        body:
+          type: string
+          title: Body
+        support_comment:
+          anyOf:
+          - $ref: '#/components/schemas/SupportCommentOut'
+          - type: 'null'
+        can_support:
+          type: boolean
+          title: Can Support
+        can_view_mentee:
+          type: boolean
+          title: Can View Mentee
+        can_report_mentor:
+          type: boolean
+          title: Can Report Mentor
+      additionalProperties: false
+      type: object
+      required:
+      - notification_id
+      - kind
+      - created_at
+      - read_at
+      - business_date
+      - relationship_id
+      - record_id
+      - sender
+      - title
+      - body
+      - support_comment
+      - can_support
+      - can_view_mentee
+      - can_report_mentor
+      title: NotificationOut
+    ProfileOut:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        name:
+          type: string
+          title: Name
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+        has_avatar:
+          type: boolean
+          title: Has Avatar
+        avatar_version:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Avatar Version
+        email_reminders_enabled:
+          type: boolean
+          title: Email Reminders Enabled
+        message_style:
+          type: string
+          enum:
+          - formal
+          - humorous
+          - zen
+          - strict
+          title: Message Style
+      type: object
+      required:
+      - user_id
+      - name
+      - nickname
+      - email
+      - has_avatar
+      - avatar_version
+      - email_reminders_enabled
+      - message_style
+      title: ProfileOut
+    ProfilePasswordRequest:
+      properties:
+        current_password:
+          type: string
+          minLength: 1
+          title: Current Password
+        new_password:
+          type: string
+          maxLength: 128
+          minLength: 8
+          title: New Password
+      additionalProperties: false
+      type: object
+      required:
+      - current_password
+      - new_password
+      title: ProfilePasswordRequest
+    ProfilePreferencesRequest:
+      properties:
+        email_reminders_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Email Reminders Enabled
+        message_style:
+          anyOf:
+          - type: string
+            enum:
+            - formal
+            - humorous
+            - zen
+            - strict
+          - type: 'null'
+          title: Message Style
+      additionalProperties: false
+      type: object
+      title: ProfilePreferencesRequest
+    ProfileUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+        nickname:
+          anyOf:
+          - type: string
+            maxLength: 50
+            minLength: 1
+          - type: 'null'
+          title: Nickname
+      additionalProperties: false
+      type: object
+      title: ProfileUpdateRequest
     RegisterRequest:
       properties:
         name:
@@ -991,6 +2328,140 @@ components:
       - email
       - password
       title: RegisterRequest
+    RelationshipContact:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        nickname:
+          type: string
+          title: Nickname
+        email:
+          type: string
+          title: Email
+      type: object
+      required:
+      - user_id
+      - nickname
+      - email
+      title: RelationshipContact
+    RelationshipItem:
+      properties:
+        item:
+          anyOf:
+          - $ref: '#/components/schemas/RelationshipOut'
+          - type: 'null'
+      type: object
+      required:
+      - item
+      title: RelationshipItem
+    RelationshipList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RelationshipOut'
+          type: array
+          title: Items
+        total:
+          type: integer
+          minimum: 0.0
+          title: Total
+        limit:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Limit
+        offset:
+          type: integer
+          minimum: 0.0
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: RelationshipList
+    RelationshipOut:
+      properties:
+        relationship_id:
+          type: integer
+          title: Relationship Id
+        status:
+          type: string
+          enum:
+          - active
+          - ended
+          title: Status
+        mentor:
+          $ref: '#/components/schemas/RelationshipContact'
+        mentee:
+          $ref: '#/components/schemas/RelationshipContact'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+        ended_reason:
+          anyOf:
+          - type: string
+            enum:
+            - mentor_left
+            - mentee_left
+            - complaint
+          - type: 'null'
+          title: Ended Reason
+      type: object
+      required:
+      - relationship_id
+      - status
+      - mentor
+      - mentee
+      - created_at
+      - ended_at
+      - ended_reason
+      title: RelationshipOut
+    ReminderJobResult:
+      properties:
+        created_in_app:
+          type: integer
+          minimum: 0.0
+          title: Created In App
+        queued_email:
+          type: integer
+          minimum: 0.0
+          title: Queued Email
+        sent:
+          type: integer
+          minimum: 0.0
+          title: Sent
+        skipped:
+          type: integer
+          minimum: 0.0
+          title: Skipped
+          description: Пропущені нагадування й листи.
+        failed:
+          type: integer
+          minimum: 0.0
+          title: Failed
+        unknown:
+          type: integer
+          minimum: 0.0
+          title: Unknown
+      type: object
+      required:
+      - created_in_app
+      - queued_email
+      - sent
+      - skipped
+      - failed
+      - unknown
+      title: ReminderJobResult
     StatisticsOut:
       properties:
         period:
@@ -1047,7 +2518,8 @@ components:
           - type: integer
           - type: 'null'
           title: Active Goal Days
-          description: Найближчий невиконаний етап 7/30 днів або null після обох.
+          description: Найближчий невиконаний етап 7/30/90/180/365 днів або null після
+            всіх п’яти.
         has_goals:
           type: boolean
           title: Has Goals
@@ -1079,6 +2551,51 @@ components:
       - goal_progress_days
       title: StatisticsOut
       description: Статистика тверезості для головної, цілей та екрана статистики.
+    SupportCommentCreate:
+      properties:
+        text:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Text
+      additionalProperties: false
+      type: object
+      required:
+      - text
+      title: SupportCommentCreate
+    SupportCommentOut:
+      properties:
+        support_comment_id:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Support Comment Id
+        relationship_id:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Relationship Id
+        relapse_notification_id:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Relapse Notification Id
+        author:
+          $ref: '#/components/schemas/ContactOut'
+        text:
+          type: string
+          title: Text
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - support_comment_id
+      - relationship_id
+      - relapse_notification_id
+      - author
+      - text
+      - created_at
+      title: SupportCommentOut
     TriggerCategory:
       type: string
       enum:
@@ -1135,6 +2652,16 @@ components:
       - count
       - percentage
       title: TriggerStat
+    UnreadCount:
+      properties:
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+      type: object
+      required:
+      - count
+      title: UnreadCount
     UserPublic:
       properties:
         user_id:
@@ -1206,13 +2733,23 @@ tags:
   description: 'Щоденні відмітки користувача (DayRecord): тверезий день або зрив.
     FR-001, FR-002, FR-003, FR-008.'
 - name: Goals
-  description: 'Цілі тверезості (Goal): цільова кількість днів і прогрес. FR-004,
-    FR-005.'
+  description: 'Фіксовані етапи тверезості: 7, 30, 90, 180 і 365 днів. FR-004, FR-005.'
 - name: Admin
-  description: 'Лише для ролі admin: акаунти, блокування й анонімна діаграма тригерів
-    за 30 днів.'
+  description: 'Лише для ролі admin: розгляд скарг, агрегати й анонімна діаграма тригерів
+    за 30 днів. Глобального списку акаунтів немає.'
+- name: Complaints
+  description: Скарга підопічного на ментора конкретного зв'язку.
+- name: Jobs
+  description: Службовий запуск нагадувань за розкладом; лише з секретом X-Job-Token,
+    не для користувачів.
 - name: Health
   description: 'Перевірки стану сервісу: /health і /ready.'
 - name: Statistics
   description: 'Статистика тверезості: кількість днів, серії та автоматичні цілі на
-    7 і 30 днів.'
+    7, 30, 90, 180 і 365 днів.'
+- name: Profile
+  description: Власний профіль, пароль, фото й налаштування.
+- name: Mentorship
+  description: Менторство за кодом; календар і статистика лише для читання.
+- name: Notifications
+  description: Приватні повідомлення, нагадування й коментарі підтримки.

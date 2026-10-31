@@ -107,6 +107,6 @@ test('pending onboarding takes precedence over saved links', () => {
 
 test('administrator routing cannot consume an entry destination', () => {
   const page = createNavigation({ user_id: 1, role: 'admin' }, false, '/entry/31');
-  assert.equal(page.render().props.href, '/admin/users');
+  assert.equal(page.render().props.href, '/admin/complaints');
   assert.equal(page.getStored('rehab.auth.return-entry'), '/entry/31');
 });

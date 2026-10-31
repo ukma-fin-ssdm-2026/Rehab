@@ -205,6 +205,17 @@ def _finish(db_factory, delivery_id: int, **values) -> None:
         db.commit()
 
 
+def maintain_reminder_queue(
+    db_factory: Callable[[], Session], now: dt.datetime
+) -> None:
+    """Expire old work even when Gmail credentials are not configured."""
+    if now.tzinfo is None:
+        raise ValueError("now має містити часовий пояс")
+    with db_factory() as db:
+        _housekeeping(db, now, now.astimezone(BUSINESS_TIMEZONE).date())
+        db.commit()
+
+
 def deliver_pending_reminders(
     db_factory: Callable[[], Session],
     now: dt.datetime,
@@ -222,9 +233,7 @@ def deliver_pending_reminders(
     today = now.astimezone(BUSINESS_TIMEZONE).date()
     counts = _counts()
     seen: set[int] = set()
-    with db_factory() as db:
-        _housekeeping(db, now, today)
-        db.commit()
+    maintain_reminder_queue(db_factory, now)
 
     while True:
         current = clock()

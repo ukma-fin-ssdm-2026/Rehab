@@ -1,4 +1,4 @@
-"""Agreed DTOs for the next mentorship API/UI implementation stage."""
+"""Public mentorship contracts; private account settings are never projected."""
 
 from datetime import datetime
 from typing import Literal
@@ -38,3 +38,11 @@ class RelationshipList(BaseModel):
     total: int = Field(ge=0)
     limit: int = Field(ge=1, le=100)
     offset: int = Field(ge=0)
+
+
+class RelationshipItem(BaseModel):
+    item: RelationshipOut | None
+
+
+class MentorCodeOut(BaseModel):
+    code: str
