@@ -61,6 +61,7 @@ function createAuth(loginUser, registerUser = async () => undefined) {
         });
         return helperExports;
       }
+      if (name === '../messages/rotation') return {beginCopySession(){},clearCopySession(){}};
       if (name === 'react') return react;
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
       if (name === 'react-native') return { Platform: { OS: 'web' } };

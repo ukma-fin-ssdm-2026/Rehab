@@ -55,3 +55,13 @@ def test_invalid_key_style_and_missing_context_are_not_silent():
         render_message("home.motivation", "unknown", {})
     with pytest.raises(KeyError):
         render_message("relapse", "formal", {})
+
+
+def test_each_style_has_four_distinct_variants_and_preserves_context():
+    for style in ("formal", "humorous", "zen", "strict"):
+        bodies = [render_message("relapse", style, {"nickname":"Оля","date":"2026-10-31"}, variation=i)[1] for i in range(4)]
+        assert len(set(bodies)) == 4
+        assert all("Оля" in body and "2026-10-31" in body for body in bodies)
+    server=json.loads((ROOT/'backend/app/services/message_variants.json').read_text(encoding='utf-8'))
+    client=json.loads((ROOT/'frontend/src/messages/catalog-variants.json').read_text(encoding='utf-8'))
+    assert server == client

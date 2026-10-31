@@ -16,7 +16,7 @@ def make_image(mode="RGB", image_format="PNG", size=(900, 700)):
 
 @pytest.mark.parametrize(
     "image_format,mode",
-    [("JPEG", "RGB"), ("PNG", "RGB"), ("WEBP", "RGB"), ("PNG", "RGBA")],
+    [("JPEG", "RGB"), ("PNG", "RGB"), ("WEBP", "RGB"), ("PNG", "RGBA"), ("AVIF", "RGB")],
 )
 def test_avatar_normalizes_allowed_images_to_small_jpeg(image_format, mode):
     raw = make_image(mode=mode, image_format=image_format)

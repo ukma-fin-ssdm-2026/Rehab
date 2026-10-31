@@ -1,3 +1,5 @@
+import { useProfile } from '../../profile/ProfileProvider';
+import { relapseLabel } from '../../messages/catalog';
 
 import { useCallback, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
@@ -41,6 +43,8 @@ function getMonthDays(year: number, month: number): (string | null)[] {
 }
 
 export default function CalendarScreen() {
+  const {profile}=useProfile();
+  const relapseName=relapseLabel(profile?.message_style ?? 'formal');
   const [today, setToday] = useState(kyivDate());
   const [monthDate, setMonthDate] = useState(
     () => new Date(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 1, 1),
@@ -183,7 +187,7 @@ export default function CalendarScreen() {
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.relapseDay]} />
-          <Text style={styles.legendText}>Зрив</Text>
+          <Text style={styles.legendText}>{relapseName}</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.emptyDot]} />
@@ -202,7 +206,7 @@ export default function CalendarScreen() {
             return (
               <>
                 <Text style={styles.statusText}>
-                  Статус: {status === 'relapse' ? 'Зрив' : 'Тверезість'}
+                  Статус: {status === 'relapse' ? relapseName : 'Тверезість'}
                 </Text>
                 <Text style={styles.secondary}>
                   Тригер: {triggers.find(item => item.value === selectedEntry.trigger_category)?.label ?? 'Не вказано'}

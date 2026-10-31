@@ -6,7 +6,7 @@ from backend.app.errors import api_error
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 MAX_IMAGE_PIXELS = 64_000_000
 MAX_RESULT_BYTES = 256 * 1024
-ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF"}
+ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF", "AVIF"}
 _image_lock = Lock()
 
 

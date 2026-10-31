@@ -54,12 +54,13 @@ class EmptyBody(BaseModel):
 def inbox(
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    variant: int = Query(0, ge=0, le=3),
     user: CurrentUser = Depends(get_current_user),
     db=Depends(_db_session),
 ):
     return NotificationList(
         items=[
-            notification_out(db, item)
+            notification_out(db, item, variant)
             for item in list_notifications(db, user.user_id, limit, offset)
         ],
         total=count_notifications(db, user.user_id),
@@ -78,10 +79,13 @@ def unread(user: CurrentUser = Depends(get_current_user), db=Depends(_db_session
 )
 def detail(
     notification_id: int = Path(..., ge=1),
+    variant: int = Query(0, ge=0, le=3),
     user: CurrentUser = Depends(get_current_user),
     db=Depends(_db_session),
 ):
-    return notification_out(db, own_notification(db, user.user_id, notification_id))
+    return notification_out(
+        db, own_notification(db, user.user_id, notification_id), variant
+    )
 
 
 @router.patch(
@@ -92,6 +96,7 @@ def detail(
 def read(
     body: EmptyBody | None = None,
     notification_id: int = Path(..., ge=1),
+    variant: int = Query(0, ge=0, le=3),
     user: CurrentUser = Depends(get_current_user),
     db=Depends(_db_session),
 ):
@@ -102,7 +107,7 @@ def read(
         .values(read_at=func.coalesce(Notification.read_at, utc_now()))
     )
     db.refresh(item)
-    result = notification_out(db, item)
+    result = notification_out(db, item, variant)
     db.commit()
     return result
 

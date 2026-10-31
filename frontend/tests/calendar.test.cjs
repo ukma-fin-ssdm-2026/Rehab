@@ -88,7 +88,9 @@ test('navigation waits for session restore before mounting protected routes', ()
   let auth = { user: null, loading: true, restoreError: false };
   const root = load('app/_layout.tsx', {
     'react/jsx-runtime': { jsx, jsxs: jsx },
-    'expo-router': { Stack },
+    'expo-router': { Stack, usePathname:()=>'/home' },
+    '../components/navigation/BackButton': {BackButton(){}},
+    '../navigation/back': {showBack:()=>false},
     '../auth/AuthProvider': { AuthProvider() {}, useAuth: () => auth },
     '../components/ui/ScreenState': { ScreenState },
     '../profile/ProfileProvider': { ProfileProvider() {} },

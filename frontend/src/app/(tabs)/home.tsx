@@ -1,6 +1,6 @@
 import { useUnreadMessages } from '../../messages/useMessages';
 import { useProfile } from '../../profile/ProfileProvider';
-import { messageText } from '../../messages/catalog';
+import { useMessageText } from '../../messages/useMessageText';
 import {
   ActivityIndicator,
   Pressable,
@@ -15,6 +15,7 @@ import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS, GOAL_LABELS } from '../../constants/goals';
 
 export default function HomeScreen() {
+  const messageText=useMessageText();
   const unread = useUnreadMessages();
   const { profile } = useProfile();
   const motivation = profile ? messageText('home.motivation', profile.message_style).body : '';
@@ -28,10 +29,10 @@ export default function HomeScreen() {
       <View style={styles.headerRow}>
         <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
         <Pressable accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
-          <Text style={styles.retryText}>✉ Повідомлення{unread.data ? ` (${unread.data.count})` : unread.error ? ' · !' : '…'}</Text>
+          <Text style={styles.retryText}>✉{unread.data ? ` ${unread.data.count}` : unread.error ? ' !' : '…'}</Text>
         </Pressable>
       </View>
-      <Text style={styles.title}>Привіт!</Text>
+      <Text style={styles.title}>{profile && profile.message_style !== 'formal' ? messageText('home.motivation',profile.message_style).title : 'Привіт!'}</Text>
       <Text style={styles.subtitle}>
         {motivation}
       </Text>
@@ -45,7 +46,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {error && (
+      {!!error && (
         <View style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити дані</Text>
           <Text style={styles.errorText}>{error}</Text>

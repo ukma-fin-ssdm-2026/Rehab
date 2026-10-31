@@ -53,7 +53,6 @@ export default function AddEntryScreen() {
   }
 
   return <ScrollView contentContainerStyle={styles.container}>
-    <Pressable disabled={saving} onPress={back}><Text style={styles.back}>← Календар</Text></Pressable>
     <Text style={styles.title}>Новий запис</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження" />}
     {account && !loading && <>

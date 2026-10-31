@@ -1,9 +1,12 @@
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
+import { BackButton } from '../components/navigation/BackButton';
+import { showBack } from '../navigation/back';
 import { AuthProvider, useAuth } from '../auth/AuthProvider';
 import { ScreenState } from '../components/ui/ScreenState';
 import { ProfileProvider } from '../profile/ProfileProvider';
 
 function ProtectedNavigation() {
+  const pathname = usePathname();
   const { user, loading, restoreError, retryRestore, onboardingPending } = useAuth();
   if (loading) return <ScreenState state="loading" />;
   if (restoreError && !user) {
@@ -12,7 +15,7 @@ function ProtectedNavigation() {
   }
   const isUser = !!user && user.role !== 'admin';
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: !!user && !onboardingPending && showBack(pathname), header: () => <BackButton /> }}>
       <Stack.Screen name="index" />
       <Stack.Protected guard={!loading && !user}>
         <Stack.Screen name="login" />

@@ -49,6 +49,21 @@ test('gallery cancellation does not upload or download', async () => {
   assert.equal(h.downloaded(), 0);
 });
 
+test('gallery recognizes JPEG bytes when Safari provides no usable MIME or extension', async () => {
+  const file = new Blob([new Uint8Array([255,216,255,224,0,16,74,70,73,70])]);
+  const h = setup({result:{canceled:false,assets:[{uri:'blob:gallery',fileName:'photo',mimeType:'application/octet-stream',file}]}});
+  const avatar = await h.picker.pickProfileAvatar();
+  assert.equal(avatar.mimeType,'image/jpeg');
+});
+
+test('gallery accepts AVIF and JPEG MIME aliases', async () => {
+  for (const [name,type,expected] of [['photo.avif','image/avif','image/avif'],['photo','image/jpg','image/jpeg']]) {
+    const file = new Blob(['image'],{type});
+    const h = setup({result:{canceled:false,assets:[{uri:'blob:gallery',fileName:name,mimeType:type,file}]}});
+    assert.equal((await h.picker.pickProfileAvatar()).mimeType,expected);
+  }
+});
+
 test('web uploads the actual selected file without fetching a URI', async () => {
   const file = new Blob(['jpeg'], { type: 'image/jpeg' });
   const h = setup({

@@ -99,7 +99,9 @@ test('private calendar details and onboarding have separate access rules', () =>
     exports,
     require: name => {
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
-      if (name === 'expo-router') return { Stack };
+      if (name === 'expo-router') return { Stack, usePathname:()=>'/home' };
+      if (name === '../components/navigation/BackButton') return {BackButton(){}};
+      if (name === '../navigation/back') return {showBack:()=>false};
       if (name === '../auth/AuthProvider') {
         return { AuthProvider() {}, useAuth: () => auth };
       }

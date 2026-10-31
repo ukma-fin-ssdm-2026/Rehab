@@ -2,7 +2,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Link, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import {
   fetchOverview, fetchTriggerDistribution,
   type AdminOverview, type TriggerCategory, type TriggerDistribution,
@@ -74,7 +74,6 @@ export default function AdminAnalytics() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Link href="/admin/complaints" style={styles.link}>← Скарги</Link>
       <View style={styles.counters}>
         {counters.map((c) => (
           <View key={c.label} style={styles.counter}>

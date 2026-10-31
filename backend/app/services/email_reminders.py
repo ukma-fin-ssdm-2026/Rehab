@@ -128,10 +128,13 @@ def calendar_url() -> str:
     return ""
 
 
-def reminder_body(style: str) -> str:
+def reminder_body(style: str, day: dt.date | None = None) -> str:
     from backend.app.services.message_texts import render_message
+    from backend.app.core.clock import today_local
 
-    _, body = render_message("daily_reminder", style, {})
+    _, body = render_message(
+        "daily_reminder", style, {}, variation=(day or today_local()).toordinal()
+    )
     link = calendar_url()
     return f"{body}\n\nКалендар: {link}" if link else body
 
@@ -257,7 +260,7 @@ def deliver_pending_reminders(
             db.commit()
 
         try:
-            message_id = sender.send(to, SUBJECT, reminder_body(style))
+            message_id = sender.send(to, SUBJECT, reminder_body(style, today))
         except SendRejected as error:
             log.warning("email delivery %s rejected: %s", delivery_id, error.code)
             _finish(

@@ -16,7 +16,7 @@ function load(relative, imports = {}) {
 }
 const catalog = require('../src/messages/catalog-data.json');
 test('all four styles retain context as plain text for every key', () => {
-  const {messageText} = load('messages/catalog.ts', {'./catalog-data.json':catalog});
+  const {messageText} = load('messages/catalog.ts', {'./catalog-data.json':catalog,'./catalog-variants.json':require('../src/messages/catalog-variants.json')});
   for (const key of Object.keys(catalog)) for (const style of ['formal','humorous','zen','strict']) {
     const value=messageText(key,style,{nickname:'<img src=x>',date:'2026-10-30'});
     assert.ok(value.title && value.body);
@@ -26,12 +26,12 @@ test('all four styles retain context as plain text for every key', () => {
 });
 test('notification API keeps pagination, ownership and empty read body', async () => {
   const calls=[];
-  const api=load('api/notifications.ts',{'./client':{apiRequest:async(...args)=>{calls.push(args);return {};}}});
+  const api=load('api/notifications.ts',{'./client':{apiRequest:async(...args)=>{calls.push(args);return {}; }},'../messages/rotation':{getMessageVariation:()=>2}});
   await api.listNotifications(30,60); await api.getUnreadCount(); await api.getNotification(3); await api.markNotificationRead(3);
   await api.sendSupport(3,'  <b>Поруч</b>  ');
-  assert.equal(calls[0][0],'/notifications?limit=30&offset=60');
+  assert.equal(calls[0][0],'/notifications?limit=30&offset=60&variant=2');
   assert.equal(calls[1][0],'/notifications/unread-count');
-  assert.equal(calls[2][0],'/notifications/3');
+  assert.equal(calls[2][0],'/notifications/3?variant=2');
   assert.equal(calls[3][1].method,'PATCH'); assert.equal(calls[3][1].body,undefined);
   assert.deepEqual(JSON.parse(calls[4][1].body),{text:'<b>Поруч</b>'});
   await assert.rejects(api.sendSupport(3,'   '));

@@ -30,7 +30,6 @@ function Message({id}:{id:number}) {
     } finally {setBusy(false);}
   };
   return <ScrollView contentContainerStyle={styles.container}>
-    <Pressable onPress={()=>router.back()}><Text style={styles.link}>← Повідомлення</Text></Pressable>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження повідомлення" />}
     {!!error && <View style={styles.card}><Text style={styles.error}>{error}</Text><Pressable onPress={()=>void reload()}><Text style={styles.link}>Спробувати ще раз</Text></Pressable></View>}
     {data && !error && <>
