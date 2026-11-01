@@ -14,6 +14,43 @@ from backend.app.services.sobriety import count_sober_days
 StatisticsPeriod = Literal["all", "week", "month", "year"]
 
 VALID_PERIODS = ("all", "week", "month", "year")
+FIXED_GOAL_DAYS = (7, 30, 90, 180, 365)
+
+
+def calculate_goal_progress(
+    *,
+    current_streak: int,
+    longest_streak: int,
+) -> tuple[bool, int | None, list[int], int]:
+    """Обчислює фіксовані етапи 7, 30, 90, 180 і 365 днів.
+
+    Історичне виконання визначається за найдовшою серією, а видимий
+    прогрес активного етапу — за поточною. Етапи належать застосунку,
+    тому їх наявність не залежить від записів у таблиці цілей.
+    """
+
+    if current_streak < 0 or longest_streak < 0:
+        raise ValueError("Серія тверезості не може бути від'ємною")
+    if current_streak > longest_streak:
+        raise ValueError("Поточна серія не може перевищувати рекорд")
+
+    completed_goal_days = sorted(
+        days for days in FIXED_GOAL_DAYS if longest_streak >= days
+    )
+    active_goal_days = next(
+        (days for days in FIXED_GOAL_DAYS if longest_streak < days),
+        None,
+    )
+    goal_progress_days = (
+        min(current_streak, active_goal_days) if active_goal_days is not None else 0
+    )
+
+    return (
+        True,
+        active_goal_days,
+        completed_goal_days,
+        goal_progress_days,
+    )
 
 
 def get_period_start(
@@ -68,28 +105,6 @@ def count_streaks(
         day += dt.timedelta(days=1)
 
     return current_streak, longest_streak
-
-
-def get_goal_progress(
-    total_sober_days: int,
-) -> tuple[int | None, list[int], int]:
-    """Визначає активну ціль і виконані цілі.
-
-    До 7 тверезих днів активна ціль — 7.
-    Від 7 до 29 днів активна ціль — 30.
-    Після 30 днів обидві цілі виконані.
-    """
-
-    if total_sober_days < 0:
-        raise ValueError("Кількість тверезих днів не може бути від'ємною")
-
-    if total_sober_days < 7:
-        return 7, [], total_sober_days
-
-    if total_sober_days < 30:
-        return 30, [7], total_sober_days
-
-    return None, [7, 30], total_sober_days
 
 
 def calculate_statistics(
@@ -150,8 +165,11 @@ def calculate_statistics(
         relapse_dates=relapse_dates,
     )
 
-    active_goal_days, completed_goal_days, goal_progress_days = get_goal_progress(
-        total_sober_days=total_sober_days,
+    has_goals, active_goal_days, completed_goal_days, goal_progress_days = (
+        calculate_goal_progress(
+            current_streak=current_streak,
+            longest_streak=longest_streak,
+        )
     )
 
     return {
@@ -165,6 +183,7 @@ def calculate_statistics(
         "current_streak": current_streak,
         "longest_streak": longest_streak,
         "active_goal_days": active_goal_days,
+        "has_goals": has_goals,
         "completed_goal_days": completed_goal_days,
         "goal_progress_days": goal_progress_days,
     }
@@ -174,9 +193,7 @@ def get_days_remaining(sober_days: int) -> int:
     if sober_days < 0:
         raise ValueError("Кількість тверезих днів не може бути від'ємною")
 
-    goals = (7, 30)
-
-    for goal in goals:
+    for goal in FIXED_GOAL_DAYS:
         if sober_days < goal:
             return goal - sober_days
 
@@ -187,9 +204,6 @@ def calculate_trigger_distribution(
     entries: Iterable[EntryOut], *, today: dt.date
 ) -> dict[str, object]:
     """Повертає анонімний розподіл категорій зривів за останні 30 днів."""
-    if today > dt.date.today():
-        raise ValueError("Дата звіту не може бути в майбутньому")
-
     period_start = today - dt.timedelta(days=29)
     counts = {category.value: 0 for category in TriggerCategory}
     for entry in entries:

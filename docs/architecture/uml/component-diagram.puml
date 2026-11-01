@@ -1,20 +1,20 @@
 @startuml
-title Діаграма компонентів системи "Рехаб"
-
-component "Web Frontend\n(календар, статистика,\nцілі, менторство)" as Front
-
-package "Backend (Layered Monolith)" {
-  component "Controllers\n(REST API)" as Ctrl
-  component "Auth / RBAC\nMiddleware" as Auth
-  component "Services\n(бізнес-логіка, streak,\nсповіщення, модерація)" as Svc
-  component "Repositories\n(доступ до даних,\nConnection Pool)" as Repo
+!pragma layout smetana
+title Реалізовані компоненти Rehab
+component "Expo Web\nAuth / Profile / Calendar / Progress / Support / Inbox / Admin" as Web
+package "FastAPI backend.app.main" {
+ component "Routers\nauth/profile/calendar/goals/statistics\nmentorship/notifications/complaints/admin" as Routes
+ component "Services / Repositories\nAuth + active relationship checks\nProgress + first relapse event" as Services
+ component "Internal reminder job\nX-Job-Token + advisory lock" as Job
+ component "Gmail sender / outbox" as Mail
 }
-
-database "PostgreSQL\n(User, DayRecord, Goal,\nMentorRequest, Notification,\nComplaint)" as DB
-
-Front --> Ctrl : REST API / JSON\n(HTTPS, JWT)
-Ctrl --> Auth : перевірка JWT\nі ролі (user/mentor/admin)
-Ctrl --> Svc : виклик бізнес-логіки
-Svc --> Repo : операції з даними
-Repo --> DB : SQL
+database "PostgreSQL\nusers / avatars / day_records / legacy goals\nmentorships / notifications / support_comments\ncomplaints / email_reminder_deliveries" as DB
+cloud "Gmail API" as Gmail
+Web --> Routes : HTTPS / JSON / JWT
+Routes --> Services
+Services --> DB : SQLAlchemy / psycopg
+Job --> Services : create reminders
+Job --> Mail : after commit
+Mail --> DB : delivery state
+Mail --> Gmail : OAuth gmail.send
 @enduml

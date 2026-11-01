@@ -16,6 +16,8 @@ from pydantic import (
     model_validator,
 )
 
+from backend.app.core.clock import today_local
+
 # ---------- Перелічення ----------
 
 
@@ -92,6 +94,7 @@ class EntryCreate(EntryBase):
     """Тіло запиту на створення відмітки дня (FR-001, FR-002)."""
 
     model_config = ConfigDict(
+        extra="forbid",
         json_schema_extra={
             "examples": [
                 {
@@ -105,7 +108,7 @@ class EntryCreate(EntryBase):
                     "date": "2026-10-07",
                 },
             ]
-        }
+        },
     )
 
     date: dt.date = Field(
@@ -124,6 +127,7 @@ class EntryCreate(EntryBase):
 
     comment: str | None = Field(
         None,
+        max_length=2000,
         description="Необов'язковий коментар до запису.",
     )
 
@@ -141,7 +145,7 @@ class EntryCreate(EntryBase):
     def date_not_in_future(cls, value: dt.date) -> dt.date:
         """Забороняє створення відмітки на майбутню дату."""
 
-        if value > dt.date.today():
+        if value > today_local():
             raise ValueError("Не можна відмічати майбутні дні (FR-002)")
 
         return value
@@ -247,48 +251,30 @@ class EntryList(BaseModel):
     )
 
 
-# ---------- Цілі (Goal) ----------
+# ---------- Фіксовані етапи тверезості ----------
 
 
-class GoalCreate(BaseModel):
-    """Тіло запиту на створення або повну заміну цілі (FR-004)."""
+class GoalMilestoneOut(BaseModel):
+    """Стан одного фіксованого етапу тверезості."""
 
-    target_days: int = Field(
-        ...,
-        ge=1,
-        le=3650,
-        description="Цільова кількість днів без алкоголю (від 1 до 3650).",
-        examples=[30],
+    target_days: int = Field(..., ge=1, description="Тривалість етапу в днях.")
+    is_achieved: bool = Field(..., description="Чи досягнуто етап за найкращою серією.")
+    progress_days: int = Field(
+        ..., ge=0, description="Поточний прогрес, обмежений етапом."
     )
 
+    @model_validator(mode="after")
+    def progress_does_not_exceed_target(self) -> "GoalMilestoneOut":
+        if self.progress_days > self.target_days:
+            raise ValueError("Прогрес не може перевищувати тривалість етапу")
+        return self
 
-class GoalOut(BaseModel):
-    """Ціль у відповіді API."""
 
-    goal_id: int = Field(
-        ...,
-        description="Ідентифікатор цілі.",
-        examples=[1],
-    )
+class GoalList(BaseModel):
+    """Фіксований перелік етапів поточного користувача."""
 
-    user_id: int = Field(
-        ...,
-        description="Власник цілі.",
-        examples=[42],
-    )
-
-    target_days: int = Field(
-        ...,
-        description="Цільова кількість днів.",
-        examples=[30],
-    )
-
-    is_achieved: bool = Field(
-        ...,
-        description=(
-            "Чи досягнуто ціль. Виставляє система, "
-            "коли серія доходить до цілі (FR-005)."
-        ),
+    items: list[GoalMilestoneOut] = Field(
+        ..., description="Етапи 7, 30, 90, 180 і 365 днів."
     )
 
 
@@ -350,7 +336,12 @@ class StatisticsOut(BaseModel):
 
     active_goal_days: int | None = Field(
         ...,
-        description="Активна ціль: 7, 30 або null після виконання обох.",
+        description="Найближчий невиконаний етап 7/30/90/180/365 днів або null після всіх п’яти.",
+    )
+
+    has_goals: bool = Field(
+        ...,
+        description="Чи доступні фіксовані етапи (завжди true).",
     )
 
     completed_goal_days: list[int] = Field(
@@ -361,7 +352,7 @@ class StatisticsOut(BaseModel):
     goal_progress_days: int = Field(
         ...,
         ge=0,
-        description="Кількість тверезих днів для прогресу цілі.",
+        description="Поточна серія днів для прогресу активної цілі.",
     )
 
 

@@ -1,5 +1,6 @@
-
-import { useCallback, useEffect, useState } from 'react';
+import { useProfile } from '../../profile/ProfileProvider';
+import { useMessageText } from '../../messages/useMessageText';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,59 +9,23 @@ import {
   Text,
   View,
 } from 'react-native';
-import { getStatisticsUrl } from '../../config/api';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
 
-type Period = 'week' | 'month' | 'year';
-
-type Statistics = {
-  sober_days: number;
-  relapse_days: number;
-  period_start: string;
-  period_end: string;
-  current_streak: number;
-  longest_streak: number;
-};
+type Period = 'all' | 'week' | 'month' | 'year';
 
 const periods: { label: string; value: Period }[] = [
   { label: 'Тиждень', value: 'week' },
   { label: 'Місяць', value: 'month' },
   { label: 'Рік', value: 'year' },
+  { label: 'Увесь час', value: 'all' },
 ];
 
 export default function StatisticsScreen() {
+  const {profile}=useProfile();
+  const messageText=useMessageText();
   const [period, setPeriod] = useState<Period>('week');
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadStatistics = useCallback(async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(getStatisticsUrl(period), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
-    } catch (err) {
-      setData(null);
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити статистику',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [period]);
-
-  useEffect(() => {
-    void loadStatistics();
-  }, [loadStatistics]);
+  const { data, loading, error, reload: loadStatistics } = useProgressStatistics(period);
 
   const maxDays = Math.max(
     data?.sober_days ?? 0,
@@ -73,7 +38,7 @@ export default function StatisticsScreen() {
       <Text style={styles.eyebrow}>ТВОЯ ДИНАМІКА</Text>
       <Text style={styles.title}>Статистика</Text>
       <Text style={styles.subtitle}>
-        Подивись на свій шлях за обраний період.
+        {profile && profile.message_style!=='formal' ? messageText('home.motivation',profile.message_style).body : 'Подивись на свій шлях за обраний період.'}
       </Text>
 
       <View style={styles.periods}>
@@ -94,6 +59,8 @@ export default function StatisticsScreen() {
           );
         })}
       </View>
+
+      <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
 
       {loading && (
         <View style={styles.message}>
@@ -170,7 +137,7 @@ export default function StatisticsScreen() {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Серії тверезості</Text>
+            <Text style={styles.cardTitle}>Серії тверезості за весь час</Text>
             <View style={styles.streakRow}>
               <Text style={styles.streakLabel}>Поточна серія</Text>
               <Text style={styles.streakValue}>{data.current_streak} дн.</Text>
@@ -213,6 +180,7 @@ const styles = StyleSheet.create({
   },
   periods: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
     padding: 5,
     borderRadius: 15,

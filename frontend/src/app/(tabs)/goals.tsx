@@ -1,5 +1,5 @@
-
-import { useCallback, useEffect, useState } from 'react';
+import { useProfile } from '../../profile/ProfileProvider';
+import { useMessageText } from '../../messages/useMessageText';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,59 +8,27 @@ import {
   Text,
   View,
 } from 'react-native';
-import { getStatisticsUrl } from '../../config/api';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
-
-type Statistics = {
-  active_goal_days: number | null;
-  completed_goal_days: number[];
-  goal_progress_days: number;
-  total_sober_days: number;
-};
+import { FIXED_GOAL_DAYS, GOAL_LABELS, GOAL_DESCRIPTIONS } from '../../constants/goals';
 
 export default function GoalsScreen() {
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadGoals = useCallback(async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(getStatisticsUrl('all'), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити цілі',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadGoals();
-  }, [loadGoals]);
+  const messageText=useMessageText();
+  const { profile } = useProfile();
+  const motivation = profile ? messageText('goals.motivation', profile.message_style).body : '';
+  const { data, loading, error, reload: loadGoals } = useProgressStatistics();
 
   const completed = data?.completed_goal_days ?? [];
-  const activeGoal = data?.active_goal_days ?? null;
-  const progress = data?.goal_progress_days ?? 0;
+  const activeGoal =
+    FIXED_GOAL_DAYS.find((days) => !completed.includes(days)) ?? null;
+  const progress = activeGoal === null
+    ? 0
+    : Math.min(data?.current_streak ?? 0, activeGoal);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.eyebrow}>МАЛЕНЬКІ КРОКИ</Text>
       <Text style={styles.title}>Мої цілі</Text>
-      <Text style={styles.subtitle}>
-        Не потрібно робити все одразу. Рухайся у власному темпі.
-      </Text>
 
       {loading && (
         <View style={styles.message}>
@@ -84,13 +52,13 @@ export default function GoalsScreen() {
           {activeGoal !== null ? (
             <View style={styles.activeCard}>
               <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>АКТИВНА ЦІЛЬ</Text>
+                <Text style={styles.activeBadgeText}>ПОТОЧНИЙ ЕТАП</Text>
               </View>
               <Text style={styles.activeTitle}>
-                {activeGoal} днів тверезості
+                {GOAL_LABELS[activeGoal]} тверезості
               </Text>
               <Text style={styles.activeDescription}>
-                Твоя наступна ціль — один день за раз.
+                {motivation}
               </Text>
               <View style={styles.progressTrack}>
                 <View
@@ -106,13 +74,13 @@ export default function GoalsScreen() {
                 />
               </View>
               <Text style={styles.progressLabel}>
-                {Math.min(progress, activeGoal)} із {activeGoal} днів
+                {progress} із {activeGoal} днів
               </Text>
             </View>
           ) : (
             <View style={styles.successCard}>
               <Text style={styles.successIcon}>★</Text>
-              <Text style={styles.successTitle}>Усі цілі виконано!</Text>
+              <Text style={styles.successTitle}>Усі етапи виконано!</Text>
               <Text style={styles.muted}>
                 Ти пройшла всі доступні етапи. Продовжуй рухатися у власному
                 темпі.
@@ -122,7 +90,7 @@ export default function GoalsScreen() {
 
           <Text style={styles.sectionTitle}>Етапи твого шляху</Text>
 
-          {[7, 30].map((days) => {
+          {FIXED_GOAL_DAYS.map((days) => {
             const isCompleted = completed.includes(days);
             const isActive = activeGoal === days;
 
@@ -141,11 +109,12 @@ export default function GoalsScreen() {
                   </Text>
                 </View>
                 <View style={styles.goalInfo}>
-                  <Text style={styles.goalTitle}>{days} днів</Text>
+                  <Text style={styles.goalTitle}>{GOAL_LABELS[days]}</Text>
                   <Text style={styles.goalDescription}>
-                    {days === 7
-                      ? 'Перший тиждень твого шляху'
-                      : 'Місяць послідовності та турботи про себе'}
+                    Прогрес: {isCompleted ? days : Math.min(data.current_streak, days)} із {days} днів
+                  </Text>
+                  <Text style={styles.goalDescription}>
+                    {GOAL_DESCRIPTIONS[days]}
                   </Text>
                   <Text
                     style={[
@@ -157,7 +126,7 @@ export default function GoalsScreen() {
                     {isCompleted
                       ? 'Виконано'
                       : isActive
-                        ? 'Поточна ціль'
+                        ? 'Поточний етап'
                         : 'Наступний етап'}
                   </Text>
                 </View>
@@ -168,10 +137,11 @@ export default function GoalsScreen() {
           <View style={styles.infoCard}>
             <Text style={styles.infoTitle}>Пам’ятай</Text>
             <Text style={styles.infoText}>
-              Твій прогрес — це не змагання. Навіть маленькі кроки мають
-              значення.
+              Відзнака зберігається після нового зриву. Виправлення минулих записів може змінити рекорд і відзнаки.
             </Text>
           </View>
+          <Text style={styles.muted}>Етапи 7, 30, 90, 180 і 365 днів за безперервною серією.</Text>
+          <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
         </>
       )}
     </ScrollView>
