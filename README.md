@@ -4,7 +4,7 @@
 
 **Rehab** — застосунок для відстеження тверезості, аналізу особистого прогресу та підтримки користувачів на шляху до здоровіших звичок.
 
-Мета проєкту — створити зручний та інтуїтивно зрозумілий інструмент, який допомагає користувачам відстежувати дні без вживання алкоголю, вести календар, аналізувати статистику та контролювати особисті цілі.
+Мета проєкту — створити зручний та інтуїтивно зрозумілий інструмент, який допомагає користувачам відстежувати дні без вживання алкоголю, вести календар, аналізувати статистику та відстежувати фіксовані етапи тверезості.
 
 Проєкт розробляється командою студенток НаУКМА в межах курсу **«Методи розробки програмних систем» (SSDM 2026)**.
 
@@ -42,7 +42,7 @@
 - **Головний екран:** перегляд узагальнених показників користувача.
 - **Навігація:** перехід між основними розділами застосунку.
 
-### Інтегрована версія КТ-Б
+### Інтегровані модулі
 
 Реєстрація й вхід використовують Argon2/JWT; дані зберігаються в PostgreSQL.
 Доступні профіль із фото/паролем/налаштуваннями, менторство за постійним кодом,
@@ -55,7 +55,7 @@
 Europe/Kyiv; email-копія лише за opt-in. OAuth Gmail і реальне надсилання
 потрібно налаштувати окремо; вони не підтверджуються тестовим sender.
 
-Локальне приймання — [КТ-Б](docs/validation/kt-b-integration.md).
+Сценарії приймання — [тест-план](docs/validation/test-plan.md).
 Онлайн-приймання та iPhone перевіряються після узгодженого розгортання.
 Інструкція запуску — [setup_and_run.md](setup_and_run.md).
 
@@ -66,9 +66,9 @@ Europe/Kyiv; email-копія лише за opt-in. OAuth Gmail і реальн�
 | Backend | Python, FastAPI, Pydantic |
 | Frontend | React Native, Expo, TypeScript |
 | API | REST, HTTP, OpenAPI, Swagger UI |
-| Зберігання даних | In-memory storage (поточний MVP) |
+| Зберігання даних | PostgreSQL, SQLAlchemy, Alembic |
 | Тестування Backend | pytest |
-| Перевірка Frontend | TypeScript |
+| Перевірка Frontend | Node tests, TypeScript, ESLint, Expo web export |
 | Якість коду | Black, Flake8, статичний аналіз |
 | CI/CD | GitHub Actions |
 | Документація | Markdown, UML, ADR, OpenAPI |
@@ -91,14 +91,14 @@ Backend (FastAPI)
     +-- Data Models
     |
     v
-In-memory Storage
+PostgreSQL (Neon онлайн, Docker локально)
 ```
 
 Frontend відповідає за інтерфейс, навігацію та взаємодію з користувачем.
 
 Backend обробляє HTTP-запити, перевіряє дані, реалізує бізнес-логіку та надає API для роботи з календарем, цілями й статистикою.
 
-Основний FastAPI використовує PostgreSQL; історичні stubs лишаються тільки для прототипних тестів.
+Основний FastAPI використовує PostgreSQL. Історичні модулі прототипу не підключені як робоче сховище.
 
 Деталі описані в [High-Level Design](docs/architecture/high-level-design.md).
 
@@ -119,7 +119,7 @@ Rehab/
 │       ├── routers/
 │       ├── services/
 │       ├── models.py
-│       └── stubs.py
+│       └── db/                 # ORM і підключення PostgreSQL
 │
 ├── frontend/
 │   ├── src/
@@ -169,7 +169,6 @@ Rehab/
 ├── requirements.txt
 ├── Project-Description.md
 ├── TeamCharter.md
-├── PROGRESS.md
 ├── setup_and_run.md
 ├── README.md
 └── .gitignore
@@ -275,7 +274,7 @@ http://127.0.0.1:8000/docs
 ```powershell
 git clone https://github.com/ukma-fin-ssdm-2026/Rehab.git
 cd Rehab
-git switch feature/admin-mail-sofiia
+git switch develop
 ```
 
 ### 9.2. Запуск Backend
@@ -375,6 +374,7 @@ http://localhost:8081
 Із кореня `Rehab/`, після встановлення Python-залежностей:
 
 ```powershell
+# Спочатку налаштувати окремий TEST_DATABASE_URL за setup_and_run.md
 python -m pytest -q
 ```
 
@@ -383,7 +383,10 @@ python -m pytest -q
 Із каталогу `frontend/`:
 
 ```powershell
-npx tsc --noEmit
+npm run test:api
+npm run typecheck
+npm run lint
+npm run export:web
 ```
 
 Тестова документація описує стратегію перевірок, процес налагодження та взаємозв'язок тестування з вимогами системи.
@@ -405,9 +408,8 @@ npx tsc --noEmit
 
 ### Документація інтегрованого прототипу
 
-- [PROGRESS.md](PROGRESS.md) — прогрес розробки, інтеграція Backend і Frontend, реалізовані можливості та обмеження.
 - [setup_and_run.md](setup_and_run.md) — встановлення залежностей, запуск застосунку та перевірка роботи.
-- <!-- AI-GENERATED START -->[docs/deployment/render-neon.md](docs/deployment/render-neon.md) — онлайн-розгортання (Render + Neon): сайт https://rehab-web-b9d5.onrender.com, API https://rehab-api-0na0.onrender.com; фактичні результати перевірок — розділ 6. Демоакаунти створює `python -m scripts.seed_demo`, облікові дані передаються викладачу окремо, не в репозиторії. Безкоштовний Render засинає: перше відкриття може тривати до хвилини<!-- AI-GENERATED END -->
+- <!-- AI-GENERATED START -->[docs/deployment/render-neon.md](docs/deployment/render-neon.md) — онлайн-розгортання (Render + Neon): сайт https://rehab-web-b9d5.onrender.com, API https://rehab-api-0na0.onrender.com; порядок підтвердження розгортання — розділ 6. Демоакаунти створює `python -m scripts.seed_demo`, облікові дані передаються викладачу окремо, не в репозиторії. Безкоштовний Render засинає: перше відкриття може тривати до хвилини<!-- AI-GENERATED END -->
 - [Labs/](Labs/) — матеріали лабораторних робіт і демонстраційні відео.
 
 ## 13. CI/CD та доступні ресурси
