@@ -163,6 +163,7 @@ export default function CalendarScreen() {
                       styles.dayNumber,
                       status !== 'empty' && styles.markedDayText,
                       isSelected && styles.selectedDayText,
+                      status === 'sober' && styles.soberDayText,
                     ]}
                   >
                     {Number(date.slice(-2))}
@@ -349,7 +350,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   soberDay: {
-    backgroundColor: theme.colors.hero,
+    backgroundColor: '#A8E2CB',
+  },
+  soberDayText: {
+    color: '#163A2E',
   },
   relapseDay: {
     backgroundColor: theme.colors.dangerSurface,
