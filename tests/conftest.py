@@ -146,7 +146,7 @@ def registered_users(authenticated_calendar):
 
 @pytest.fixture
 def calendar_contract_api(authenticated_calendar):
-    """Real SQL/auth; explicit progress double until Mariia's KT-1 module.
+    """Real SQL/auth; explicit progress double for isolated calendar tests.
 
     This verifies calendar contracts, not real progress integration.
     """

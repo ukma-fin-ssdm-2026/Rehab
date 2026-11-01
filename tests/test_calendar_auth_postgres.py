@@ -1,4 +1,4 @@
-"""KT-1 integration: real auth, Argon2, JWT and migrated PostgreSQL.
+"""Integration: real auth, Argon2, JWT and migrated PostgreSQL.
 
 AI-GENERATED START: prepared with ChatGPT against the team spec, sections 7/11.
 No authentication or progress implementation is replaced in these tests.
