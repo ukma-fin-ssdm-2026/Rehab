@@ -71,19 +71,19 @@ export default function EntryDetailsScreen() {
     <Text style={styles.title}>Деталі запису</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження запису" />}
     {!!error && <GlassCard style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
-      {!entry && <Pressable onPress={() => setAttempt(value => value + 1)}><Text>Спробувати ще раз</Text></Pressable>}
+      {!entry && <Pressable onPress={() => setAttempt(value => value + 1)}><Text style={styles.detailValue}>Спробувати ще раз</Text></Pressable>}
     </GlassCard>}
     {entry && !loading && <>
       <GlassCard style={styles.card}>
         <Text style={styles.label}>Дата: {entry.date}</Text>
-        <Text>Статус: {entry.status === 'sober' ? 'Тверезість' : relapseLabel(profile?.message_style ?? 'formal')}</Text>
-        <Text>Тригер: {triggers.find(item => item.value === entry.trigger_category)?.label ?? 'Не вказано'}</Text>
+        <Text style={styles.detailValue}>Статус: {entry.status === 'sober' ? 'Тверезість' : relapseLabel(profile?.message_style ?? 'formal')}</Text>
+        <Text style={styles.detailValue}>Тригер: {triggers.find(item => item.value === entry.trigger_category)?.label ?? 'Не вказано'}</Text>
         <Text style={styles.label}>Напої</Text>
-        {entry.drinks.length ? entry.drinks.map((drink, index) => <Text key={index}>
+        {entry.drinks.length ? entry.drinks.map((drink, index) => <Text key={index} style={styles.detailValue}>
           {drinkTypes.find(item => item.value === drink.type)?.label ?? drink.type}: {drink.volume_ml} мл
-        </Text>) : <Text>Не вказано</Text>}
+        </Text>) : <Text style={styles.detailValue}>Не вказано</Text>}
         <Text style={styles.label}>Коментар</Text>
-        <Text>{entry.comment || 'Не вказано'}</Text>
+        <Text style={styles.detailValue}>{entry.comment || 'Не вказано'}</Text>
         <Text style={styles.hint}>Збережений запис. Створено: {new Date(entry.created_at).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv' })} (Київ).</Text>
       </GlassCard>
       {editing && <>

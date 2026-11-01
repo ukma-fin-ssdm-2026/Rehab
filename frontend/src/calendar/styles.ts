@@ -38,6 +38,11 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  detailValue: {
+    color: '#D9B8ED',
+    fontSize: 14,
+    lineHeight: 21,
+  },
   input: { ...theme.effects.input,
     minHeight: 48,
     borderWidth: 1,
