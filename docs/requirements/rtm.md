@@ -86,7 +86,7 @@
 |---|---|---|
 | US-009, US-010 | FR-011, SEC-001, SEC-002 | Auth/JWT/session; test_auth_postgres.py, test_auth_revocation.py та клієнтські lifecycle-тести |
 | US-011 | SEC-001/002 і правила профілю в requirements.md | Profile/avatar/preferences; test_profile_postgres_integration.py, test_message_styles.py |
-| US-012 | FR-003 і правила підтримки/нагадувань у requirements.md | test_support_comments.py, test_reminders.py, test_email_reminders.py; Gmail наживо перевіряється окремо |
+| US-012 | FR-003 і правила підтримки/нагадувань у requirements.md | test_support_comments.py, test_reminders.py, test_email_reminders.py; за звітом Софії два технічні Gmail-листи отримано 30.10; Render job/лист від job ще не перевірені |
 
 ## Використання ШІ — оновлення документації
 
