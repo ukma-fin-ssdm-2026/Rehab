@@ -1,12 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
 
 import { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { theme } from '../constants/theme';
 import { useAuth } from '../auth/AuthProvider';
@@ -140,7 +135,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 8,
   },
-  option: {
+  option: { ...theme.effects.card,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,

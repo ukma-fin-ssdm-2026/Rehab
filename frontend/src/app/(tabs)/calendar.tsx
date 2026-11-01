@@ -1,16 +1,11 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useProfile } from '../../profile/ProfileProvider';
 import { relapseLabel } from '../../messages/catalog';
 
 import { useCallback, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { getMyAccount } from '../../api/auth';
 import { listEntries, type CalendarEntry } from '../../api/calendar';
 import { dayStatus, kyivDate, shiftedMonth, triggers } from '../../calendar/rules';
@@ -195,7 +190,7 @@ export default function CalendarScreen() {
         </View>
       </View>
 
-      {available && <View style={styles.card}>
+      {available && <GlassCard style={styles.card}>
         <Text style={styles.cardTitle}>Обраний день</Text>
         <Text style={styles.selectedDate}>{selectedDate}</Text>
 
@@ -236,12 +231,12 @@ export default function CalendarScreen() {
             pathname: '/add-entry', params: { date: selectedDate },
           })}><Text style={styles.retryText}>Додати запис на цей день</Text></Pressable>
           : <Text style={styles.secondary}>Запис можна додати лише від {trackingStart} до {today}.</Text>}
-      </View>}
+      </GlassCard>}
 
-      {available && <View style={styles.summary}>
+      {available && <GlassCard style={styles.summary}>
         <Text style={styles.summaryTitle}>Записи за місяць</Text>
         <Text style={styles.summaryNumber}>{total}</Text>
-      </View>}
+      </GlassCard>}
 
       {loading && (
         <View style={styles.message}>
@@ -251,7 +246,7 @@ export default function CalendarScreen() {
       )}
 
       {error && (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити записи</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable
@@ -260,7 +255,7 @@ export default function CalendarScreen() {
           >
             <Text style={styles.retryText}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
     </ScrollView>
   );
@@ -312,7 +307,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 34,
   },
-  calendar: {
+  calendar: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 20,
     padding: 10,
@@ -408,7 +403,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 12,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 18,
     borderWidth: 1,
@@ -433,7 +428,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 14,
   },
-  summary: {
+  summary: { ...theme.effects.card,
     marginTop: 16,
     padding: 18,
     borderRadius: 18,
@@ -457,7 +452,7 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 24,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     marginTop: 16,
     backgroundColor: theme.colors.dangerSurface,
     borderRadius: 12,

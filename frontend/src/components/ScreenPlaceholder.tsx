@@ -1,3 +1,4 @@
+import { GlassCard } from './visual/GlassCard';
 
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -18,7 +19,7 @@ export default function ScreenPlaceholder({
         <Text style={styles.backText}>← До профілю</Text>
       </Pressable>
 
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <View style={styles.icon}>
           <Text style={styles.iconText}>✦</Text>
         </View>
@@ -27,7 +28,7 @@ export default function ScreenPlaceholder({
         <View style={styles.badge}>
           <Text style={styles.badgeText}>СКОРО</Text>
         </View>
-      </View>
+      </GlassCard>
     </View>
   );
 }
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
-  card: {
+  card: { ...theme.effects.card,
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,

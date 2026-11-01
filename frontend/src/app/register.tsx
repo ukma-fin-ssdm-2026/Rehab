@@ -1,6 +1,6 @@
-import { BotanicalBackdrop } from '../components/visual/BotanicalBackdrop';
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { useAuth } from '../auth/AuthProvider';
 import { validateRegistration } from '../auth/credentialForms';
@@ -39,7 +39,6 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BotanicalBackdrop />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.content}>
           <Pressable disabled={saving} onPress={() => router.replace('/login')}>

@@ -1,13 +1,8 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useProfile } from '../../profile/ProfileProvider';
 import { useMessageText } from '../../messages/useMessageText';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
 import { FIXED_GOAL_DAYS, GOAL_LABELS, GOAL_DESCRIPTIONS } from '../../constants/goals';
@@ -38,19 +33,19 @@ export default function GoalsScreen() {
       )}
 
       {error ? (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити цілі</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable onPress={loadGoals}>
             <Text style={styles.retry}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       ) : null}
 
       {data && !loading && !error && (
         <>
           {activeGoal !== null ? (
-            <View style={styles.activeCard}>
+            <GlassCard style={styles.activeCard}>
               <View style={styles.activeBadge}>
                 <Text style={styles.activeBadgeText}>ПОТОЧНИЙ ЕТАП</Text>
               </View>
@@ -76,16 +71,16 @@ export default function GoalsScreen() {
               <Text style={styles.progressLabel}>
                 {progress} із {activeGoal} днів
               </Text>
-            </View>
+            </GlassCard>
           ) : (
-            <View style={styles.successCard}>
+            <GlassCard style={styles.successCard}>
               <Text style={styles.successIcon}>★</Text>
               <Text style={styles.successTitle}>Усі етапи виконано!</Text>
               <Text style={styles.muted}>
                 Ти пройшла всі доступні етапи. Продовжуй рухатися у власному
                 темпі.
               </Text>
-            </View>
+            </GlassCard>
           )}
 
           <Text style={styles.sectionTitle}>Етапи твого шляху</Text>
@@ -95,7 +90,7 @@ export default function GoalsScreen() {
             const isActive = activeGoal === days;
 
             return (
-              <View
+              <GlassCard
                 key={days}
                 style={[
                   styles.goalCard,
@@ -130,16 +125,16 @@ export default function GoalsScreen() {
                         : 'Наступний етап'}
                   </Text>
                 </View>
-              </View>
+              </GlassCard>
             );
           })}
 
-          <View style={styles.infoCard}>
+          <GlassCard style={styles.infoCard}>
             <Text style={styles.infoTitle}>Пам’ятай</Text>
             <Text style={styles.infoText}>
               Відзнака зберігається після нового зриву. Виправлення минулих записів може змінити рекорд і відзнаки.
             </Text>
-          </View>
+          </GlassCard>
           <Text style={styles.muted}>Етапи 7, 30, 90, 180 і 365 днів за безперервною серією.</Text>
           <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
         </>
@@ -173,7 +168,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     marginTop: -10,
   },
-  activeCard: {
+  activeCard: { ...theme.effects.card,
     backgroundColor: theme.colors.hero,
     borderRadius: 22,
     padding: 22,
@@ -218,7 +213,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
-  successCard: {
+  successCard: { ...theme.effects.card,
     backgroundColor: theme.colors.accent,
     borderRadius: 22,
     padding: 24,
@@ -239,7 +234,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: theme.colors.text,
   },
-  goalCard: {
+  goalCard: { ...theme.effects.card,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
@@ -294,7 +289,7 @@ const styles = StyleSheet.create({
   completedText: {
     color: theme.colors.text,
   },
-  infoCard: {
+  infoCard: { ...theme.effects.card,
     borderRadius: 18,
     padding: 18,
     backgroundColor: theme.colors.accent,
@@ -320,7 +315,7 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     backgroundColor: theme.colors.dangerSurface,
     borderRadius: 15,
     padding: 16,

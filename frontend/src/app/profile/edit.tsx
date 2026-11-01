@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { router } from 'expo-router';
 import { updateProfile } from '../../api/profile';
 import { useAuth } from '../../auth/AuthProvider';
@@ -44,7 +46,7 @@ function EditProfileForm({ profile, refreshProfile }: {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Редагувати профіль</Text>
       <Text style={styles.subtitle}>Email і права доступу тут не змінюються.</Text>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <FormField label="Ім’я" value={name} onChangeText={setName} maxLength={110} />
         <FormField label="Нікнейм" value={nickname} onChangeText={setNickname}
           maxLength={60} autoCapitalize="none" />
@@ -52,7 +54,7 @@ function EditProfileForm({ profile, refreshProfile }: {
         {!!error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
         <Button title="Зберегти" disabled={saving} loading={saving}
           onPress={() => { void save(); }} />
-      </View>
+      </GlassCard>
     </ScrollView>
   );
 }

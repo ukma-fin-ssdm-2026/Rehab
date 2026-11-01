@@ -1,6 +1,8 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 // AI-GENERATED START
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { useFocusEffect } from 'expo-router';
 import {
@@ -76,10 +78,10 @@ export default function AdminAnalytics() {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.counters}>
         {counters.map((c) => (
-          <View key={c.label} style={styles.counter}>
+          <GlassCard key={c.label} style={styles.counter}>
             <Text style={styles.counterValue}>{c.value}</Text>
             <Text style={styles.counterLabel}>{c.label}</Text>
-          </View>
+          </GlassCard>
         ))}
       </View>
       <Text style={styles.note}>Станом на {overview.current_date} (Київ). Без персональних даних.</Text>
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
   container: { backgroundColor: theme.colors.background, alignItems: 'center', padding: 16, gap: 14 },
   link: { alignSelf: 'flex-start', color: theme.colors.highlight, fontWeight: '500', fontSize: 16 },
   counters: { alignSelf: 'stretch', flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  counter: {
+  counter: { ...theme.effects.card,
     flexGrow: 1, flexBasis: '45%', backgroundColor: theme.colors.surface, borderColor: theme.colors.border,
     borderWidth: 1, borderRadius: 14, padding: 12, gap: 4,
   },

@@ -1,6 +1,8 @@
+import { ScreenScrollView as ScrollView } from '../../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../../components/visual/GlassCard';
 // AI-GENERATED START
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { decideComplaint, fetchComplaint, type AdminComplaint } from '../../../api/admin';
 import { formatDate, STATUS_LABELS } from '../../../admin/labels';
@@ -61,7 +63,7 @@ export default function AdminComplaintDetail() {
 
   return (
     <ScrollView contentContainerStyle={styles.page}>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={complaint.status === 'pending' ? styles.pending : styles.meta}>
           {STATUS_LABELS[complaint.status]}
         </Text>
@@ -86,7 +88,7 @@ export default function AdminComplaintDetail() {
         ) : (
           <Text style={styles.meta}>Не додано</Text>
         )}
-      </View>
+      </GlassCard>
 
       {error && <Text style={styles.error}>{error}</Text>}
 
@@ -97,7 +99,7 @@ export default function AdminComplaintDetail() {
         </View>
       )}
       {complaint.status === 'pending' && confirm && (
-        <View style={styles.card}>
+        <GlassCard style={styles.card}>
           <Text style={styles.text}>{consequence}</Text>
           <Button
             title={confirm === 'approved' ? 'Так, схвалити' : 'Так, відхилити'}
@@ -107,7 +109,7 @@ export default function AdminComplaintDetail() {
           <Pressable accessibilityRole="button" disabled={busy} onPress={() => setConfirm(null)} style={styles.cancel}>
             <Text style={styles.cancelText}>Скасувати</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
     </ScrollView>
   );
@@ -115,7 +117,7 @@ export default function AdminComplaintDetail() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, backgroundColor: theme.colors.background, flexGrow: 1 },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface, borderColor: theme.colors.border,
     borderWidth: 1, borderRadius: 14, padding: 14, gap: 6,
   },

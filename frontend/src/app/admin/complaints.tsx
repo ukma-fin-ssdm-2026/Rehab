@@ -1,3 +1,4 @@
+import { BotanicalBackdrop } from '../../components/visual/BotanicalBackdrop';
 // AI-GENERATED START
 import { useCallback, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -98,7 +99,7 @@ export default function AdminComplaints() {
       contentContainerStyle={styles.list}
       data={items ?? []}
       keyExtractor={(c) => String(c.complaint_id)}
-      ListHeaderComponent={<>{header}{body}</>}
+      ListHeaderComponent={<><BotanicalBackdrop />{header}{body}</>}
       ListEmptyComponent={items ? <ScreenState state="empty" message="Скарг у цьому розділі немає." /> : null}
       renderItem={({ item }) => (
         <Link href={`/admin/complaint/${item.complaint_id}`} asChild>
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   chipText: { color: theme.colors.text, fontWeight: '500' },
   chipTextActive: { color: theme.colors.text },
   error: { color: theme.colors.danger },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface, borderColor: theme.colors.border,
     borderWidth: 1, borderRadius: 14, padding: 14, gap: 6,
   },

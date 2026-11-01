@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: -10,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
     borderWidth: 1,
@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  input: {
+  input: { ...theme.effects.input,
     minHeight: 48,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
-  typeOption: {
+  typeOption: { ...theme.effects.card,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 12,
@@ -107,7 +107,7 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     color: theme.colors.text,
   },
-  commentInput: {
+  commentInput: { ...theme.effects.input,
     minHeight: 100,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     color: theme.colors.text,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     padding: 14,
     borderRadius: 12,
     backgroundColor: theme.colors.dangerSurface,

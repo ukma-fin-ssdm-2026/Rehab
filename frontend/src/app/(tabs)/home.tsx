@@ -1,15 +1,13 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { IconBadge } from '../../components/visual/IconBadge';
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
+import { JourneyOrb } from '../../components/visual/JourneyOrb';
 import { LotusMark } from '../../components/visual/LotusMark';
 import { useUnreadMessages } from '../../messages/useMessages';
 import { useProfile } from '../../profile/ProfileProvider';
 import { useMessageText } from '../../messages/useMessageText';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
@@ -29,7 +27,7 @@ export default function HomeScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerRow}>
         <View style={styles.brandRow}><LotusMark size={26} /><Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text></View>
-        <Pressable accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
+        <Pressable style={styles.mailButton} accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
           <Text style={styles.retryText}>✉{unread.data ? ` ${unread.data.count}` : unread.error ? ' !' : '…'}</Text>
         </Pressable>
       </View>
@@ -48,37 +46,33 @@ export default function HomeScreen() {
       )}
 
       {!!error && (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити дані</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable style={styles.retry} onPress={loadStatistics}>
             <Text style={styles.retryText}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
 
       {data && !loading && !error && (
         <>
-          <View style={styles.hero}>
-            <Text style={styles.heroLabel}>Усього тверезих днів</Text>
-            <Text style={styles.heroNumber}>{data.total_sober_days}</Text>
-            <Text style={styles.heroCaption}>Твій прогрес має значення</Text>
-          </View>
+          <JourneyOrb total={data.total_sober_days} />
 
           <View style={styles.grid}>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>↗</Text>
+            <GlassCard style={styles.card}>
+              <IconBadge name="trending-up-outline" />
               <Text style={styles.cardNumber}>{data.current_streak}</Text>
               <Text style={styles.cardLabel}>Поточна серія</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>★</Text>
+            </GlassCard>
+            <GlassCard style={styles.card}>
+              <IconBadge name="flash-outline" />
               <Text style={styles.cardNumber}>{data.longest_streak}</Text>
               <Text style={styles.cardLabel}>Найкраща серія</Text>
-            </View>
+            </GlassCard>
           </View>
 
-          <View style={styles.goalCard}>
+          <GlassCard illustrated style={styles.goalCard}>
             <Text style={styles.goalTitle}>Твій поточний етап</Text>
             {activeGoal === null ? (
               <Text style={styles.goalText}>Усі етапи виконано!</Text>
@@ -105,7 +99,7 @@ export default function HomeScreen() {
                 </View>
               </>
             )}
-          </View>
+          </GlassCard>
         </>
       )}
 
@@ -113,6 +107,8 @@ export default function HomeScreen() {
         style={styles.button}
         onPress={() => router.push('/add-entry')}
       >
+        <LinearGradient pointerEvents="none" colors={theme.gradients.button} start={{x:0,y:0}} end={{x:1,y:1}}
+          style={{position:'absolute',top:0,right:0,bottom:0,left:0,borderRadius:26}} />
         <Text style={styles.buttonText}>＋  Додати запис</Text>
       </Pressable>
     </ScrollView>
@@ -120,6 +116,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  mailButton: { ...theme.effects.card, minWidth:44, minHeight:44, borderRadius:17, paddingHorizontal:12, justifyContent:'center', alignItems:'center', backgroundColor:theme.colors.surface, borderWidth:1, borderColor:theme.colors.border },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   headerRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
   container: {
@@ -169,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
-  card: {
+  card: { ...theme.effects.card,
     flex: 1,
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
@@ -191,7 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.colors.muted,
   },
-  goalCard: {
+  goalCard: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 20,
     borderWidth: 1,
@@ -234,7 +231,7 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     backgroundColor: theme.colors.dangerSurface,
     borderRadius: 16,
     padding: 16,
@@ -257,8 +254,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   button: {
+    ...theme.effects.button,
     backgroundColor: theme.colors.primary,
-    borderRadius: 16,
+    borderRadius: 26,
+    borderWidth: 1,
+    borderColor: theme.colors.buttonBorder,
     alignItems: 'center',
     padding: 17,
     marginTop: 2,

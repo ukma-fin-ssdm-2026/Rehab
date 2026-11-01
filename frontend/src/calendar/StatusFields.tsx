@@ -1,3 +1,4 @@
+import { GlassCard } from '../components/visual/GlassCard';
 import { useProfile } from '../profile/ProfileProvider';
 import { relapseLabel } from '../messages/catalog';
 import { Pressable, Text, View } from 'react-native';
@@ -10,7 +11,7 @@ export function StatusFields({ status, trigger, disabled, onStatus, onTrigger }:
   onStatus: (value: DayStatus) => void; onTrigger: (value: TriggerCategory | null) => void;
 }) {
   const {profile}=useProfile();
-  return <View style={styles.card}>
+  return <GlassCard style={styles.card}>
     <Text style={styles.label}>Статус дня</Text>
     <View style={styles.typeList}>
       {(['sober', 'relapse'] as const).map(value => <Pressable key={value}
@@ -29,5 +30,5 @@ export function StatusFields({ status, trigger, disabled, onStatus, onTrigger }:
         <Text style={styles.typeText}>{item.label}</Text>
       </Pressable>)}</View>
     </>}
-  </View>;
+  </GlassCard>;
 }

@@ -1,5 +1,9 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { theme } from '../constants/theme';
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
+import { GlassCard } from '../components/visual/GlassCard';
 import { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { getMyAccount, type UserSession } from '../api/auth';
 import { createEntry, type DayStatus, type TriggerCategory } from '../api/calendar';
@@ -56,12 +60,12 @@ export default function AddEntryScreen() {
     <Text style={styles.title}>Новий запис</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження" />}
     {account && !loading && <>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.label}>Дата</Text>
         <TextInput accessibilityLabel="Дата запису" value={date} onChangeText={setDate} editable={!saving}
           placeholder="РРРР-ММ-ДД" style={styles.input} maxLength={10} autoCapitalize="none" />
         <Text style={styles.hint}>Від {account.tracking_start_date} до {account.current_date} включно.</Text>
-      </View>
+      </GlassCard>
       <StatusFields status={status} trigger={trigger} disabled={saving} onStatus={setStatus} onTrigger={setTrigger} />
       {status === 'relapse' && <>
         <View style={styles.sectionHeader}>
@@ -69,7 +73,7 @@ export default function AddEntryScreen() {
           <Pressable disabled={saving} style={styles.addSmall} onPress={() => setDrinks(items => [...items,
             { id: Date.now(), type: 'beer', volume: '' }])}><Text style={styles.addSmallText}>＋ Додати напій</Text></Pressable>
         </View>
-        {drinks.map((drink, index) => <View style={styles.card} key={drink.id}>
+        {drinks.map((drink, index) => <GlassCard style={styles.card} key={drink.id}>
           <Text style={styles.label}>Напій {index + 1}</Text>
           <Pressable disabled={saving} accessibilityLabel={`Видалити напій ${index + 1}`}
             onPress={() => setDrinks(items => items.filter(item => item.id !== drink.id))}><Text style={styles.removeText}>Видалити</Text></Pressable>
@@ -82,19 +86,20 @@ export default function AddEntryScreen() {
           <TextInput accessibilityLabel={`Об’єм напою ${index + 1} (мл)`} placeholder="Об’єм (мл)"
             keyboardType="number-pad" value={drink.volume} editable={!saving} style={styles.input}
             onChangeText={volume => setDrinks(items => items.map(item => item.id === drink.id ? { ...item, volume } : item))} />
-        </View>)}
+        </GlassCard>)}
       </>}
-      <View style={styles.card}><Text style={styles.label}>Коментар (необов’язково)</Text>
+      <GlassCard style={styles.card}><Text style={styles.label}>Коментар (необов’язково)</Text>
         <TextInput accessibilityLabel="Коментар" value={comment} onChangeText={setComment} editable={!saving}
           placeholder="Що хочеш зафіксувати?" multiline maxLength={2000} style={styles.commentInput} />
         <Text style={styles.hint}>До 2000 символів.</Text>
-      </View>
+      </GlassCard>
     </>}
-    {!!error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
+    {!!error && <GlassCard style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
       {!account && <Pressable onPress={() => setAttempt(value => value + 1)}><Text>Спробувати ще раз</Text></Pressable>}
-    </View>}
+    </GlassCard>}
     <Pressable disabled={saving || loading || !account} onPress={save}
       style={[styles.button, (saving || loading || !account) && styles.buttonDisabled]}>
+      <LinearGradient pointerEvents="none" colors={theme.gradients.button} start={{x:0,y:0}} end={{x:1,y:1}} style={{position:'absolute',top:0,right:0,bottom:0,left:0,borderRadius:15}} />
       {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Зберегти запис</Text>}
     </Pressable>
     <Pressable disabled={saving} onPress={back}><Text style={styles.cancelText}>Скасувати</Text></Pressable>

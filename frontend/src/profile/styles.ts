@@ -19,7 +19,7 @@ export const profileStyles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border,

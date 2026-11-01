@@ -1,6 +1,8 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../../auth/AuthProvider';
 import { Button } from '../../components/ui/Button';
@@ -73,7 +75,7 @@ export default function ProfileScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
       <Text style={styles.title}>Профіль</Text>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         {profile ? <AvatarView profile={profile} /> : (
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{user?.name?.charAt(0).toUpperCase() ?? 'R'}</Text>
@@ -82,7 +84,7 @@ export default function ProfileScreen() {
         <Text style={styles.name}>{profile?.name ?? user?.name ?? 'Завантаження…'}</Text>
         <Text style={styles.nickname}>@{profile?.nickname ?? user?.nickname ?? ''}</Text>
         <Text style={styles.email}>{profile?.email ?? user?.email ?? ''}</Text>
-      </View>
+      </GlassCard>
       <View style={styles.photoActions}>
         <Button title="Обрати фото з галереї" disabled={saving || !profile}
           onPress={() => { void selectPhoto(); }} />
@@ -107,20 +109,20 @@ export default function ProfileScreen() {
         </Pressable>
       )}
       {deleteRequested && (
-        <View style={styles.menu}>
+        <GlassCard style={styles.menu}>
           <Text style={styles.note}>Дійсно видалити фото?</Text>
           <Button title="Підтвердити видалення" loading={saving}
             onPress={() => { void removeAvatar(); }} />
           <Pressable onPress={() => setDeleteRequested(false)}>
             <Text style={styles.link}>Скасувати</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
       {!!loadError && <Text style={styles.error}>{loadError}</Text>}
       {!!error && <Text style={styles.error}>{error}</Text>}
       {!!loadError && <Button title="Повторити"
         onPress={() => { void refreshProfile(); }} />}
-      <View style={styles.menu}>
+      <GlassCard style={styles.menu}>
         {([
           ['Редагувати профіль', '/profile/edit'],
           ['Змінити пароль', '/profile/password'],
@@ -138,7 +140,7 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={18} color={theme.colors.muted} />
           </Pressable>
         ))}
-      </View>
+      </GlassCard>
       <Button variant="outline" title="Вийти з акаунта" loading={saving} onPress={() => { void handleLogout(); }} />
     </ScrollView>
   );
@@ -148,7 +150,7 @@ const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: theme.colors.background, padding: 24, gap: 18 },
   eyebrow: { color: theme.colors.highlight, fontSize: 12, fontWeight: '500', letterSpacing: 1.5 },
   title: { fontSize: 30, fontWeight: '400', color: theme.colors.text },
-  card: { alignItems: 'center', gap: 10, borderWidth: 1, borderColor: theme.colors.border,
+  card: { ...theme.effects.card, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: theme.colors.border,
     borderRadius: 20, backgroundColor: theme.colors.surface, padding: 24 },
   avatar: { width: 70, height: 70, borderRadius: 25, backgroundColor: theme.colors.accent,
     alignItems: 'center', justifyContent: 'center' },
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
   previewImage: { width: 112, height: 112, borderRadius: 32 },
   remove: { color: theme.colors.danger, fontWeight: '500' },
   link: { color: theme.colors.text, fontWeight: '500' },
-  menu: { backgroundColor: theme.colors.surface, borderRadius: 16, padding: 16, gap: 12 },
+  menu: { ...theme.effects.card, backgroundColor: theme.colors.surface, borderRadius: 16, padding: 16, gap: 12 },
   menuLabel: { flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1 },
   menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderBottomWidth: 1, borderBottomColor: theme.colors.border, padding: 8 },
 });

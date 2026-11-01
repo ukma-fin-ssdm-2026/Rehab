@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
+import { GlassCard } from '../components/visual/GlassCard';
 import { useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Platform, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { Relationship } from '../api/mentorship';
 import { Button } from '../components/ui/Button';
@@ -36,22 +38,22 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
     <Text style={styles.title}>Підтримка</Text>
     <Text style={styles.subtitle}>Тут можна бути поруч з іншими та отримувати підтримку на своєму шляху.</Text>
     {loading && <ScreenState state="loading" />}
-    {!!error && <View style={styles.error}>
+    {!!error && <GlassCard style={styles.error}>
       <Text accessibilityRole="alert" style={styles.danger}>{error}</Text>
       <Pressable accessibilityRole="button" disabled={busy} onPress={() => { void reload(); }} style={styles.action}>
         <Text style={styles.link}>Спробувати ще раз</Text>
       </Pressable>
-    </View>}
+    </GlassCard>}
     {data && !loading && <>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.heading}>Мій особистий код</Text>
         <Text selectable style={styles.code}>{data.code}</Text>
         <Text style={styles.muted}>Передаючи код, ти одразу надаєш ментору доступ до свого календаря та статистики за весь період. Він зможе лише переглядати дані.</Text>
         <Button title="Скопіювати код" onPress={() => { void copyCode(); }} />
         {!!copyStatus && <Text accessibilityLiveRegion="polite" style={styles.muted}>{copyStatus}</Text>}
-      </View>
+      </GlassCard>
 
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.heading}>Мій ментор</Text>
         {data.mentor ? <>
           <Text style={styles.text}>@{data.mentor.mentor.nickname}</Text>
@@ -62,11 +64,11 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
           {onReport && <Pressable accessibilityRole="button" disabled={busy} style={styles.action}
             onPress={() => onReport(data.mentor!.relationship_id)}><Text style={styles.link}>Подати скаргу</Text></Pressable>}
         </> : <Text style={styles.muted}>Поки немає ментора. Передай свій код людині, якій довіряєш.</Text>}
-      </View>
+      </GlassCard>
 
       {ending && <Modal transparent animationType="fade" onRequestClose={() => { if (!busy) setEnding(null); }}>
         <View style={styles.modalBackdrop}>
-        <View accessibilityViewIsModal style={[styles.card, styles.modalCard]}>
+        <GlassCard accessibilityViewIsModal style={[styles.card, styles.modalCard]}>
         <Text style={styles.heading}>Завершити менторство?</Text>
         <Text style={styles.text}>З @{ending.mentor.user_id === data.owner ? ending.mentee.nickname : ending.mentor.nickname}</Text>
         <Text style={styles.text}>Доступ до даних і надсилання підтримки припиняться. Цю пару назавжди буде закрито для повторного приєднання, навіть за правильним кодом. Історія повідомлень збережеться.</Text>
@@ -77,11 +79,11 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
           <Text style={styles.link}>Скасувати</Text>
         </Pressable>
         {!!error && <Text accessibilityRole="alert" style={styles.danger}>{error}</Text>}
-        </View>
+        </GlassCard>
         </View>
       </Modal>}
 
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.heading}>Отримати підопічного</Text>
         <Text style={styles.muted}>Отримай код людини поза застосунком і введи його тут. Доступ відкриється відразу.</Text>
         <FormField label="Особистий код користувача" value={code} onChangeText={setCode}
@@ -89,7 +91,7 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
         <Button title="Отримати підопічного" disabled={!code.trim()} loading={busy} onPress={() => {
           void join(code).then(ok => { if (ok) setCode(''); });
         }} />
-      </View>
+      </GlassCard>
 
       <View style={styles.row}>
         <Text style={[styles.heading, styles.grow]}>Мої підопічні · {data.mentees.total}</Text>
@@ -97,10 +99,10 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
           <Text style={styles.link}>Оновити</Text>
         </Pressable>
       </View>
-      {data.mentees.items.length === 0 && <View style={styles.notice}>
+      {data.mentees.items.length === 0 && <GlassCard style={styles.notice}>
         <Text style={styles.text}>{messageText('support.empty', messageStyle).body}</Text>
-      </View>}
-      {data.mentees.items.map(row => <View key={row.relationship_id} style={styles.card}>
+      </GlassCard>}
+      {data.mentees.items.map(row => <GlassCard key={row.relationship_id} style={styles.card}>
         <Text style={styles.heading}>@{row.mentee.nickname}</Text>
         <Text selectable style={styles.muted}>{row.mentee.email}</Text>
         <Button title="Календар і статистика" disabled={busy} onPress={() => router.push({
@@ -109,7 +111,7 @@ export function SupportPanel({ messageStyle = 'formal', onReport }: {
         <Pressable accessibilityRole="button" disabled={busy} style={styles.action} onPress={() => setEnding(row)}>
           <Text style={styles.danger}>Припинити менторство з підопічним</Text>
         </Pressable>
-      </View>)}
+      </GlassCard>)}
       {data.mentees.items.length < data.mentees.total && <Button title="Показати ще" loading={busy} onPress={() => { void loadMore(); }} />}
     </>}
   </ScrollView>;

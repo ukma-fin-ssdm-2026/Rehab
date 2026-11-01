@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../../auth/AuthProvider';
 import { useInbox } from '../../messages/useMessages';
@@ -15,7 +17,7 @@ function Inbox() {
   return <ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>Повідомлення</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження повідомлень" />}
-    {!!error && <View style={styles.card}><Text style={styles.error}>{error}</Text><Pressable onPress={()=>void reload()}><Text style={styles.link}>Спробувати ще раз</Text></Pressable></View>}
+    {!!error && <GlassCard style={styles.card}><Text style={styles.error}>{error}</Text><Pressable onPress={()=>void reload()}><Text style={styles.link}>Спробувати ще раз</Text></Pressable></GlassCard>}
     {data && !error && <>
       {data.items.length === 0 && <Text style={styles.text}>Повідомлень поки немає.</Text>}
       {data.items.map(item=><Pressable key={item.notification_id} style={styles.card}

@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import { profileStyles as styles } from '../../profile/styles';
 
 const questions = [
@@ -51,7 +53,7 @@ export default function HelpScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Питання та відповіді</Text>
       <Text style={styles.subtitle}>Короткі пояснення про можливості Rehab.</Text>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         {questions.map((item, index) => (
           <View key={item.title} style={{ gap: 9 }}>
             <Pressable accessibilityRole="button"
@@ -62,7 +64,7 @@ export default function HelpScreen() {
             {open === index && <Text style={styles.text}>{item.answer}</Text>}
           </View>
         ))}
-      </View>
+      </GlassCard>
       <Pressable accessibilityRole="link"
         onPress={() => { void Linking.openURL('mailto:rehab.support.web@gmail.com'); }}>
         <Text style={styles.link}>rehab.support.web@gmail.com</Text>
