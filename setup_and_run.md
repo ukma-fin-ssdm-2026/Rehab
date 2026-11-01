@@ -1,19 +1,18 @@
 # Rehab — налаштування та запуск
 
-Актуальна інтеграція КТ-Б: гілка `feature/admin-mail-sofiia` (PR №220).
-Після командного злиття використовуйте `develop`; `main` оновлюється окремо.
+Для спільної розробки використовуйте `develop`, для прийнятого релізу — `main`.
 Запускайте сервер `backend.app.main:app` із кореня Rehab, не історичний `src/api`.
 
 ## 1. Залежності
 
-Python 3.12, Node.js 22, npm, Docker Desktop, Git. Команди нижче для PowerShell.
+Python 3.12, Node.js 22 (не нижче 22.13), npm, Docker Desktop, Git. Команди нижче для PowerShell.
 Для перевірки на iPhone використовується Safari та публічна HTTPS-версія;
 Expo Go й Android для приймання не потрібні.
 
 ```powershell
 git clone https://github.com/ukma-fin-ssdm-2026/Rehab
 cd Rehab
-git switch feature/admin-mail-sofiia
+git switch develop
 python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements.txt
 Copy-Item .env.example .env
@@ -63,7 +62,7 @@ JWT після `/api/v1/auth/login`; `user-42` не є дійсною сесіє
 Для демо-адміна й пар `scripts/seed_demo.py` читає приватні `SEED_*` змінні;
 див. його заголовок. Seed ідемпотентний, не очищає дані й не надсилає листів.
 
-Сценарій приймання: [КТ-Б](docs/validation/kt-b-integration.md).
+Сценарій приймання: [тест-план](docs/validation/test-plan.md).
 Кожна вкладка має власну сесію; для ментора, підопічного й admin можна використати
 окремі вкладки браузера. Відсутність календарного запису означає тверезий день.
 
@@ -97,4 +96,4 @@ OAuth для `rehab.support.web@gmail.com`. Деталі, env і ручний з
 
 Розклад Actions виконується лише з default branch. До фінального main перевіряйте
 endpoint вручну через `scripts/run_reminders_job.py`; не переносіть продукт у main
-лише заради таймера. Render/Neon та iPhone — окреме онлайн-приймання КТ-В.
+лише заради таймера. Render/Neon та iPhone — окреме онлайн-приймання.
