@@ -1,28 +1,20 @@
 @startuml
-title Реалізовані компоненти Rehab — КТ1 / календар КТ2
-component "Expo Web\nКалендар / деталі / форми" as Front
-component "apiRequest\nJWT поточної сесії" as Client
-package "FastAPI" {
- component "Auth / RBAC" as Auth
- component "calendar_postgres\nPOST / GET / PATCH" as Calendar
- component "Цілі / статистика / admin" as Other
- component "progress_sync\nперерахунок у транзакції" as Progress
- component "Repositories / SQLAlchemy" as Repo
+!pragma layout smetana
+title Реалізовані компоненти Rehab
+component "Expo Web\nAuth / Profile / Calendar / Progress / Support / Inbox / Admin" as Web
+package "FastAPI backend.app.main" {
+ component "Routers\nauth/profile/calendar/goals/statistics\nmentorship/notifications/complaints/admin" as Routes
+ component "Services / Repositories\nAuth + active relationship checks\nProgress + first relapse event" as Services
+ component "Internal reminder job\nX-Job-Token + advisory lock" as Job
+ component "Gmail sender / outbox" as Mail
 }
-database "PostgreSQL\nusers, day_records, goals\nНапої: JSONB" as DB
-Front --> Client
-Client --> Auth : HTTPS / JSON
-Client --> Calendar : JWT
-Client --> Other : JWT
-Calendar --> Auth : власник
-Calendar --> Progress : POST / PATCH
-Calendar --> Repo
-Progress --> Repo
-Other --> Repo
-Auth --> Repo
-Repo --> DB : psycopg
-note bottom of DB
- Neon онлайн; окремі dev/test БД Compose локально.
- Менторство й сповіщення — майбутні компоненти.
-end note
+database "PostgreSQL\nusers / avatars / day_records / legacy goals\nmentorships / notifications / support_comments\ncomplaints / email_reminder_deliveries" as DB
+cloud "Gmail API" as Gmail
+Web --> Routes : HTTPS / JSON / JWT
+Routes --> Services
+Services --> DB : SQLAlchemy / psycopg
+Job --> Services : create reminders
+Job --> Mail : after commit
+Mail --> DB : delivery state
+Mail --> Gmail : OAuth gmail.send
 @enduml

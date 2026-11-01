@@ -4,15 +4,13 @@
 
 0001_initial створює users, day_records та legacy goals.
 0002_team_foundation додає спільну основу профілю, менторства,
-повідомлень, скарг і поштових нагадувань. Це готовність моделі та внутрішніх
-контрактів; нові HTTP API/UI не реалізовані цією зміною.
-Застосування в Neon фіксується окремо після командного review.
+повідомлень, скарг і поштових нагадувань. Усі відповідні API та клієнтські екрани підключено до основного застосунку. Застосування міграції в онлайн-БД перевіряється перед відповідним релізом.
 
 ![Спільна схема PostgreSQL](uml/implemented-data-model.png)
 
 [PlantUML](uml/implemented-data-model.puml) показує основні зв'язки.
 Усі колонки, FK і CHECK — у міграції та ORM.
-[Контракти для учасниць](../development/database-handoff.md).
+[Контракт API](../api/api-design.md).
 
 ## Сутності
 
@@ -20,7 +18,7 @@
 | --- | --- |
 | users | Унікальні email та постійний mentor_code; Argon2 password_hash, token_version, tracking_start_date, best_streak. Пошта default false; стилі formal/humorous/zen/strict, default formal |
 | day_records | UNIQUE(user_id,date), sober/relapse, JSONB drinks, trigger_category, comment; created_at/updated_at UTC. first_relapse_at — перша подія зриву; історичні relapse позначені без повідомлень |
-| goals | Legacy-сумісність. Чинні етапи 7/30 розраховуються з історії; 90/180/365 додаються окремим кроком Марії |
+| goals | Legacy-сумісність. Чинні етапи 7/30/90/180/365 розраховуються з історії; записи goals не визначають їх прогрес |
 | user_avatars | Одне приватне JPEG BYTEA на власника, <=256 KiB, version>=1 |
 | mentorships | Напрям mentor_id→mentee_id; active/ended; унікальна пара за всю історію; унікальний active mentee_id; self-link заборонено |
 | notifications | Власний адресат; daily_reminder/relapse/support_comment; унікальний event_key для адресата; business_date, created_at/read_at; nullable FK на зв'язок/запис/коментар |
@@ -49,12 +47,12 @@ Notification і SupportComment мають взаємні FK: спочатку re
 
 Міграція зберігає email, пароль, ролі, tracking_start_date та рекорди.
 Старі is_blocked скидаються у false за погодженою відмовою від account block.
-Колонка зберігається для сумісності. В інтегрованому КТ-Б старі admin API
+Колонка зберігається для сумісності. У чинній реалізації старі admin API
 глобального блокування прибрані, is_blocked не забороняє вхід; схвалення
 скарги закриває тільки відповідний напрямок менторства.
 
 Фото, контакти, хеші, коди, календар, соціальні зв'язки, скарги та
 підтримка — приватні дані. Код не входить до register/login/me, його
-надалі показує тільки власнику окремий API. Адміну надалі доступний лише
+показує тільки власнику окремий API. Адміну доступний лише
 доданий до скарги доказ, а не весь календар або inbox.
 Унікальні ключі БД не замінюють авторизацію сервісів/HTTP.
