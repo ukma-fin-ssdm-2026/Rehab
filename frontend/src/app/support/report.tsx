@@ -1,6 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
 // AI-GENERATED START
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ApiError } from '../../api/client';
 import {
@@ -141,12 +142,12 @@ function ReportMentor() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, backgroundColor: theme.colors.background, flexGrow: 1 },
-  title: { color: theme.colors.text, fontSize: 22, fontWeight: '700' },
+  title: { color: theme.colors.text, fontSize: 22, fontWeight: '500' },
   note: { color: theme.colors.muted },
-  label: { color: theme.colors.muted, fontWeight: '700' },
+  label: { color: theme.colors.muted, fontWeight: '500' },
   text: { color: theme.colors.text, fontSize: 16 },
   evidence: { backgroundColor: theme.colors.accent, borderRadius: 12, padding: 12, gap: 6 },
-  input: {
+  input: { ...theme.effects.input,
     backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderWidth: 1,
     borderRadius: 12, minHeight: 120, padding: 14, color: theme.colors.text, textAlignVertical: 'top',
   },

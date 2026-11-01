@@ -13,7 +13,9 @@ test('reporting a received comment passes the private notification ID to evidenc
   const jsx = (type, props) => ({type, props});
   const imports = {
     'react': {useRef: value => ({current:value}), useState: value => [value,()=>{}]},
-    'react/jsx-runtime': {jsx, jsxs:jsx, Fragment:'Fragment'},
+    '../../components/visual/ScreenScrollView':{ScreenScrollView:'ScrollView'},
+  '../../components/visual/GlassCard':{GlassCard:'View'},
+  'react/jsx-runtime': {jsx, jsxs:jsx, Fragment:'Fragment'},
     'react-native': Object.fromEntries(['ActivityIndicator','Pressable','ScrollView','Text','TextInput','View'].map(x=>[x,x])),
     'expo-router': {router:{push:route=>routes.push(route),back(){}},useLocalSearchParams:()=>({notification_id:'9'})},
     '../../api/client': {ApiError: class extends Error {}},

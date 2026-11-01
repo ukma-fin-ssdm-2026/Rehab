@@ -10,14 +10,14 @@ export const styles = StyleSheet.create({
     gap: 16,
   },
   back: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   title: {
     fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     color: theme.colors.muted,
@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: -10,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
     borderWidth: 1,
@@ -36,14 +36,14 @@ export const styles = StyleSheet.create({
   label: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '500',
   },
-  input: {
+  input: { ...theme.effects.input,
     minHeight: 48,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     color: theme.colors.text,
     paddingHorizontal: 13,
     fontSize: 15,
@@ -60,8 +60,8 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   addSmall: {
     paddingVertical: 9,
@@ -70,8 +70,8 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.accent,
   },
   addSmallText: {
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
+    fontWeight: '500',
+    color: theme.colors.text,
   },
   drinkHeader: {
     flexDirection: 'row',
@@ -80,23 +80,23 @@ export const styles = StyleSheet.create({
   },
   removeText: {
     color: theme.colors.danger,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   typeList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
-  typeOption: {
+  typeOption: { ...theme.effects.card,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 12,
     paddingVertical: 9,
     paddingHorizontal: 11,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
   },
   typeActive: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
     backgroundColor: theme.colors.accent,
   },
   typeText: {
@@ -104,10 +104,10 @@ export const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   typeTextActive: {
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
+    fontWeight: '500',
+    color: theme.colors.text,
   },
-  commentInput: {
+  commentInput: { ...theme.effects.input,
     minHeight: 100,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -116,10 +116,10 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     color: theme.colors.text,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     padding: 14,
     borderRadius: 12,
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
   },
   errorText: {
     color: theme.colors.danger,
@@ -138,8 +138,8 @@ export const styles = StyleSheet.create({
     opacity: 0.65,
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
     fontSize: 16,
   },
   cancelButton: {
@@ -148,6 +148,6 @@ export const styles = StyleSheet.create({
   },
   cancelText: {
     color: theme.colors.muted,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });

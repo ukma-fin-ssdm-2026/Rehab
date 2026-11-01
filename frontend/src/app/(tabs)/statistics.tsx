@@ -1,14 +1,9 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useProfile } from '../../profile/ProfileProvider';
 import { useMessageText } from '../../messages/useMessageText';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
 
@@ -64,24 +59,24 @@ export default function StatisticsScreen() {
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.muted}>Завантаження статистики...</Text>
         </View>
       )}
 
       {error ? (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити дані</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable onPress={loadStatistics}>
             <Text style={styles.retry}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       ) : null}
 
       {data && !loading && !error && (
         <>
-          <View style={styles.summary}>
+          <GlassCard style={styles.summary}>
             <View style={styles.summaryItem}>
               <Text style={styles.summaryNumber}>{data.sober_days}</Text>
               <Text style={styles.summaryLabel}>Тверезих днів</Text>
@@ -93,9 +88,9 @@ export default function StatisticsScreen() {
               </Text>
               <Text style={styles.summaryLabel}>Днів зі зривом</Text>
             </View>
-          </View>
+          </GlassCard>
 
-          <View style={styles.card}>
+          <GlassCard style={styles.card}>
             <Text style={styles.cardTitle}>Порівняння днів</Text>
             <Text style={styles.muted}>
               Дані за період: {data.period_start} — {data.period_end}
@@ -134,9 +129,9 @@ export default function StatisticsScreen() {
                 <Text style={styles.barLabel}>Зриви</Text>
               </View>
             </View>
-          </View>
+          </GlassCard>
 
-          <View style={styles.card}>
+          <GlassCard style={styles.card}>
             <Text style={styles.cardTitle}>Серії тверезості за весь час</Text>
             <View style={styles.streakRow}>
               <Text style={styles.streakLabel}>Поточна серія</Text>
@@ -146,7 +141,7 @@ export default function StatisticsScreen() {
               <Text style={styles.streakLabel}>Найдовша серія</Text>
               <Text style={styles.streakValue}>{data.longest_streak} дн.</Text>
             </View>
-          </View>
+          </GlassCard>
         </>
       )}
     </ScrollView>
@@ -163,14 +158,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 1.5,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -198,13 +193,13 @@ const styles = StyleSheet.create({
   periodText: {
     fontSize: 13,
     color: theme.colors.muted,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   periodTextActive: {
-    color: theme.colors.primaryDark,
-    fontWeight: '800',
+    color: theme.colors.text,
+    fontWeight: '400',
   },
-  summary: {
+  summary: { ...theme.effects.card,
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
     borderRadius: 20,
@@ -219,8 +214,8 @@ const styles = StyleSheet.create({
   },
   summaryNumber: {
     fontSize: 34,
-    fontWeight: '800',
-    color: theme.colors.primary,
+    fontWeight: '400',
+    color: theme.colors.highlight,
   },
   relapseNumber: {
     color: theme.colors.danger,
@@ -235,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.border,
     marginHorizontal: 14,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -245,8 +240,8 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   muted: {
     fontSize: 13,
@@ -278,13 +273,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   soberBar: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.highlight,
   },
   relapseBar: {
     backgroundColor: theme.colors.danger,
   },
   barValue: {
-    fontWeight: '800',
+    fontWeight: '400',
     color: theme.colors.text,
   },
   barLabel: {
@@ -302,17 +297,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   streakValue: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '400',
   },
   message: {
     alignItems: 'center',
     padding: 24,
     gap: 12,
   },
-  errorBox: {
-    backgroundColor: '#FDECEC',
+  errorBox: { ...theme.effects.card,
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 15,
     padding: 16,
     gap: 10,
@@ -320,14 +315,14 @@ const styles = StyleSheet.create({
   errorTitle: {
     color: theme.colors.danger,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   errorText: {
     color: theme.colors.danger,
     fontSize: 14,
   },
   retry: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

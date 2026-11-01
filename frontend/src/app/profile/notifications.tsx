@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useState } from 'react';
-import { ScrollView, Switch, Text, View } from 'react-native';
+import { Switch, Text } from 'react-native';
 import { updateProfilePreferences } from '../../api/profile';
 import { Button } from '../../components/ui/Button';
 import { ScreenState } from '../../components/ui/ScreenState';
@@ -33,13 +35,13 @@ export default function NotificationSettingsScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Сповіщення та пошта</Text>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.field}>Дублювати щоденне нагадування на пошту</Text>
         <Switch value={profile.email_reminders_enabled} disabled={saving}
           accessibilityLabel="Дублювати щоденне нагадування на пошту"
           onValueChange={value => { void change(value); }}
-          trackColor={{ true: theme.colors.accent }}
-          thumbColor={theme.colors.primary} />
+          trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+          thumbColor={theme.colors.highlight} />
         <Text style={styles.muted}>Адреса: {profile.email}</Text>
         <Text style={styles.text}>
           Повідомлення в Rehab залишаються незалежно від цього перемикача.
@@ -48,7 +50,7 @@ export default function NotificationSettingsScreen() {
         </Text>
         {!!error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
         <Button title="Оновити" disabled={saving} onPress={() => { void refreshProfile(); }} />
-      </View>
+      </GlassCard>
     </ScrollView>
   );
 }

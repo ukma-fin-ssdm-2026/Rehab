@@ -1,5 +1,6 @@
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../auth/AuthProvider';
 import { validateLogin } from '../auth/credentialForms';
@@ -75,11 +76,11 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: theme.colors.background },
   container: { flexGrow: 1, justifyContent: 'center', padding: 28, gap: 14 },
   content: { width: '100%', maxWidth: 460, alignSelf: 'center', gap: 14 },
-  brand: { textAlign: 'center', fontSize: 24, fontWeight: '800', color: theme.colors.primary },
-  title: { fontSize: 29, fontWeight: '800', textAlign: 'center', color: theme.colors.primaryDark },
+  brand: { textAlign: 'center', fontSize: 24, fontWeight: '400', color: theme.colors.highlight },
+  title: { fontSize: 29, fontWeight: '400', textAlign: 'center', color: theme.colors.text },
   subtitle: { textAlign: 'center', color: theme.colors.muted, lineHeight: 22 },
   form: { marginTop: 20, gap: 14 },
   error: { color: theme.colors.danger },
-  success: { color: theme.colors.primaryDark },
-  link: { color: theme.colors.primaryDark, textAlign: 'center', padding: 12, fontWeight: '600' },
+  success: { color: theme.colors.text },
+  link: { color: theme.colors.text, textAlign: 'center', padding: 12, fontWeight: '500' },
 });

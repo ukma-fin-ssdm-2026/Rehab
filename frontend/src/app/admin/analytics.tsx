@@ -1,6 +1,8 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 // AI-GENERATED START
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { useFocusEffect } from 'expo-router';
 import {
@@ -15,7 +17,7 @@ const LABELS: Record<TriggerCategory, string> = {
 };
 // Колір не єдиний носій інформації: легенда завжди показує назву, кількість і відсоток.
 const COLORS: Record<TriggerCategory, string> = {
-  stress: '#3C8D72', holiday: '#E0A23B', social: '#5B7DB1', other: '#9A8C98',
+  stress: '#ACB866', holiday: '#C4A6D8', social: '#7FAE9D', other: '#D7A3B4',
 };
 const SIZE = 220;
 const R = 100;
@@ -76,10 +78,10 @@ export default function AdminAnalytics() {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.counters}>
         {counters.map((c) => (
-          <View key={c.label} style={styles.counter}>
+          <GlassCard key={c.label} style={styles.counter}>
             <Text style={styles.counterValue}>{c.value}</Text>
             <Text style={styles.counterLabel}>{c.label}</Text>
-          </View>
+          </GlassCard>
         ))}
       </View>
       <Text style={styles.note}>Станом на {overview.current_date} (Київ). Без персональних даних.</Text>
@@ -128,18 +130,18 @@ export default function AdminAnalytics() {
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', padding: 16, gap: 14 },
-  link: { alignSelf: 'flex-start', color: theme.colors.primary, fontWeight: '700', fontSize: 16 },
+  container: { backgroundColor: theme.colors.background, alignItems: 'center', padding: 16, gap: 14 },
+  link: { alignSelf: 'flex-start', color: theme.colors.highlight, fontWeight: '500', fontSize: 16 },
   counters: { alignSelf: 'stretch', flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  counter: {
+  counter: { ...theme.effects.card,
     flexGrow: 1, flexBasis: '45%', backgroundColor: theme.colors.surface, borderColor: theme.colors.border,
     borderWidth: 1, borderRadius: 14, padding: 12, gap: 4,
   },
-  counterValue: { color: theme.colors.primaryDark, fontSize: 24, fontWeight: '700' },
+  counterValue: { color: theme.colors.text, fontSize: 24, fontWeight: '500' },
   counterLabel: { color: theme.colors.muted },
-  title: { color: theme.colors.text, fontWeight: '700', fontSize: 16, textAlign: 'center' },
+  title: { color: theme.colors.text, fontWeight: '500', fontSize: 16, textAlign: 'center' },
   note: { color: theme.colors.muted, textAlign: 'center' },
-  selected: { color: theme.colors.primaryDark, fontWeight: '700' },
+  selected: { color: theme.colors.text, fontWeight: '500' },
   legend: { alignSelf: 'stretch', gap: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
   dot: { width: 16, height: 16, borderRadius: 8 },

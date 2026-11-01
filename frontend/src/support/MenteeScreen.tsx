@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
+import { GlassCard } from '../components/visual/GlassCard';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import type { StatisticsPeriod } from '../api/statistics';
 import { dayStatus, drinkTypes, shiftedMonth, triggers } from '../calendar/rules';
@@ -48,11 +50,11 @@ export default function MenteeScreen() {
     {loading && <ScreenState state="loading" />}
     {!!error && <ScreenState state="error" message={error} onRetry={() => { void reload(); }} />}
     {data && stats && month && range && <>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.heading}>@{data.relationship.mentee.nickname}</Text>
         <Text selectable style={styles.muted}>{data.relationship.mentee.email}</Text>
         <Text style={styles.muted}>Тільки перегляд. Змінювати календарні записи може лише власник.</Text>
-      </View>
+      </GlassCard>
       <View style={styles.segmented}>
         {(['calendar', 'statistics'] as const).map(value => <Pressable key={value} accessibilityRole="button"
           accessibilityState={{ selected: tab === value }} onPress={() => setTab(value)}
@@ -70,7 +72,7 @@ export default function MenteeScreen() {
             disabled={data.monthKey >= today.slice(0, 7)} onPress={() => changeMonth(1)}
             style={[local.monthButton, data.monthKey >= today.slice(0, 7) && styles.disabled]}><Text style={styles.heading}>›</Text></Pressable>
         </View>
-        <View style={styles.card}>
+        <GlassCard style={styles.card}>
           <View style={local.grid}>{weekdays.map(day => <View key={day} style={local.cell}><Text style={styles.muted}>{day}</Text></View>)}</View>
           <View style={local.grid}>{range.days.map((date, index) => {
             if (!date) return <View key={`empty-${index}`} style={local.cell} />;
@@ -85,8 +87,8 @@ export default function MenteeScreen() {
             </View>;
           })}</View>
           <Text style={styles.muted}>Зелений — тверезість · рожевий — зрив.</Text>
-        </View>
-        <View style={styles.card}>
+        </GlassCard>
+        <GlassCard style={styles.card}>
           <Text style={styles.heading}>{selected}</Text>
           <Text style={styles.text}>{selectedStatus === 'relapse' ? 'Зрив' : selectedStatus === 'sober' ? 'Тверезий день' : 'Поза періодом відстеження'}</Text>
           {record ? <>
@@ -99,7 +101,7 @@ export default function MenteeScreen() {
             <Text selectable style={styles.text}>{record.comment || 'Не вказано'}</Text>
           </> : <Text style={styles.muted}>{selectedStatus === 'sober'
             ? 'Запису немає. За замовчуванням день вважається тверезим.' : 'Для цієї дати немає даних.'}</Text>}
-        </View>
+        </GlassCard>
       </> : <>
         <View style={styles.segmented}>{periods.map(item => <Pressable key={item.value} accessibilityRole="button"
           accessibilityState={{ selected: period === item.value }} style={[styles.segment, period === item.value && styles.selected]}
@@ -108,9 +110,9 @@ export default function MenteeScreen() {
         <View style={local.metrics}>
           {[['Поточна серія', stats.current_streak], ['Найкраща серія', stats.longest_streak],
             ['Тверезі дні за період', stats.sober_days], ['Дні зриву за період', stats.relapse_days],
-            ['Тверезі дні за весь час', stats.total_sober_days]].map(([label, value]) => <View key={label} style={[styles.card, local.metric]}>
+            ['Тверезі дні за весь час', stats.total_sober_days]].map(([label, value]) => <GlassCard key={label} style={[styles.card, local.metric]}>
             <Text style={styles.muted}>{label}</Text><Text style={styles.title}>{value}</Text>
-          </View>)}
+          </GlassCard>)}
         </View>
       </>}
     </>}
@@ -121,10 +123,10 @@ const local = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: '14.2857%', padding: 2, alignItems: 'center', justifyContent: 'center', minHeight: 35 },
   day: { alignSelf: 'stretch', minHeight: 44, borderWidth: 2, borderColor: 'transparent', borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  dayText: { color: theme.colors.primaryDark, fontSize: 14, fontWeight: '600' },
-  sober: { backgroundColor: theme.colors.accent }, relapse: { backgroundColor: '#F9DDDF' },
+  dayText: { color: theme.colors.text, fontSize: 14, fontWeight: '500' },
+  sober: { backgroundColor: theme.colors.hero }, relapse: { backgroundColor: theme.colors.dangerSurface },
   selectedDay: { borderColor: theme.colors.primaryDark },
-  monthTitle: { flex: 1, textAlign: 'center', fontWeight: '700' },
+  monthTitle: { flex: 1, textAlign: 'center', fontWeight: '500' },
   monthButton: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   metric: { flexGrow: 1, flexBasis: '45%', minWidth: 130 },

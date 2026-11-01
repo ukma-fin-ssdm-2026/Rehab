@@ -1,7 +1,11 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { theme } from '../../constants/theme';
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useProfile } from '../../profile/ProfileProvider';
 import { relapseLabel } from '../../messages/catalog';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { getEntry, updateEntry, type CalendarEntry, type DayStatus, type TriggerCategory } from '../../api/calendar';
 import { ApiError } from '../../api/client';
@@ -66,11 +70,11 @@ export default function EntryDetailsScreen() {
   return <ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>Деталі запису</Text>
     {loading && <ActivityIndicator accessibilityLabel="Завантаження запису" />}
-    {!!error && <View style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
+    {!!error && <GlassCard style={styles.errorBox}><Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>
       {!entry && <Pressable onPress={() => setAttempt(value => value + 1)}><Text>Спробувати ще раз</Text></Pressable>}
-    </View>}
+    </GlassCard>}
     {entry && !loading && <>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.label}>Дата: {entry.date}</Text>
         <Text>Статус: {entry.status === 'sober' ? 'Тверезість' : relapseLabel(profile?.message_style ?? 'formal')}</Text>
         <Text>Тригер: {triggers.find(item => item.value === entry.trigger_category)?.label ?? 'Не вказано'}</Text>
@@ -81,7 +85,7 @@ export default function EntryDetailsScreen() {
         <Text style={styles.label}>Коментар</Text>
         <Text>{entry.comment || 'Не вказано'}</Text>
         <Text style={styles.hint}>Збережений запис. Створено: {new Date(entry.created_at).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv' })} (Київ).</Text>
-      </View>
+      </GlassCard>
       {editing && <>
         <StatusFields status={status} trigger={trigger} disabled={saving || !editable}
           onStatus={setStatus} onTrigger={setTrigger} />
@@ -89,7 +93,8 @@ export default function EntryDetailsScreen() {
           Перехід на тверезість видалить напої й тригер. Для зриву напої необов’язкові.</Text>
         <Pressable onPress={save} disabled={saving || !editable}
           style={[styles.button, (saving || !editable) && styles.buttonDisabled]}>
-          {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Зберегти зміни</Text>}
+          <LinearGradient pointerEvents="none" colors={theme.gradients.button} start={{x:0,y:0}} end={{x:1,y:1}} style={{position:'absolute',top:0,right:0,bottom:0,left:0,borderRadius:15}} />
+      {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Зберегти зміни</Text>}
         </Pressable>
         <Pressable disabled={saving} onPress={() => {
           setEditing(false); setStatus(entry.status); setTrigger(entry.trigger_category); setError('');

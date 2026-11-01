@@ -4,6 +4,8 @@ test('humorous style requires confirmation, and cancellation does not change pre
  const jsx=(type,props)=>({type,props});
  const imports={
   react:{useState:initial=>{const i=cursor++;if(!(i in states))states[i]=initial;return[states[i],v=>{states[i]=v;}];}},
+  '../../components/visual/ScreenScrollView':{ScreenScrollView:'ScrollView'},
+  '../../components/visual/GlassCard':{GlassCard:'View'},
   'react/jsx-runtime':{jsx,jsxs:jsx},
   'react-native':{Modal:'Modal',Pressable:'Pressable',ScrollView:'ScrollView',Text:'Text',View:'View'},
   '../../api/profile':{updateProfilePreferences:async value=>{changes.push(value.message_style);}},

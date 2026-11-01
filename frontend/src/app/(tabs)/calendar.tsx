@@ -1,16 +1,11 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useProfile } from '../../profile/ProfileProvider';
 import { relapseLabel } from '../../messages/catalog';
 
 import { useCallback, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { getMyAccount } from '../../api/auth';
 import { listEntries, type CalendarEntry } from '../../api/calendar';
 import { dayStatus, kyivDate, shiftedMonth, triggers } from '../../calendar/rules';
@@ -195,7 +190,7 @@ export default function CalendarScreen() {
         </View>
       </View>
 
-      {available && <View style={styles.card}>
+      {available && <GlassCard style={styles.card}>
         <Text style={styles.cardTitle}>Обраний день</Text>
         <Text style={styles.selectedDate}>{selectedDate}</Text>
 
@@ -236,22 +231,22 @@ export default function CalendarScreen() {
             pathname: '/add-entry', params: { date: selectedDate },
           })}><Text style={styles.retryText}>Додати запис на цей день</Text></Pressable>
           : <Text style={styles.secondary}>Запис можна додати лише від {trackingStart} до {today}.</Text>}
-      </View>}
+      </GlassCard>}
 
-      {available && <View style={styles.summary}>
+      {available && <GlassCard style={styles.summary}>
         <Text style={styles.summaryTitle}>Записи за місяць</Text>
         <Text style={styles.summaryNumber}>{total}</Text>
-      </View>}
+      </GlassCard>}
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.secondary}>Завантаження записів...</Text>
         </View>
       )}
 
       {error && (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити записи</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable
@@ -260,7 +255,7 @@ export default function CalendarScreen() {
           >
             <Text style={styles.retryText}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
     </ScrollView>
   );
@@ -276,8 +271,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
+    fontWeight: '500',
+    color: theme.colors.text,
   },
   subtitle: {
     marginTop: 6,
@@ -294,7 +289,7 @@ const styles = StyleSheet.create({
   monthTitle: {
     color: theme.colors.text,
     fontSize: 19,
-    fontWeight: '700',
+    fontWeight: '500',
     textTransform: 'capitalize',
   },
   monthButton: {
@@ -308,11 +303,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   arrow: {
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
     fontSize: 30,
     lineHeight: 34,
   },
-  calendar: {
+  calendar: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 20,
     padding: 10,
@@ -336,7 +331,7 @@ const styles = StyleSheet.create({
   weekday: {
     color: theme.colors.muted,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   dayButton: {
     width: '86%',
@@ -354,16 +349,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   soberDay: {
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.hero,
   },
   relapseDay: {
-    backgroundColor: '#F8DADA',
+    backgroundColor: theme.colors.dangerSurface,
   },
   markedDayText: {
-    fontWeight: '700',
+    fontWeight: '500',
   },
   today: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
     borderWidth: 2,
   },
   selectedDay: {
@@ -371,8 +366,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   selectedDayText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '800',
+    color: theme.colors.text,
+    fontWeight: '400',
   },
   todayDot: {
     position: 'absolute',
@@ -380,7 +375,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.hero,
   },
   legend: {
     flexDirection: 'row',
@@ -408,7 +403,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 12,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 18,
     borderWidth: 1,
@@ -421,9 +416,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   selectedDate: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   statusText: {
     color: theme.colors.text,
@@ -433,40 +428,40 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 14,
   },
-  summary: {
+  summary: { ...theme.effects.card,
     marginTop: 16,
     padding: 18,
     borderRadius: 18,
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.hero,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   summaryTitle: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   summaryNumber: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: '400',
   },
   message: {
     alignItems: 'center',
     gap: 12,
     padding: 24,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     marginTop: 16,
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 12,
     padding: 16,
     gap: 8,
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.danger,
   },
   errorText: {
@@ -482,7 +477,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   retryText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

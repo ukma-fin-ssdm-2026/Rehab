@@ -36,8 +36,9 @@ export function AvatarView({ profile, size = 82 }: { profile: ProfileOut; size?:
   const frame = {
     width: size,
     height: size,
-    borderRadius: size / 3,
+    borderRadius: size / 2,
     backgroundColor: theme.colors.accent,
+    borderWidth: 1, borderColor: theme.colors.buttonBorder,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     overflow: 'hidden' as const,
@@ -50,9 +51,9 @@ export function AvatarView({ profile, size = 82 }: { profile: ProfileOut; size?:
           style={{ width: size, height: size }} accessibilityLabel="Фото профілю" />
       ) : (
         <Text style={{
-          color: theme.colors.primaryDark,
+          color: theme.colors.text,
           fontSize: size * 0.4,
-          fontWeight: '800',
+          fontWeight: '400',
         }}>
           {profile.name.charAt(0).toUpperCase() || 'R'}
         </Text>

@@ -1,3 +1,4 @@
+import { theme } from '../constants/theme';
 import { Stack, usePathname } from 'expo-router';
 import { BackButton } from '../components/navigation/BackButton';
 import { showBack } from '../navigation/back';
@@ -15,7 +16,7 @@ function ProtectedNavigation() {
   }
   const isUser = !!user && user.role !== 'admin';
   return (
-    <Stack screenOptions={{ headerShown: !!user && !onboardingPending && showBack(pathname), header: () => <BackButton /> }}>
+    <Stack screenOptions={{ contentStyle: { backgroundColor: theme.colors.background }, headerShown: !!user && !onboardingPending && showBack(pathname), header: () => <BackButton /> }}>
       <Stack.Screen name="index" />
       <Stack.Protected guard={!loading && !user}>
         <Stack.Screen name="login" />
