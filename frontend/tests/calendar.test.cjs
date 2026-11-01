@@ -119,3 +119,15 @@ test('navigation waits for session restore before mounting protected routes', ()
   assert.ok(!activeScreens(navigation()).includes('messages'));
 
 });
+
+test('entry details do not fall back to black text', () => {
+  const detail = fs.readFileSync(
+    path.join(__dirname, '../src/app/entry/[record_id].tsx'), 'utf8',
+  );
+  const styles = fs.readFileSync(
+    path.join(__dirname, '../src/calendar/styles.ts'), 'utf8',
+  );
+  assert.match(styles, /detailValue:\s*\{[^}]*color:\s*'#D9B8ED'/);
+  assert.equal((detail.match(/style=\{styles\.detailValue\}/g) ?? []).length, 6);
+  assert.doesNotMatch(detail, /<Text\b(?![^>]*\bstyle=)[^>]*>/);
+});
