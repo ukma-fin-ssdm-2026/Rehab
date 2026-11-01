@@ -1,26 +1,20 @@
 @startuml
-title Діаграма розгортання системи "Рехаб"
-
-rectangle "ТВ-1: Клієнтська зона (недовірена)" {
-  node "Користувацький пристрій" {
-    component "Web Browser" as Browser
-  }
-}
-
-rectangle "ТВ-2: Серверна зона (довірена)" {
-  node "Сервер застосунку" {
-    component "Web Frontend" as Front
-    component "REST API Backend\n(Layered Monolith,\nAuth/RBAC, Rate Limiting)" as API
-  }
-}
-
-rectangle "ТВ-3: Зона зберігання даних" {
-  node "Сервер БД" {
-    database "PostgreSQL" as DB
-  }
-}
-
-Browser --> Front : HTTPS
-Front --> API : REST API / JSON\n(JWT)
-API --> DB : SQL (TLS,\nConnection Pool)
+!pragma layout smetana
+title Розгортання Rehab з бюджетом 0 грн
+node "Browser\niPhone Safari for mobile acceptance" as Browser
+node "Render Static Site\nExpo Web / dist / SPA rewrite" as Web
+node "Render Web Service Free\nPython 3.12 / FastAPI / uvicorn" as API
+database "Neon Free\nPostgreSQL" as DB
+node "GitHub Actions\nreminder schedule on default branch" as Actions
+cloud "Gmail API" as Gmail
+Browser --> Web : HTTPS
+Browser --> API : HTTPS / JSON / JWT
+API --> DB : psycopg / TLS
+Actions --> API : POST /internal/jobs/reminders\nX-Job-Token
+API --> Gmail : OAuth / opt-in reminders
+note bottom of API
+ Secrets only in service settings.
+ Alembic migrations run under controlled local setup before API release.
+ Local dev/test PostgreSQL instances are separate from Neon.
+end note
 @enduml

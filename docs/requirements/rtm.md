@@ -5,11 +5,11 @@
 | **US-001** | FR | Відмітка поточного дня в календарі | FR-001, FR-002 | PERF-001, REL-001 | Test-01: Успішна відмітка сьогодні<br>Test-02: Заборона відмітки майбутньої дати<br>Лаб 7: №1, №2, №3, №18, №20, №28 |
 | **US-002** | FR | Сповіщення ментора про зрив підопічного | FR-003 | PERF-001 | Test-03: Зрив генерує сповіщення<br>Test-04: Перехід зі сповіщення<br>Лаб 7: №4, №5 |
 | **US-003** | FR | Перегляд фіксованих етапів тверезості | FR-004, FR-005 | USAB-001 | Test-05: Активний етап і прогрес<br>Test-06: Відображення виконаного етапу<br>Лаб 7: №6, №7, №8, №32 |
-| **US-004** | FR | Обробка скарг та модерація користувачів адміном | FR-010, FR-011 | SEC-001 | Test-13: Блокування облікового запису користувача<br>Test-14: Заборона нової авторизації<br>Лаб 7: №16, №17, №19, №26 |
+| **US-004** | FR | Обробка скарг та модерація користувачів адміном | FR-010, FR-011 | SEC-001 | Test-13: Рішення щодо скарги закриває пару<br>Test-14: Відкликана сесія недійсна<br>Лаб 7: №16, №17, №19, №26 |
 | **US-005** | FR | Порівняння серії з абсолютним рекордом | FR-006 | PERF-001 | Test-07: Перевищення рекорду автоматично оновлює значення<br>Лаб 7: №9, №10 |
 | **US-006** | FR | Аналітика категорій тригерів для адміна | FR-007 | SEC-001, PERF-001 | Test-08: Відображення діаграми з правильними відсотками<br>Лаб 7: №11, №21, №22, №23, №30 |
 | **US-007** | FR | Редагування запису протягом 48 годин | FR-008 | REL-001 | Test-09: Успішна зміна через 47 год<br>Test-10: HTTP 403 при редагуванні після 48 годин<br>Лаб 7: №12, №13, №24, №25 |
-| **US-008** | FR | Обробка ментором запитів на наставництво | FR-009 | SEC-001 | Test-11: Прийняття запиту надає доступ<br>Test-12: Відхилення видаляє запит<br>Лаб 7: №14, №15, №31 |
+| **US-008** | FR | Менторство за постійним кодом | FR-009 | SEC-001 | Test-11: Код створює активний зв’язок<br>Test-12: Завершена пара не приєднується повторно<br>Лаб 7: №14, №15, №31 |
 
 ## Простежуваність тест-кейсів Лаб 7
 
@@ -39,40 +39,23 @@
 | Вимога | Автоматизована перевірка | Файл |
 |---|---|---|
 | FR-008 | FR008-R1 — FR008-R6 (шість правил таблиці рішень) | `tests/test_calendar.py` |
-| PERF-001 | Навантажувальний тест статистики, 100 користувачів, 30 секунд, p95 = 32 мс | `tests/performance/locustfile.py` |
+| PERF-001 | Навантажувальний тест статистики, 100 користувачів, 30 секунд, історичний p95 = 32 мс для прототипу, не поточної онлайн-версії | `tests/performance/locustfile.py` |
 
 **Докази реалізації:**
 - [PR №157 — перевірки FR-008](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/157).
 - Бонус №4 — результати автоматизованого тесту наведено в `docs/validation/test-plan.md`.
 
-## Простежуваність акаунтів і сесій — стан КТ2 на 30.10.2026
 
-| Історія | Пов'язані чинні вимоги | Код та перевірки | Фактичний стан на 30.10.2026 |
-|---|---|---|---|
-| US-009 | SEC-002, FR-011 | `backend/app/routers/auth.py`, `backend/app/schemas/auth.py`, `backend/app/services/auth.py`; `tests/test_auth.py`, `tests/test_auth_schema_contract.py`, `tests/test_auth_schema_boundaries.py`, `tests/test_auth_routes_unit.py`, `tests/test_auth_postgres.py`, `tests/test_calendar_auth_postgres.py`; `frontend/src/app/register.tsx`, `login.tsx`, `onboarding.tsx` | Реєстрація, вхід, Argon2, нормалізація email, дубль 409, заборона role injection і JWT перевірені серверними тестами з PostgreSQL. Онлайн API на Neon перевірено 29.10.2026. За звітом Поліни від 30.10.2026 на iPhone Safari після злиття PR №204 успішно пройдені реєстрація, onboarding після reload та завершення onboarding (PR №205). Це ручний звіт учасниці, а не незалежна перевірка цього документа. |
-| US-010 | SEC-001, FR-010, FR-011 | `backend/app/security.py`, `backend/app/repositories/users.py`, `frontend/src/auth/AuthProvider.tsx`, `frontend/src/auth/returnEntry.ts`, `frontend/src/app/_layout.tsx`, `frontend/src/app/index.tsx`; `tests/test_auth_revocation.py`, `tests/test_security_dependency.py`, `tests/test_auth_postgres.py`, `tests/test_calendar_auth_postgres.py`; `frontend/tests/auth-client-lifecycle.test.cjs`, `auth-return-entry.test.cjs`, `auth-expired-entry.test.cjs`, `auth-navigation.test.cjs` | JWT і перевірка власного профілю, приватні маршрути, вихід та відкликання токенів, ізоляція даних і блокування перевірені серверними тестами та попередніми онлайн API/адмінськими сценаріями. За звітом Поліни від 30.10.2026 на iPhone Safari підтверджені пряме посилання на власний запис, reload і повернення до того самого запису після завершення сесії (PR №205). Остаточний SHA онлайн-розгортання ще має бути встановлений відповідальною за Render. |
+## Реалізація інтегрованих модулів
 
-Шість файлів тестів авторизації з локального Windows-середовища: **44 passed, 1 warning**, включно з Argon2 через `pwdlib`. У [PR №185 — PostgreSQL-тести auth](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/185), злитому в `develop`, GitHub Actions на тестовому коміті `fb3913c` завершився результатом **258 passed, 1 warning**, покриття backend **94%**, Code Quality і перевірка простежуваності — успіх. Це покриття всієї серверної частини, не лише авторизації. TypeScript (`tsc --noEmit`), Expo web export і ESLint файлів авторизації проходили локально; попередній повний Expo lint мав помилки в інших вкладках, актуальний результат слід перевіряти після інтеграції.
+| Історії | Код | Автоматичні перевірки |
+|---|---|---|
+| US-001, US-005, US-007 | routers/calendar_postgres.py, services/progress_sync.py, services/statistics.py | test_calendar_postgres_api.py, test_progress_sync_calendar.py, test_calendar_message_flow.py; frontend/tests/calendar.test.cjs, progress.test.cjs |
+| US-002, US-012 | services/notifications.py, services/reminders.py, services/email_reminders.py, routers/jobs.py | test_notifications.py, test_support_comments.py, test_reminders.py, test_email_reminders.py, test_system_integration.py |
+| US-003 | routers/goals.py, services/statistics.py | test_goals.py, test_goal_progress.py |
+| US-004, US-006 | routers/complaints.py, routers/admin.py | test_complaints.py, test_admin.py |
+| US-008 | routers/mentorship.py, services/mentorship.py | test_mentorship_api.py, test_calendar_relapse_notifications.py; frontend/tests/mentorship.test.cjs |
+| US-009, US-010 | routers/auth.py, security.py, frontend/src/auth/ | test_auth_postgres.py, test_auth_revocation.py; frontend/tests/auth-navigation.test.cjs, onboarding-session.test.cjs |
+| US-011 | routers/profile.py, services/avatar.py, frontend/src/profile/, frontend/src/messages/ | test_profile_postgres_integration.py, test_avatar_image.py, test_message_styles.py; frontend/tests/style-consent.test.cjs, copy-rotation.test.cjs |
 
-Таблиця тест-кейсів Лаб 7 вище відображає заплановані перевірки й сама по собі не підтверджує їх фактичного виконання. PostgreSQL, міграції й авторизацію перевірено CI; міграцію Neon та основні API-маршрути — онлайн. Пізніше команда окремо підтвердила перезапуск Render, iPhone Safari й блокування через адмінку (звіти 29–30.10.2026). За повідомленням Поліни у PR №205 сценарії КТ2 для US-009/US-010 пройдені; це командне ручне приймання. На точному `develop` `a4a3893` пройшли CI Pipeline, Code Quality і Traceability, зокрема frontend lint/typecheck/web export; повний `npm run test:api` у цих workflow не виконується. Анастасія окремо запустила його 30.10.2026 на оновленому локальному `develop`: 46 tests, 46 passed, 0 failed, 0 skipped (результат її термінального виводу).
-
-Доказ онлайн-перевірки: [звіт Поліни з PR №188](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/0350d6245cbbdc94bc05a09981988617d8831d9c/docs/development/neon-migration-verification.md). Прогін API не замінює браузерну перевірку чи перезапуск Render.
-
-## КТ2: незавершений onboarding після оновлення вкладки
-
-Після реєстрації `AuthProvider` зберігає ідентифікатор акаунта з незавершеним onboarding у `sessionStorage` браузерної вкладки. Незалежно відкриті вкладки не мають спільного стану. Якщо нова вкладка має `opener`, браузер може створити її `sessionStorage` як початкову копію сховища попередньої вкладки; подальші зміни не синхронізуються. Отже, це не гарантія відсутності початкової копії в усіх сценаріях відкриття вкладок. Після повторної перевірки JWT через `/auth/me` цей прапорець відновлюється лише для того самого користувача. Після натискання «Почати», звичайного нового входу або виходу прапорець очищається. Вибір мотивації не передається серверу і не зберігається у PostgreSQL.
-
-Перевірки `frontend/tests/onboarding-session.test.cjs` охоплюють прапорець onboarding для конкретного акаунта, відновлення після reload у вкладці, незалежні вкладки й можливу початкову копію `sessionStorage` за наявності `opener`, а також очищення стану. Після PR №200 обмежено доступ до приватних екранів, доки onboarding не завершено. Поліна повідомила про успішне проходження реєстрації, onboarding після reload та завершення onboarding на iPhone Safari 30.10.2026 (PR №205). Frontend lint, TypeScript і web export пройшли в CI на `a4a3893`; повний `npm run test:api` Анастасія виконала 30.10.2026 на локальному `develop`: 46 passed, 0 failed, 0 skipped.
-
-## КТ2: приватна навігація та відновлення адреси після входу
-
-Для US-009 і US-010 додані перевірки двох сценаріїв: незавершений onboarding не надає доступу до календаря та інших приватних вкладок; пряме посилання на деталі власного запису після входу зберігає внутрішній шлях. Відновлюється тільки `/entry/{record_id}` із додатним числовим ідентифікатором. Серверна перевірка власності запису не змінюється.
-
-Реалізація: `frontend/src/auth/returnEntry.ts`, `frontend/src/auth/AuthProvider.tsx`, `frontend/src/app/index.tsx` та `frontend/src/app/_layout.tsx`. Регресії: `frontend/tests/auth-return-entry.test.cjs`, `auth-expired-entry.test.cjs`, `auth-navigation.test.cjs`, `onboarding-session.test.cjs` і `auth-provider-race.test.cjs`. За ручним звітом Поліни від 30.10.2026 на iPhone Safari відкриття прямого URL, reload і повернення до запису після завершення JWT пройдені (PR №205). Доступ до чужих записів залишається серверною перевіркою JWT та власника; тестовий код не замінює браузерного підтвердження. SHA онлайн-збірки перед фінальним поданням має надати Софія.
-
-
-## КТ2: джерела приймання та фактичний тестовий прогін
-
-Результати ручного приймання після PR №204 повідомила Поліна 30.10.2026: [PR №205](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/205), `docs/validation/calendar-kt2.md`. Командний звіт про розгортання й попередні онлайн-перевірки: `docs/deployment/render-neon.md`. Це різні джерела відомостей: приймання Safari не є логом автоматичних тестів, а успіх GitHub Actions не доводить фактичного перегляду онлайн-сторінки.
-
-30.10.2026 Анастасія виконала `npm ci` та `npm run test:api` на локальному `develop` після `git pull --ff-only origin develop`: **46 tests, 46 pass, 0 fail, 0 skipped**. Результат підтверджений наданим виводом Windows PowerShell, а не GitHub Actions; локальний commit SHA у виводі не вказано. Після злиття завершальних PR слід повторити CI на точному коміті, що піде в `main`. Нових функціональних вимог цей розділ не додає.
+Шляхи backend наведено від backend/app/, тести Python — від tests/. Список визначає покриття сценаріїв, а фактичний результат береться з CI для конкретного SHA. Ручне онлайн-приймання фіксується в тест-плані.

@@ -1,6 +1,6 @@
 @startuml
 !pragma layout smetana
-title Rehab: shared PostgreSQL foundation 0002 (API/UI integration follows)
+title Rehab: PostgreSQL schema 0002_team_foundation
 hide circle
 skinparam linetype ortho
 skinparam dpi 110

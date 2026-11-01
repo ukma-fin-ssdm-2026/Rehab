@@ -1,4 +1,4 @@
-"""KT-B acceptance uses the real app, routers, JWT and PostgreSQL."""
+"""System integration uses the real app, routers, JWT and PostgreSQL."""
 
 import datetime as dt
 

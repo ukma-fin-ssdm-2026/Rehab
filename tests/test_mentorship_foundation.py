@@ -1,4 +1,4 @@
-"""Access helpers are real SQL services; routers/UI arrive after KT-A."""
+"""Access helpers enforce active relationships using real SQL services."""
 
 from importlib import import_module, util
 

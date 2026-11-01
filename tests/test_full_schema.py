@@ -1,4 +1,4 @@
-"""KT-A contracts against isolated PostgreSQL, never a production database."""
+"""Schema contracts against isolated PostgreSQL, never a production database."""
 
 import datetime as dt
 import re

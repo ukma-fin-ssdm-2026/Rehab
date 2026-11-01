@@ -12,7 +12,7 @@ Google Cloud Console (Gmail API увімкнено) і окрема бібліо
    права 600) і НЕ друкуються. Значення переносяться в Render Environment:
    GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, MAIL_FROM.
 
-2. Технічний лист (критерій КТ-А), з тими самими змінними в середовищі:
+2. Технічний лист для перевірки налаштування, з тими самими змінними в середовищі:
     python scripts/authorize_gmail.py test-send --to rehab.support.web@gmail.com
 """
 
