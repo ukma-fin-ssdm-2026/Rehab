@@ -32,7 +32,7 @@ export default function GoalsScreen() {
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.muted}>Завантажуємо цілі...</Text>
         </View>
       )}
@@ -158,14 +158,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 1.5,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -174,14 +174,14 @@ const styles = StyleSheet.create({
     marginTop: -10,
   },
   activeCard: {
-    backgroundColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.hero,
     borderRadius: 22,
     padding: 22,
     gap: 13,
   },
   activeBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#477C66',
+    backgroundColor: theme.colors.hero,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 9,
@@ -189,34 +189,34 @@ const styles = StyleSheet.create({
   activeBadgeText: {
     fontSize: 10,
     letterSpacing: 1,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   activeTitle: {
     fontSize: 26,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   activeDescription: {
     fontSize: 14,
-    color: '#E1F1E7',
+    color: theme.colors.heroMuted,
     lineHeight: 21,
   },
   progressTrack: {
     height: 9,
-    backgroundColor: '#628A78',
+    backgroundColor: theme.colors.progressTrack,
     borderRadius: 8,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.highlight,
     borderRadius: 8,
   },
   progressLabel: {
-    color: '#FFFFFF',
+    color: theme.colors.text,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   successCard: {
     backgroundColor: theme.colors.accent,
@@ -227,17 +227,17 @@ const styles = StyleSheet.create({
   },
   successIcon: {
     fontSize: 36,
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
   },
   successTitle: {
     fontSize: 22,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   goalCard: {
     flexDirection: 'row',
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     padding: 17,
   },
   goalCardActive: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
     borderWidth: 2,
   },
   goalCardCompleted: {
@@ -266,8 +266,8 @@ const styles = StyleSheet.create({
   },
   goalIconText: {
     fontSize: 23,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   goalInfo: {
     flex: 1,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: 17,
-    fontWeight: '800',
+    fontWeight: '400',
     color: theme.colors.text,
   },
   goalDescription: {
@@ -285,14 +285,14 @@ const styles = StyleSheet.create({
   },
   goalStatus: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.muted,
   },
   activeText: {
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   completedText: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
   },
   infoCard: {
     borderRadius: 18,
@@ -302,8 +302,8 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   infoText: {
     fontSize: 14,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   errorBox: {
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 15,
     padding: 16,
     gap: 10,
@@ -329,14 +329,14 @@ const styles = StyleSheet.create({
   errorTitle: {
     color: theme.colors.danger,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   errorText: {
     color: theme.colors.danger,
     fontSize: 14,
   },
   retry: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

@@ -10,7 +10,7 @@ export function BackButton() {
   return <SafeAreaView edges={['top']} style={{backgroundColor:theme.colors.background}}>
     <Pressable accessibilityRole="button" accessibilityLabel="Повернутися на попередню сторінку"
       onPress={()=>goBack(router,user?.role??'user')} style={{paddingHorizontal:24,paddingVertical:12,minHeight:48,alignSelf:'flex-start'}}>
-      <Text style={{fontSize:16,fontWeight:'600',color:theme.colors.primary}}>‹ Назад</Text>
+      <Text style={{fontSize:16,fontWeight: '500',color: theme.colors.highlight}}>‹ Назад</Text>
     </Pressable>
   </SafeAreaView>;
 }

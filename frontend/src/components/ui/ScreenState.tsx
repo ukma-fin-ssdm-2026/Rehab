@@ -10,7 +10,7 @@ type ScreenStateProps = {
 export function ScreenState({ state, message, onRetry }: ScreenStateProps) {
   return (
     <View style={styles.container}>
-      {state === 'loading' && <ActivityIndicator color={theme.colors.primary} />}
+      {state === 'loading' && <ActivityIndicator color={theme.colors.highlight} />}
       <Text style={styles.text}>
         {message ?? (state === 'loading' ? 'Завантаження…' :
           state === 'empty' ? 'Поки немає даних' : 'Не вдалося завантажити дані')}
@@ -24,7 +24,7 @@ export function ScreenState({ state, message, onRetry }: ScreenStateProps) {
   );
 }
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', padding: 24, gap: 12 },
+  container: { backgroundColor: theme.colors.background, alignItems: 'center', padding: 24, gap: 12 },
   text: { color: theme.colors.text, textAlign: 'center' },
-  retry: { color: theme.colors.primary, fontWeight: '700' },
+  retry: { color: theme.colors.highlight, fontWeight: '500' },
 });

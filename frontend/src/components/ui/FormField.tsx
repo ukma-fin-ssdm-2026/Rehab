@@ -20,12 +20,12 @@ export function FormField({
 }
 const styles = StyleSheet.create({
   wrapper: { gap: 6 },
-  label: { fontSize: 14, fontWeight: '700', color: theme.colors.text },
+  label: { fontSize: 14, fontWeight: '500', color: theme.colors.text },
   input: {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 20,
     minHeight: 48,
     paddingHorizontal: 14,
     color: theme.colors.text,

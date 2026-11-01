@@ -1,3 +1,4 @@
+import { LotusMark } from '../../components/visual/LotusMark';
 import { useUnreadMessages } from '../../messages/useMessages';
 import { useProfile } from '../../profile/ProfileProvider';
 import { useMessageText } from '../../messages/useMessageText';
@@ -27,7 +28,7 @@ export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
+        <View style={styles.brandRow}><LotusMark size={26} /><Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text></View>
         <Pressable accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
           <Text style={styles.retryText}>✉{unread.data ? ` ${unread.data.count}` : unread.error ? ' !' : '…'}</Text>
         </Pressable>
@@ -41,7 +42,7 @@ export default function HomeScreen() {
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.muted}>Завантажуємо твою статистику...</Text>
         </View>
       )}
@@ -119,6 +120,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   headerRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
   container: {
     flexGrow: 1,
@@ -129,14 +131,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 2,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 32,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -145,23 +147,23 @@ const styles = StyleSheet.create({
     marginTop: -12,
   },
   hero: {
-    backgroundColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.hero,
     borderRadius: 24,
     padding: 24,
     gap: 8,
   },
   heroLabel: {
     fontSize: 15,
-    color: '#E1F1E7',
+    color: theme.colors.heroMuted,
   },
   heroNumber: {
     fontSize: 52,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   heroCaption: {
     fontSize: 14,
-    color: '#E1F1E7',
+    color: theme.colors.heroMuted,
   },
   grid: {
     flexDirection: 'row',
@@ -178,12 +180,12 @@ const styles = StyleSheet.create({
   },
   cardIcon: {
     fontSize: 24,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   cardNumber: {
     fontSize: 28,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   cardLabel: {
     fontSize: 13,
@@ -199,18 +201,18 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.text,
   },
   goalText: {
   fontSize: 16,
-  fontWeight: '600',
-  color: theme.colors.primary,
+  fontWeight: '500',
+  color: theme.colors.highlight,
   },
   goalNumber: {
     fontSize: 25,
-    fontWeight: '800',
-    color: theme.colors.primary,
+    fontWeight: '400',
+    color: theme.colors.highlight,
   },
   progressTrack: {
     height: 8,
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.highlight,
     borderRadius: 8,
   },
   muted: {
@@ -233,14 +235,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   errorBox: {
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 16,
     padding: 16,
     gap: 10,
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.danger,
   },
   errorText: {
@@ -251,8 +253,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   retryText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
   button: {
     backgroundColor: theme.colors.primary,
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: '500',
+    color: theme.colors.text,
   },
 });

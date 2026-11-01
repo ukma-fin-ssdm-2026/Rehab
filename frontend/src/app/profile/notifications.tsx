@@ -38,8 +38,8 @@ export default function NotificationSettingsScreen() {
         <Switch value={profile.email_reminders_enabled} disabled={saving}
           accessibilityLabel="Дублювати щоденне нагадування на пошту"
           onValueChange={value => { void change(value); }}
-          trackColor={{ true: theme.colors.accent }}
-          thumbColor={theme.colors.primary} />
+          trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+          thumbColor={theme.colors.highlight} />
         <Text style={styles.muted}>Адреса: {profile.email}</Text>
         <Text style={styles.text}>
           Повідомлення в Rehab залишаються незалежно від цього перемикача.

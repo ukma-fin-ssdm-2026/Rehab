@@ -47,9 +47,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   backText: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   card: {
     alignItems: 'center',
@@ -70,12 +70,12 @@ const styles = StyleSheet.create({
   },
   iconText: {
     fontSize: 29,
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
   },
   title: {
     fontSize: 25,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
     textAlign: 'center',
   },
   subtitle: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 11,
     letterSpacing: 1.2,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
 });

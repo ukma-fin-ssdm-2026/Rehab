@@ -119,14 +119,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface, borderColor: theme.colors.border,
     borderWidth: 1, borderRadius: 14, padding: 14, gap: 6,
   },
-  pending: { color: theme.colors.danger, fontWeight: '700' },
+  pending: { color: theme.colors.danger, fontWeight: '500' },
   meta: { color: theme.colors.muted },
-  label: { color: theme.colors.muted, fontWeight: '700', marginTop: 8 },
+  label: { color: theme.colors.muted, fontWeight: '500', marginTop: 8 },
   text: { color: theme.colors.text, fontSize: 16 },
   evidence: { backgroundColor: theme.colors.accent, borderRadius: 10, padding: 10, gap: 4 },
   error: { color: theme.colors.danger },
   actions: { gap: 12 },
   cancel: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  cancelText: { color: theme.colors.primaryDark, fontWeight: '700', fontSize: 16 },
+  cancelText: { color: theme.colors.text, fontWeight: '500', fontSize: 16 },
 });
 // AI-GENERATED END

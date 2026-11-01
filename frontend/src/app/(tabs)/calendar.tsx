@@ -245,7 +245,7 @@ export default function CalendarScreen() {
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.secondary}>Завантаження записів...</Text>
         </View>
       )}
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
+    fontWeight: '500',
+    color: theme.colors.text,
   },
   subtitle: {
     marginTop: 6,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   monthTitle: {
     color: theme.colors.text,
     fontSize: 19,
-    fontWeight: '700',
+    fontWeight: '500',
     textTransform: 'capitalize',
   },
   monthButton: {
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   arrow: {
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
     fontSize: 30,
     lineHeight: 34,
   },
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   weekday: {
     color: theme.colors.muted,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   dayButton: {
     width: '86%',
@@ -354,16 +354,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   soberDay: {
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.hero,
   },
   relapseDay: {
-    backgroundColor: '#F8DADA',
+    backgroundColor: theme.colors.dangerSurface,
   },
   markedDayText: {
-    fontWeight: '700',
+    fontWeight: '500',
   },
   today: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
     borderWidth: 2,
   },
   selectedDay: {
@@ -371,8 +371,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   selectedDayText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '800',
+    color: theme.colors.text,
+    fontWeight: '400',
   },
   todayDot: {
     position: 'absolute',
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.hero,
   },
   legend: {
     flexDirection: 'row',
@@ -421,9 +421,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   selectedDate: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   statusText: {
     color: theme.colors.text,
@@ -437,20 +437,20 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 18,
     borderRadius: 18,
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.hero,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   summaryTitle: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   summaryNumber: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: '400',
   },
   message: {
     alignItems: 'center',
@@ -459,14 +459,14 @@ const styles = StyleSheet.create({
   },
   errorBox: {
     marginTop: 16,
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 12,
     padding: 16,
     gap: 8,
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.danger,
   },
   errorText: {
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   retryText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

@@ -102,6 +102,7 @@ test('private calendar details and onboarding have separate access rules', () =>
       if (name === 'expo-router') return { Stack, usePathname:()=>'/home' };
       if (name === '../components/navigation/BackButton') return {BackButton(){}};
       if (name === '../navigation/back') return {showBack:()=>false};
+      if (name === '../constants/theme') return {theme:{colors:{background:'#141210'}}};
       if (name === '../auth/AuthProvider') {
         return { AuthProvider() {}, useAuth: () => auth };
       }

@@ -1,3 +1,4 @@
+import { BotanicalBackdrop } from '../components/visual/BotanicalBackdrop';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
@@ -38,6 +39,7 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <BotanicalBackdrop />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.content}>
           <Pressable disabled={saving} onPress={() => router.replace('/login')}>
@@ -65,8 +67,8 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: theme.colors.background },
   container: { flexGrow: 1, justifyContent: 'center', padding: 26, gap: 14 },
   content: { width: '100%', maxWidth: 460, alignSelf: 'center', gap: 14 },
-  back: { color: theme.colors.primaryDark, fontWeight: '600' },
-  title: { textAlign: 'center', fontSize: 28, fontWeight: '800', color: theme.colors.primaryDark },
+  back: { color: theme.colors.text, fontWeight: '500' },
+  title: { textAlign: 'center', fontSize: 28, fontWeight: '400', color: theme.colors.text },
   subtitle: { textAlign: 'center', color: theme.colors.muted },
   form: { marginTop: 16, gap: 13 },
   error: { color: theme.colors.danger },

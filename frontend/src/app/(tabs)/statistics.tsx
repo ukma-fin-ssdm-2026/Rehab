@@ -64,7 +64,7 @@ export default function StatisticsScreen() {
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.muted}>Завантаження статистики...</Text>
         </View>
       )}
@@ -163,14 +163,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 1.5,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -198,11 +198,11 @@ const styles = StyleSheet.create({
   periodText: {
     fontSize: 13,
     color: theme.colors.muted,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   periodTextActive: {
-    color: theme.colors.primaryDark,
-    fontWeight: '800',
+    color: theme.colors.text,
+    fontWeight: '400',
   },
   summary: {
     flexDirection: 'row',
@@ -219,8 +219,8 @@ const styles = StyleSheet.create({
   },
   summaryNumber: {
     fontSize: 34,
-    fontWeight: '800',
-    color: theme.colors.primary,
+    fontWeight: '400',
+    color: theme.colors.highlight,
   },
   relapseNumber: {
     color: theme.colors.danger,
@@ -245,8 +245,8 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   muted: {
     fontSize: 13,
@@ -278,13 +278,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   soberBar: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.highlight,
   },
   relapseBar: {
     backgroundColor: theme.colors.danger,
   },
   barValue: {
-    fontWeight: '800',
+    fontWeight: '400',
     color: theme.colors.text,
   },
   barLabel: {
@@ -302,9 +302,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   streakValue: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '400',
   },
   message: {
     alignItems: 'center',
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   errorBox: {
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 15,
     padding: 16,
     gap: 10,
@@ -320,14 +320,14 @@ const styles = StyleSheet.create({
   errorTitle: {
     color: theme.colors.danger,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   errorText: {
     color: theme.colors.danger,
     fontSize: 14,
   },
   retry: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

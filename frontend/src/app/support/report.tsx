@@ -141,9 +141,9 @@ function ReportMentor() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, backgroundColor: theme.colors.background, flexGrow: 1 },
-  title: { color: theme.colors.text, fontSize: 22, fontWeight: '700' },
+  title: { color: theme.colors.text, fontSize: 22, fontWeight: '500' },
   note: { color: theme.colors.muted },
-  label: { color: theme.colors.muted, fontWeight: '700' },
+  label: { color: theme.colors.muted, fontWeight: '500' },
   text: { color: theme.colors.text, fontSize: 16 },
   evidence: { backgroundColor: theme.colors.accent, borderRadius: 12, padding: 12, gap: 6 },
   input: {

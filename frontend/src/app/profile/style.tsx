@@ -51,7 +51,7 @@ export default function MessageStyleScreen() {
             accessibilityState={{ selected: profile.message_style === item.key, disabled: saving }}
             disabled={saving} onPress={() => { if (item.key==='humorous' && profile.message_style!=='humorous') setWarning(true); else void choose(item.key); }}
             style={{ borderWidth: 1, borderColor: profile.message_style === item.key
-              ? theme.colors.primary : theme.colors.border, padding: 14, borderRadius: 12 }}>
+              ? theme.colors.buttonBorder : theme.colors.border, padding: 14, borderRadius: 12 }}>
             <Text style={styles.field}>{item.title} {profile.message_style === item.key ? '✓' : ''}</Text>
             <Text style={styles.muted}>{item.detail}</Text>
           </Pressable>
@@ -60,7 +60,7 @@ export default function MessageStyleScreen() {
         <Button title="Оновити" disabled={saving} onPress={() => { void refreshProfile(); }} />
       </View>
       <Modal visible={warning} transparent animationType="fade" onRequestClose={()=>setWarning(false)}>
-        <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.4)',justifyContent:'center',padding:24}}>
+        <View style={{flex:1,backgroundColor:theme.colors.backdrop,justifyContent:'center',padding:24}}>
           <View accessibilityViewIsModal style={[styles.card,{backgroundColor:theme.colors.background}]}>
             <Text style={styles.title}>Ненормативна лексика</Text>
             <Text style={styles.subtitle}>Гумористичний стиль містить матюки й грубі жарти в автоматичних текстах застосунку та поштових нагадуваннях. Обирай його, лише якщо тобі комфортний такий тон.</Text>

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -128,36 +129,41 @@ export default function ProfileScreen() {
           ['Приватність і доступ', '/profile/privacy'],
           ['Питання та відповіді', '/profile/help'],
         ] as const).map(([title, route]) => (
-          <Pressable key={route} accessibilityRole="button" disabled={!profile || saving}
+          <Pressable key={route} accessibilityRole="button" accessibilityLabel={title} disabled={!profile || saving}
             style={styles.menuItem} onPress={() => router.push(route)}>
-            <Text style={styles.link}>{title}</Text>
+            <View style={styles.menuLabel}>
+              <Ionicons name={route === '/profile/edit' ? 'create-outline' : route === '/profile/password' ? 'lock-closed-outline' : route === '/profile/notifications' ? 'notifications-outline' : route === '/profile/style' ? 'chatbubble-outline' : route === '/profile/privacy' ? 'shield-checkmark-outline' : 'help-circle-outline'} size={22} color={theme.colors.muted} />
+              <Text style={styles.link}>{title}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.colors.muted} />
           </Pressable>
         ))}
       </View>
-      <Button title="Вийти з акаунта" loading={saving} onPress={() => { void handleLogout(); }} />
+      <Button variant="outline" title="Вийти з акаунта" loading={saving} onPress={() => { void handleLogout(); }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: theme.colors.background, padding: 24, gap: 18 },
-  eyebrow: { color: theme.colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 },
-  title: { fontSize: 30, fontWeight: '800', color: theme.colors.primaryDark },
+  eyebrow: { color: theme.colors.highlight, fontSize: 12, fontWeight: '500', letterSpacing: 1.5 },
+  title: { fontSize: 30, fontWeight: '400', color: theme.colors.text },
   card: { alignItems: 'center', gap: 10, borderWidth: 1, borderColor: theme.colors.border,
     borderRadius: 20, backgroundColor: theme.colors.surface, padding: 24 },
   avatar: { width: 70, height: 70, borderRadius: 25, backgroundColor: theme.colors.accent,
     alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: theme.colors.primaryDark, fontSize: 30, fontWeight: '800' },
-  name: { fontSize: 21, color: theme.colors.primaryDark, fontWeight: '800' },
-  nickname: { color: theme.colors.primary },
+  avatarText: { color: theme.colors.text, fontSize: 30, fontWeight: '400' },
+  name: { fontSize: 21, color: theme.colors.text, fontWeight: '400' },
+  nickname: { color: theme.colors.highlight },
   email: { color: theme.colors.text },
   note: { color: theme.colors.muted, lineHeight: 21 },
   error: { color: theme.colors.danger },
   photoActions: { gap: 12 },
   preview: { alignItems: 'center', gap: 12, padding: 12 },
   previewImage: { width: 112, height: 112, borderRadius: 32 },
-  remove: { color: theme.colors.danger, fontWeight: '700' },
-  link: { color: theme.colors.primaryDark, fontWeight: '600' },
+  remove: { color: theme.colors.danger, fontWeight: '500' },
+  link: { color: theme.colors.text, fontWeight: '500' },
   menu: { backgroundColor: theme.colors.surface, borderRadius: 16, padding: 16, gap: 12 },
-  menuItem: { borderBottomWidth: 1, borderBottomColor: theme.colors.border, padding: 8 },
+  menuLabel: { flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderBottomWidth: 1, borderBottomColor: theme.colors.border, padding: 8 },
 });

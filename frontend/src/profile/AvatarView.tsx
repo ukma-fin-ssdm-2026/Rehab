@@ -50,9 +50,9 @@ export function AvatarView({ profile, size = 82 }: { profile: ProfileOut; size?:
           style={{ width: size, height: size }} accessibilityLabel="Фото профілю" />
       ) : (
         <Text style={{
-          color: theme.colors.primaryDark,
+          color: theme.colors.text,
           fontSize: size * 0.4,
-          fontWeight: '800',
+          fontWeight: '400',
         }}>
           {profile.name.charAt(0).toUpperCase() || 'R'}
         </Text>
