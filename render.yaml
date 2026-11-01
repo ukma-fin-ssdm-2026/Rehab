@@ -1,0 +1,39 @@
+# AI-GENERATED START
+# Render Blueprint для безкоштовного (Free) розгортання. Секрети тут НЕ зберігаються:
+# значення з `sync: false` вводяться вручну в панелі Render.
+# Деталі та порядок дій: docs/deployment/render-neon.md
+services:
+  - type: web
+    name: rehab-api
+    runtime: python
+    plan: free
+    rootDir: .
+    buildCommand: python -m pip install -r requirements.txt
+    startCommand: python -m uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL # postgresql+psycopg://…?sslmode=require (Neon), вручну
+        sync: false
+      - key: JWT_SECRET # випадковий, ≥ 32 символи; Render генерує сам
+        generateValue: true
+      - key: CORS_ORIGINS # точна HTTPS-адреса frontend, без / в кінці
+        sync: false
+
+  - type: web
+    name: rehab-web
+    runtime: static # статичні сайти Render безкоштовні, поле plan не підтримують
+    rootDir: frontend
+    buildCommand: npm ci && npm run export:web
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: 22.13.0
+      - key: EXPO_PUBLIC_API_URL # HTTPS-адреса API без /api/v1; після зміни — повторна збірка
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+# AI-GENERATED END

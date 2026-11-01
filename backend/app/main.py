@@ -10,12 +10,31 @@ OpenAPI JSON: http://127.0.0.1:8000/openapi.json
 тому `app` безпечно імпортувати зі скрипта експорту та з CI.
 """
 
+import os
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.app.routers import calendar, goals, statistics
+from backend.app.routers import (
+    admin,
+    auth,
+    complaints,
+    goals,
+    health,
+    jobs,
+    mentorship,
+    notifications,
+    profile,
+    statistics,
+)
+
+# AI-GENERATED START
+# KT-1: календар на PostgreSQL (Поліна) замість in-memory stubs.
+from backend.app.routers import calendar_postgres as calendar
+
+# AI-GENERATED END
 
 API_PREFIX = "/api/v1"
 
@@ -31,18 +50,56 @@ tags_metadata = [
     {
         "name": "Goals",
         "description": (
-            "Цілі тверезості (Goal): цільова кількість днів і прогрес. "
-            "FR-004, FR-005."
+            "Фіксовані етапи тверезості: 7, 30, 90, 180 і 365 днів. " "FR-004, FR-005."
         ),
+    },
+    {
+        "name": "Admin",
+        "description": (
+            "Лише для ролі admin: розгляд скарг, агрегати й анонімна діаграма "
+            "тригерів за 30 днів. Глобального списку акаунтів немає."
+        ),
+    },
+    {
+        "name": "Complaints",
+        "description": "Скарга підопічного на ментора конкретного зв'язку.",
+    },
+    {
+        "name": "Jobs",
+        "description": (
+            "Службовий запуск нагадувань за розкладом; лише з секретом "
+            "X-Job-Token, не для користувачів."
+        ),
+    },
+    {
+        "name": "Health",
+        "description": "Перевірки стану сервісу: /health і /ready.",
     },
     {
         "name": "Statistics",
         "description": (
             "Статистика тверезості: кількість днів, серії "
-            "та автоматичні цілі на 7 і 30 днів."
+            "та автоматичні цілі на 7, 30, 90, 180 і 365 днів."
         ),
     },
 ]
+
+tags_metadata.extend(
+    [
+        {
+            "name": "Profile",
+            "description": "Власний профіль, пароль, фото й налаштування.",
+        },
+        {
+            "name": "Mentorship",
+            "description": "Менторство за кодом; календар і статистика лише для читання.",
+        },
+        {
+            "name": "Notifications",
+            "description": "Приватні повідомлення, нагадування й коментарі підтримки.",
+        },
+    ]
+)
 
 
 app = FastAPI(
@@ -51,20 +108,32 @@ app = FastAPI(
     description=(
         "Code-First API: специфікація OpenAPI генерується автоматично з коду.\n\n"
         "Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). "
-        "У цій версії замість БД використовуються дані-заглушки в пам'яті."
+        "Дані зберігаються в PostgreSQL (Neon у публічній версії)."
     ),
     version="1.0.0",
     openapi_tags=tags_metadata,
 )
 
+
+# AI-GENERATED START
+def cors_origins() -> list[str]:
+    """Локальні адреси для розробки + точні адреси клієнта з CORS_ORIGINS."""
+    local = ["http://localhost:8081", "http://127.0.0.1:8081"]
+    extra = [
+        origin.strip().rstrip("/")
+        for origin in os.getenv("CORS_ORIGINS", "").split(",")
+        if origin.strip() and origin.strip() != "*"
+    ]
+    return [*local, *extra]
+
+
+# AI-GENERATED END
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8081",
-        "http://127.0.0.1:8081",
-    ],
+    allow_origins=cors_origins(),
     allow_credentials=False,
-    allow_methods=["GET", "POST", "PATCH"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
@@ -124,6 +193,19 @@ async def validation_exception_handler(
     )
 
 
+# AI-GENERATED START
+app.include_router(auth.router, prefix=API_PREFIX)
+app.include_router(profile.router, prefix=API_PREFIX)
+app.include_router(mentorship.router, prefix=API_PREFIX)
+app.include_router(notifications.router, prefix=API_PREFIX)
+# AI-GENERATED END
 app.include_router(calendar.router, prefix=API_PREFIX)
 app.include_router(goals.router, prefix=API_PREFIX)
 app.include_router(statistics.router, prefix=API_PREFIX)
+
+# AI-GENERATED START
+app.include_router(health.router)
+app.include_router(admin.router, prefix=API_PREFIX)
+app.include_router(complaints.router, prefix=API_PREFIX)
+app.include_router(jobs.router)
+# AI-GENERATED END

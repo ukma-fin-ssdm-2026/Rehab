@@ -1,13 +1,21 @@
-
 import pytest
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 
 from backend.app.security import (
     CurrentUser,
+    create_access_token,
     get_current_user,
     require_role,
 )
+from backend.app.db.models.user import User
+
+
+@pytest.fixture(autouse=True)
+def jwt_secret(monkeypatch):
+    monkeypatch.setenv(
+        "JWT_SECRET", "security-regression-test-secret-at-least-32-chars"
+    )
 
 
 def credentials(token):
@@ -18,17 +26,24 @@ def credentials(token):
 
 
 @pytest.mark.parametrize(
-    ("token", "user_id", "role"),
-    [
-        ("user-42", 42, "user"),
-        ("mentor-7", 7, "mentor"),
-        ("admin-1", 1, "admin"),
-        ("user-0", 0, "user"),
-    ],
+    "role",
+    ["user", "mentor", "admin"],
 )
-def test_valid_tokens(token, user_id, role):
-    user = get_current_user(credentials(token))
+def test_valid_tokens(role, registered_users, calendar_db):
+    user_id = registered_users[0][0]["user_id"]
+    account = calendar_db.get(User, user_id)
+    account.role = role
+    calendar_db.commit()
+    token = create_access_token(user_id, account.token_version)
+    user = get_current_user(credentials(token), db=calendar_db)
     assert user == CurrentUser(user_id=user_id, role=role)
+
+
+def test_zero_subject_is_rejected(calendar_db):
+    token = create_access_token(0, 0)
+    with pytest.raises(HTTPException) as error:
+        get_current_user(credentials(token), db=calendar_db)
+    assert error.value.status_code == 401
 
 
 @pytest.mark.parametrize(
@@ -42,9 +57,9 @@ def test_valid_tokens(token, user_id, role):
         "user-42-extra",
     ],
 )
-def test_invalid_tokens(token):
+def test_invalid_tokens(token, calendar_db):
     with pytest.raises(HTTPException) as error:
-        get_current_user(credentials(token))
+        get_current_user(credentials(token), db=calendar_db)
     assert error.value.status_code == 401
 
 

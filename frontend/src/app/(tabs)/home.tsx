@@ -1,5 +1,6 @@
-
-import { useCallback, useEffect, useState } from 'react';
+import { useUnreadMessages } from '../../messages/useMessages';
+import { useProfile } from '../../profile/ProfileProvider';
+import { useMessageText } from '../../messages/useMessageText';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,63 +9,35 @@ import {
   Text,
   View,
 } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
-import { getStatisticsUrl } from '../../config/api';
+import { router } from 'expo-router';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
-
-type Statistics = {
-  total_sober_days: number;
-  current_streak: number;
-  longest_streak: number;
-  active_goal_days: number | null;
-  goal_progress_days: number;
-};
+import { FIXED_GOAL_DAYS, GOAL_LABELS } from '../../constants/goals';
 
 export default function HomeScreen() {
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadStatistics = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(getStatisticsUrl('all'), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити статистику',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadStatistics();
-  }, [loadStatistics]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadStatistics();
-    }, [loadStatistics]),
-  );
+  const messageText=useMessageText();
+  const unread = useUnreadMessages();
+  const { profile } = useProfile();
+  const motivation = profile ? messageText('home.motivation', profile.message_style).body : '';
+  const { data, loading, error, reload: loadStatistics } = useProgressStatistics();
+  const completedGoals = data?.completed_goal_days ?? [];
+  const activeGoal = FIXED_GOAL_DAYS.find(days => !completedGoals.includes(days)) ?? null;
+  const goalProgress = activeGoal === null ? 0 : Math.min(data?.current_streak ?? 0, activeGoal);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
-      <Text style={styles.title}>Привіт!</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
+          <Text style={styles.retryText}>✉{unread.data ? ` ${unread.data.count}` : unread.error ? ' !' : '…'}</Text>
+        </Pressable>
+      </View>
+      <Text style={styles.title}>{profile && profile.message_style !== 'formal' ? messageText('home.motivation',profile.message_style).title : 'Привіт!'}</Text>
       <Text style={styles.subtitle}>
-        Кожен день — це твій власний крок уперед.
+        {motivation}
       </Text>
+
+      <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
 
       {loading && (
         <View style={styles.message}>
@@ -73,7 +46,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {error && (
+      {!!error && (
         <View style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити дані</Text>
           <Text style={styles.errorText}>{error}</Text>
@@ -105,16 +78,16 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.goalCard}>
-            <Text style={styles.goalTitle}>Твоя поточна ціль</Text>
-            {data.active_goal_days == null ? (
-              <Text style={styles.goalText}>Усі цілі виконано!</Text>
+            <Text style={styles.goalTitle}>Твій поточний етап</Text>
+            {activeGoal === null ? (
+              <Text style={styles.goalText}>Усі етапи виконано!</Text>
             ) : (
               <>
                 <Text style={styles.goalNumber}>
-                  {data.active_goal_days} днів
+                  {GOAL_LABELS[activeGoal]}
                 </Text>
                 <Text style={styles.muted}>
-                  Прогрес: {data.goal_progress_days} із {data.active_goal_days}
+                  Прогрес: {goalProgress} із {activeGoal}
                 </Text>
                 <View style={styles.progressTrack}>
                   <View
@@ -123,7 +96,7 @@ export default function HomeScreen() {
                       {
                         width: `${Math.min(
                           100,
-                          (data.goal_progress_days / data.active_goal_days) * 100,
+                          (goalProgress / activeGoal) * 100,
                         )}%`,
                       },
                     ]}
@@ -146,6 +119,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
   container: {
     flexGrow: 1,
     backgroundColor: theme.colors.background,

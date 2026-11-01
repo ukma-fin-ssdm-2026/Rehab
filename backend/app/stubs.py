@@ -4,41 +4,32 @@
   - початок відстеження: 6 днів тому
   - запис №1: створений 5 днів тому, редагувати вже не можна (FR-008 -> 403)
   - запис №2: створений годину тому, редагувати можна
-  - ціль №1: 30 днів
 """
 
 import datetime as dt
 from itertools import count
 
-from backend.app.models import DayStatus, EntryOut, GoalOut, TriggerCategory
+from backend.app.models import DayStatus, EntryOut, TriggerCategory
 
 entries: dict[int, EntryOut] = {}
-goals: dict[int, GoalOut] = {}
 tracking_start_dates: dict[int, dt.date] = {}
 
 _entry_ids = count(1)
-_goal_ids = count(1)
 
 
 def next_entry_id() -> int:
     return next(_entry_ids)
 
 
-def next_goal_id() -> int:
-    return next(_goal_ids)
-
-
 def reset() -> None:
     """Скидає сховище до стартових даних (використовується в тестах)."""
 
-    global _entry_ids, _goal_ids
+    global _entry_ids
 
     entries.clear()
-    goals.clear()
     tracking_start_dates.clear()
 
     _entry_ids = count(1)
-    _goal_ids = count(1)
 
     now = dt.datetime.now(dt.timezone.utc)
     today = dt.date.today()
@@ -64,14 +55,6 @@ def reset() -> None:
         ),
     ):
         entries[rec.record_id] = rec
-
-    goal = GoalOut(
-        goal_id=next_goal_id(),
-        user_id=42,
-        target_days=30,
-        is_achieved=False,
-    )
-    goals[goal.goal_id] = goal
 
 
 reset()

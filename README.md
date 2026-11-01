@@ -4,7 +4,7 @@
 
 **Rehab** — застосунок для відстеження тверезості, аналізу особистого прогресу та підтримки користувачів на шляху до здоровіших звичок.
 
-Мета проєкту — створити зручний та інтуїтивно зрозумілий інструмент, який допомагає користувачам відстежувати дні без вживання алкоголю, вести календар, аналізувати статистику та контролювати особисті цілі.
+Мета проєкту — створити зручний та інтуїтивно зрозумілий інструмент, який допомагає користувачам відстежувати дні без вживання алкоголю, вести календар, аналізувати статистику та відстежувати фіксовані етапи тверезості.
 
 Проєкт розробляється командою студенток НаУКМА в межах курсу **«Методи розробки програмних систем» (SSDM 2026)**.
 
@@ -42,17 +42,32 @@
 - **Головний екран:** перегляд узагальнених показників користувача.
 - **Навігація:** перехід між основними розділами застосунку.
 
-### Обмеження поточного MVP
+### Інтегровані модулі
 
-Rehab перебуває на етапі прототипування та не є завершеною production-системою.
+Поточне розгортання за звітом Софії від 01.11.2026:
 
-- Вхід, реєстрація та onboarding реалізовані як демонстраційні користувацькі сценарії.
-- Backend використовує демонстраційні токени замість повноцінної автентифікації користувачів.
-- Зберігання даних здійснюється через тимчасове in-memory сховище; після перезапуску сервера дані можуть втрачатися.
-- Частина екранів профілю, налаштувань і підтримки представлена UI-заглушками.
-- Повноцінна система адміністрування, чати, push-повідомлення та інтеграції з пристроями не входять до підтвердженої функціональності поточного прототипу.
+| Сервіс | Коміт | Час Europe/Kyiv |
+|---|---|---|
+| [Frontend](https://rehab-web-b9d5.onrender.com) | [0ab8f53](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/0ab8f53), PR №224 | 31.10.2026 22:24 |
+| [Backend](https://rehab-api-0na0.onrender.com) | [f9110bc](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/f9110bc), PR №225 | 01.11.2026 13:17 |
 
-Детальніший опис інтеграції, реалізованих сценаріїв та обмежень наведено в [PROGRESS.md](PROGRESS.md).
+Frontend після №225 не перезбирався: frontend/ у цьому PR не змінювався. Neon оновлено до 0002_team_foundation 31.10.2026. Джерела, перевірки й непідтверджені сценарії — [інструкція розгортання](docs/deployment/render-neon.md).
+
+Реєстрація й вхід використовують Argon2/JWT; дані зберігаються в PostgreSQL.
+Доступні профіль із фото/паролем/налаштуваннями, менторство за постійним кодом,
+читання даних підопічного, приватні повідомлення й коментарі підтримки.
+Скарги розглядаються в адмінці; схвалення закриває конкретну пару, без глобального
+блокування акаунта. Фіксовані етапи: 7/30/90/180/365 днів.
+
+Календар, перерахунок прогресу й перша подія зриву зберігаються разом.
+Відсутність запису означає тверезий день. Нагадування створюються після 20:00
+Europe/Kyiv; email-копія лише за opt-in. За звітом Софії, Gmail OAuth налаштовано й два технічні листи отримано.
+Job на Render, лист саме від job та автоматичний розклад ще не перевірені;
+деталі й джерела — в інструкції розгортання.
+
+Сценарії приймання — [тест-план](docs/validation/test-plan.md).
+Онлайн-приймання та iPhone перевіряються після узгодженого розгортання.
+Інструкція запуску — [setup_and_run.md](setup_and_run.md).
 
 ## 3. Технологічний стек та архітектура
 
@@ -61,9 +76,9 @@ Rehab перебуває на етапі прототипування та не 
 | Backend | Python, FastAPI, Pydantic |
 | Frontend | React Native, Expo, TypeScript |
 | API | REST, HTTP, OpenAPI, Swagger UI |
-| Зберігання даних | In-memory storage (поточний MVP) |
+| Зберігання даних | PostgreSQL, SQLAlchemy, Alembic |
 | Тестування Backend | pytest |
-| Перевірка Frontend | TypeScript |
+| Перевірка Frontend | Node tests, TypeScript, ESLint, Expo web export |
 | Якість коду | Black, Flake8, статичний аналіз |
 | CI/CD | GitHub Actions |
 | Документація | Markdown, UML, ADR, OpenAPI |
@@ -86,14 +101,14 @@ Backend (FastAPI)
     +-- Data Models
     |
     v
-In-memory Storage
+PostgreSQL (Neon онлайн, Docker локально)
 ```
 
 Frontend відповідає за інтерфейс, навігацію та взаємодію з користувачем.
 
 Backend обробляє HTTP-запити, перевіряє дані, реалізує бізнес-логіку та надає API для роботи з календарем, цілями й статистикою.
 
-Поточна реалізація використовує in-memory storage, тоді як архітектурна документація також розглядає подальший розвиток системи зі сталою базою даних.
+Основний FastAPI використовує PostgreSQL. Історичні модулі прототипу не підключені як робоче сховище.
 
 Деталі описані в [High-Level Design](docs/architecture/high-level-design.md).
 
@@ -106,7 +121,11 @@ Rehab/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml
-│       └── docs.yml
+│       ├── code-quality.yml
+│       ├── dependency-audit.yml
+│       ├── docs.yml
+│       ├── reminders.yml
+│       └── traceability.yml
 │
 ├── backend/
 │   └── app/
@@ -114,7 +133,7 @@ Rehab/
 │       ├── routers/
 │       ├── services/
 │       ├── models.py
-│       └── stubs.py
+│       └── db/                 # ORM і підключення PostgreSQL
 │
 ├── frontend/
 │   ├── src/
@@ -164,7 +183,6 @@ Rehab/
 ├── requirements.txt
 ├── Project-Description.md
 ├── TeamCharter.md
-├── PROGRESS.md
 ├── setup_and_run.md
 ├── README.md
 └── .gitignore
@@ -270,7 +288,7 @@ http://127.0.0.1:8000/docs
 ```powershell
 git clone https://github.com/ukma-fin-ssdm-2026/Rehab.git
 cd Rehab
-git switch main
+git switch develop
 ```
 
 ### 9.2. Запуск Backend
@@ -281,6 +299,9 @@ git switch main
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+# Перед запуском налаштувати .env за setup_and_run.md
+docker compose up -d postgres-dev
+python -m alembic upgrade head
 python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -325,13 +346,13 @@ http://localhost:8081
 Основний демонстраційний сценарій охоплює:
 
 1. Відкриття Rehab у браузері.
-2. Проходження демонстраційного входу.
+2. Реєстрацію та вхід у тестовий акаунт.
 3. Створення запису в календарі.
 4. Перегляд збереженого запису.
 5. Перевірку статистики та прогресу цілей.
 6. Навігацію між основними екранами.
 
-Для захищених API-запитів у прототипі використовується демонстраційний Bearer-токен `user-42`.
+Для захищених API-запитів використовується справжній JWT після `/api/v1/auth/login`; демонстраційні токени не приймаються.
 
 Детальні запити, приклади JSON, типові проблеми та опис сценаріїв доступні у [setup_and_run.md](setup_and_run.md).
 
@@ -341,7 +362,7 @@ http://localhost:8081
 
 ### Основні артефакти
 
-- [Progress Report](docs/code-quality/progress.md) — опис реалізованих компонентів, перевірок та стану розробки.
+- [Progress Report](docs/code-quality/progress.md) — історичний звіт Lab 05; чинний стан наведено вище.
 - [Static Analysis](docs/code-quality/static-analysis.md) — результати статичного аналізу коду та перевірок безпеки.
 - [Code Review](docs/code-quality/review-report.md) — результати огляду коду та рекомендації.
 - [Team Charter](TeamCharter.md) — домовленості щодо стандартів розробки, перегляду коду та Definition of Done.
@@ -367,6 +388,7 @@ http://localhost:8081
 Із кореня `Rehab/`, після встановлення Python-залежностей:
 
 ```powershell
+# Спочатку налаштувати окремий TEST_DATABASE_URL за setup_and_run.md
 python -m pytest -q
 ```
 
@@ -375,7 +397,10 @@ python -m pytest -q
 Із каталогу `frontend/`:
 
 ```powershell
-npx tsc --noEmit
+npm run test:api
+npm run typecheck
+npm run lint
+npm run export:web
 ```
 
 Тестова документація описує стратегію перевірок, процес налагодження та взаємозв'язок тестування з вимогами системи.
@@ -397,8 +422,8 @@ npx tsc --noEmit
 
 ### Документація інтегрованого прототипу
 
-- [PROGRESS.md](PROGRESS.md) — прогрес розробки, інтеграція Backend і Frontend, реалізовані можливості та обмеження.
 - [setup_and_run.md](setup_and_run.md) — встановлення залежностей, запуск застосунку та перевірка роботи.
+- <!-- AI-GENERATED START -->[docs/deployment/render-neon.md](docs/deployment/render-neon.md) — онлайн-розгортання (Render + Neon): сайт https://rehab-web-b9d5.onrender.com, API https://rehab-api-0na0.onrender.com; порядок підтвердження розгортання — розділ 6. Демоакаунти створює `python -m scripts.seed_demo`, облікові дані передаються викладачу окремо, не в репозиторії. Безкоштовний Render засинає: перше відкриття може тривати до хвилини<!-- AI-GENERATED END -->
 - [Labs/](Labs/) — матеріали лабораторних робіт і демонстраційні відео.
 
 ## 13. CI/CD та доступні ресурси
@@ -431,3 +456,22 @@ npx tsc --noEmit
 Основою README є матеріали, вимоги, архітектурні рішення та реалізація, створені учасницями команди Rehab. Використання ШІ доповнює роботу команди, але не замінює технічний аналіз, Code Review, тестування та перевірку коректності інформації.
 
 Відповідальність за технічні рішення, перевірку результатів і кінцеву якість документації залишається за командою Rehab.
+
+## Приймання та повний покажчик документації
+
+Офіційні критерії: [проміжне оцінювання](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html). Конкретні зауваження до Rehab: [№216](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/216), [Lab 7 №215](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/215). Посилання є джерелами вимог до оформлення, а не твердженням про вже виставлену фінальну оцінку.
+
+- [Тест-план і статуси кейсів](docs/validation/test-plan.md), [журнал взаємного огляду](docs/validation/review-log.md), [історія валідатора простежуваності](docs/validation/traceability-check.md).
+- [Мутаційне тестування](docs/testing/mutation-testing.md), [рекомендації щодо якості тестів](docs/testing/test-quality-recommendations.md).
+- [ADR-001](docs/architecture/decisions/ADR-001.md), [ADR-002](docs/architecture/decisions/ADR-002.md), [джерело ER-моделі](docs/architecture/uml/implemented-data-model.puml).
+- [Локальна PostgreSQL](docs/development/postgres-local.md), [онлайн-розгортання й Gmail](docs/deployment/render-neon.md).
+- Workflows: [CI](.github/workflows/ci.yml), [якість коду](.github/workflows/code-quality.yml), [залежності](.github/workflows/dependency-audit.yml), [API Pages](.github/workflows/docs.yml), [простежуваність](.github/workflows/traceability.yml), [нагадування](.github/workflows/reminders.yml).
+- Лабораторні відео: [Lab01](Labs/Lab01/), [Lab02](Labs/Lab02/), [Lab03](Labs/Lab03/), [Lab04](Labs/Lab04/), [Lab05](Labs/Lab05/), [Lab06](Labs/Lab06/), [Lab07](Labs/Lab07/).
+
+Відео Анастасії за Lab02 синхронізоване з уже наявного main (PR №218), без зміни посилання. Для Lab01–06 є файли з посиланнями всіх чотирьох учасниць; наявність файлу не означає перевірку доступності чи перегляд відео. У Lab07 немає файлу Софії, а спільне фінальне демо ще не надане.
+
+Командне фінальне відео 4–5 хвилин ще не надане: після запису потрібне справжнє посилання у Labs/midterm-presentation.txt. Порожній файл або вигадане посилання не створюється. Офіційні критерії допускають робочий публічний deployment замість відео; командний план додатково передбачає спільне демо. Паролі демоакаунтів передаються викладачу окремо.
+
+## Використання ШІ — оновлення документації
+
+Codex (OpenAI) використано для перевірки актуальності тексту, посилань і джерел результатів. Агент прочитав відповідні файли й зауваження викладача, звірив локальні посилання та узгодженість requirements/test-plan/RTM; результати запусків зазначаються окремо з датою. Історичні результати не видаються за нові, людський взаємний огляд та ручне онлайн-приймання цим записом не підтверджуються. Команда переглядає зміни в PR перед злиттям. Джерела правил: [критерії курсу](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html).
