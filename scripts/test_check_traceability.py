@@ -33,6 +33,10 @@ class TraceabilityValidatorTests(unittest.TestCase):
     def test_matching_requirements_plan_and_rtm_pass(self):
         self.assertEqual(validate(REQUIREMENTS, PLAN, RTM), [])
 
+    def test_plan_with_status_column_preserves_requirement_links(self):
+        with_status = PLAN.replace("| Учасник |", "| Заплановано | Учасник |")
+        self.assertEqual(validate(REQUIREMENTS, with_status, RTM), [])
+
     def test_missing_case_in_rtm_is_reported(self):
         broken = RTM.replace("FR-002 | №2", "FR-002 | №999")
         errors = validate(REQUIREMENTS, PLAN, broken)

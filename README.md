@@ -44,6 +44,15 @@
 
 ### Інтегровані модулі
 
+Поточне розгортання за звітом Софії від 01.11.2026:
+
+| Сервіс | Коміт | Час Europe/Kyiv |
+|---|---|---|
+| [Frontend](https://rehab-web-b9d5.onrender.com) | [0ab8f53](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/0ab8f53), PR №224 | 31.10.2026 22:24 |
+| [Backend](https://rehab-api-0na0.onrender.com) | [f9110bc](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/f9110bc), PR №225 | 01.11.2026 13:17 |
+
+Frontend після №225 не перезбирався: frontend/ у цьому PR не змінювався. Neon оновлено до 0002_team_foundation 31.10.2026. Джерела, перевірки й непідтверджені сценарії — [інструкція розгортання](docs/deployment/render-neon.md).
+
 Реєстрація й вхід використовують Argon2/JWT; дані зберігаються в PostgreSQL.
 Доступні профіль із фото/паролем/налаштуваннями, менторство за постійним кодом,
 читання даних підопічного, приватні повідомлення й коментарі підтримки.
@@ -52,8 +61,9 @@
 
 Календар, перерахунок прогресу й перша подія зриву зберігаються разом.
 Відсутність запису означає тверезий день. Нагадування створюються після 20:00
-Europe/Kyiv; email-копія лише за opt-in. OAuth Gmail і реальне надсилання
-потрібно налаштувати окремо; вони не підтверджуються тестовим sender.
+Europe/Kyiv; email-копія лише за opt-in. За звітом Софії, Gmail OAuth налаштовано й два технічні листи отримано.
+Job на Render, лист саме від job та автоматичний розклад ще не перевірені;
+деталі й джерела — в інструкції розгортання.
 
 Сценарії приймання — [тест-план](docs/validation/test-plan.md).
 Онлайн-приймання та iPhone перевіряються після узгодженого розгортання.
@@ -111,7 +121,11 @@ Rehab/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml
-│       └── docs.yml
+│       ├── code-quality.yml
+│       ├── dependency-audit.yml
+│       ├── docs.yml
+│       ├── reminders.yml
+│       └── traceability.yml
 │
 ├── backend/
 │   └── app/
@@ -348,7 +362,7 @@ http://localhost:8081
 
 ### Основні артефакти
 
-- [Progress Report](docs/code-quality/progress.md) — опис реалізованих компонентів, перевірок та стану розробки.
+- [Progress Report](docs/code-quality/progress.md) — історичний звіт Lab 05; чинний стан наведено вище.
 - [Static Analysis](docs/code-quality/static-analysis.md) — результати статичного аналізу коду та перевірок безпеки.
 - [Code Review](docs/code-quality/review-report.md) — результати огляду коду та рекомендації.
 - [Team Charter](TeamCharter.md) — домовленості щодо стандартів розробки, перегляду коду та Definition of Done.
@@ -442,3 +456,22 @@ npm run export:web
 Основою README є матеріали, вимоги, архітектурні рішення та реалізація, створені учасницями команди Rehab. Використання ШІ доповнює роботу команди, але не замінює технічний аналіз, Code Review, тестування та перевірку коректності інформації.
 
 Відповідальність за технічні рішення, перевірку результатів і кінцеву якість документації залишається за командою Rehab.
+
+## Приймання та повний покажчик документації
+
+Офіційні критерії: [проміжне оцінювання](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html). Конкретні зауваження до Rehab: [№216](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/216), [Lab 7 №215](https://github.com/ukma-fin-ssdm-2026/Rehab/issues/215). Посилання є джерелами вимог до оформлення, а не твердженням про вже виставлену фінальну оцінку.
+
+- [Тест-план і статуси кейсів](docs/validation/test-plan.md), [журнал взаємного огляду](docs/validation/review-log.md), [історія валідатора простежуваності](docs/validation/traceability-check.md).
+- [Мутаційне тестування](docs/testing/mutation-testing.md), [рекомендації щодо якості тестів](docs/testing/test-quality-recommendations.md).
+- [ADR-001](docs/architecture/decisions/ADR-001.md), [ADR-002](docs/architecture/decisions/ADR-002.md), [джерело ER-моделі](docs/architecture/uml/implemented-data-model.puml).
+- [Локальна PostgreSQL](docs/development/postgres-local.md), [онлайн-розгортання й Gmail](docs/deployment/render-neon.md).
+- Workflows: [CI](.github/workflows/ci.yml), [якість коду](.github/workflows/code-quality.yml), [залежності](.github/workflows/dependency-audit.yml), [API Pages](.github/workflows/docs.yml), [простежуваність](.github/workflows/traceability.yml), [нагадування](.github/workflows/reminders.yml).
+- Лабораторні відео: [Lab01](Labs/Lab01/), [Lab02](Labs/Lab02/), [Lab03](Labs/Lab03/), [Lab04](Labs/Lab04/), [Lab05](Labs/Lab05/), [Lab06](Labs/Lab06/), [Lab07](Labs/Lab07/).
+
+Відео Анастасії за Lab02 синхронізоване з уже наявного main (PR №218), без зміни посилання. Для Lab01–06 є файли з посиланнями всіх чотирьох учасниць; наявність файлу не означає перевірку доступності чи перегляд відео. У Lab07 немає файлу Софії, а спільне фінальне демо ще не надане.
+
+Командне фінальне відео 4–5 хвилин ще не надане: після запису потрібне справжнє посилання у Labs/midterm-presentation.txt. Порожній файл або вигадане посилання не створюється. Офіційні критерії допускають робочий публічний deployment замість відео; командний план додатково передбачає спільне демо. Паролі демоакаунтів передаються викладачу окремо.
+
+## Використання ШІ — оновлення документації
+
+Codex (OpenAI) використано для перевірки актуальності тексту, посилань і джерел результатів. Агент прочитав відповідні файли й зауваження викладача, звірив локальні посилання та узгодженість requirements/test-plan/RTM; результати запусків зазначаються окремо з датою. Історичні результати не видаються за нові, людський взаємний огляд та ручне онлайн-приймання цим записом не підтверджуються. Команда переглядає зміни в PR перед злиттям. Джерела правил: [критерії курсу](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html).

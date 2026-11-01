@@ -89,6 +89,10 @@ Pytest очищає тільки захищену тестову БД. Не за
 
 ## 5. Нагадування, пошта й онлайн
 
+Стан онлайн-середовища за звітом Софії від 01.11.2026: backend f9110bc (01.11 13:17 Kyiv), frontend 0ab8f53 (31.10 22:24 Kyiv); Neon оновлено до 0002_team_foundation 31.10 після створення backup-before-0002. Це опис наявного середовища, а не команда повторно застосовувати міграцію чи створювати нову БД.
+
+Gmail OAuth налаштовано 30.10, два технічні test-send листи отримано, включно з оновленням access token. OAuth-ключі та REMINDERS_JOB_TOKEN внесено в Render. Повторне налаштування пошти лише заради документації не потрібне. Локальний job із записувачем замість Gmail перевірено 31.10 о 20:04 Kyiv на 3caf564. Job на Render і лист саме від нього ще не перевірені. GitHub secrets для таймера ще не додані; автоматичний розклад — після погодженого main. Збереження після перезапуску нового API також залишається неперевіреним. Повний звіт і походження доказів — в інструкції розгортання нижче.
+
 POST `/internal/jobs/reminders` захищений окремим `REMINDERS_JOB_TOKEN`.
 Створення повідомлень і поштової черги працює без Gmail; реальна відправка потребує
 OAuth для `rehab.support.web@gmail.com`. Деталі, env і ручний запуск:
@@ -97,3 +101,27 @@ OAuth для `rehab.support.web@gmail.com`. Деталі, env і ручний з
 Розклад Actions виконується лише з default branch. До фінального main перевіряйте
 endpoint вручну через `scripts/run_reminders_job.py`; не переносіть продукт у main
 лише заради таймера. Render/Neon та iPhone — окреме онлайн-приймання.
+
+## macOS / Linux
+
+Після clone і переходу на develop:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
+# Заповнити різні dev/test URL і секрети, як описано вище.
+docker compose up -d postgres-dev postgres-test
+python -m alembic upgrade head
+python -m alembic -x test_db=true upgrade head
+python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+У другому терміналі frontend: npm ci, EXPO_PUBLIC_API_URL у .env.local та npm run web. Команди Python у цій інструкції для PowerShell через .venv/Scripts/python.exe на macOS/Linux виконуються як python з активованим середовищем. Наявність команд не означає, що цю версію вже вручну перевірено на macOS/Linux.
+
+Типові проблеми: /ready=503 — перевірити Docker, URL і міграцію без публікації секретів; CORS — точний origin із портом; 401 — новий вхід замість demo-токена; відсутній TEST_DATABASE_URL — підготувати окрему test-БД; перше онлайн-відкриття після простою потребує очікування холодного старту.
+
+## Використання ШІ — оновлення документації
+
+Codex (OpenAI) використано для перевірки актуальності тексту, посилань і джерел результатів. Агент прочитав відповідні файли й зауваження викладача, звірив локальні посилання та узгодженість requirements/test-plan/RTM; результати запусків зазначаються окремо з датою. Історичні результати не видаються за нові, людський взаємний огляд та ручне онлайн-приймання цим записом не підтверджуються. Команда переглядає зміни в PR перед злиттям. Джерела правил: [критерії курсу](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html).
