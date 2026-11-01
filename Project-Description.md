@@ -17,7 +17,7 @@ Rehab допомагає вести календар тверезості, ба�
 
 Expo Web / React Native / TypeScript, FastAPI / Python 3.12, SQLAlchemy / psycopg / Alembic і PostgreSQL. Frontend — Render Static Site, API — Render Free, онлайн-БД — Neon Free. Локальні dev/test бази відокремлені; дані та фото зберігаються в PostgreSQL.
 
-Запуск описано в [setup_and_run.md](setup_and_run.md), вимоги — у [requirements.md](docs/requirements/requirements.md), приймання — у [test-plan.md](docs/validation/test-plan.md). Мобільне приймання проводиться на iPhone у Safari; підтримку Android не позначено перевіреною.
+Запуск описано в [setup_and_run.md](setup_and_run.md), вимоги — у [requirements.md](docs/requirements/requirements.md), приймання — у [test-plan.md](docs/validation/test-plan.md). Мобільне приймання проводиться на iPhone у Safari; Android поза погодженим мобільним прийманням.
 
 ## Критерії приймання
 
