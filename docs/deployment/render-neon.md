@@ -137,6 +137,24 @@ ubuntu-latest і concurrency. Schedule запрацює з default branch піс
 Фактичний запуск може затримуватися. Завислий/невизначений лист → unknown,
 без сліпого повтору. Вимкнення пошти або явний запис скасовують ще не надіслану копію.
 
+## Незалежна перевірка відкритих даних — 01.11.2026
+
+Перевірив агент із цього ноутбука, окремо від ручного звіту Марії. Дані отримано близько 14:02 Europe/Kyiv; облікові записи, налаштування й онлайн-дані не змінювалися.
+
+| Об’єкт | Фактичний результат |
+|---|---|
+| [API /health](https://rehab-api-0na0.onrender.com/health) | HTTP 200, status=ok |
+| [API /ready](https://rehab-api-0na0.onrender.com/ready) | HTTP 200, status=ok, database=ok; це підтверджує доступність БД, не Alembic revision |
+| [Публічна OpenAPI](https://rehab-api-0na0.onrender.com/openapi.json) | HTTP 200, 33 шляхи; весь JSON структурно збігається з docs/api/openapi-generated.yaml поточного develop |
+| [Frontend](https://rehab-web-b9d5.onrender.com) | HTTP 200; Last-Modified 31.10.2026 20:24:40 UTC |
+| Останній Render API deployment у GitHub | [7472219996](https://api.github.com/repos/ukma-fin-ssdm-2026/Rehab/deployments/7472219996/statuses): success 01.11.2026 11:17:28 UTC (13:17:28 Kyiv), dep-dbjhusnavr4c73c2p1rg |
+| Останній Render frontend deployment у GitHub | [7463935060](https://api.github.com/repos/ukma-fin-ssdm-2026/Rehab/deployments/7463935060/statuses): success 31.10.2026 20:24:40 UTC (22:24:40 Kyiv), dep-dbj4sjrm8hqs73fek7tg |
+| SHA в GitHub deployment metadata | Обидва записи називають e09aefe48e867078155ac5205028cc7473845230, ref codex/midterm-admin-deploy-sofiia. Це старий документаційний коміт 29.10, тоді як онлайн OpenAPI збігається з новим develop. Метадані не використовуються як доведений SHA фактично зібраного коду |
+| GitHub reminder schedule | У поточному main b1eab19 немає .github/workflows/reminders.yml; [перелік workflows](https://api.github.com/repos/ukma-fin-ssdm-2026/Rehab/actions/workflows) містить лише CI, Code Quality, Dependency Audit, Publish API docs і Lab07 Traceability. Запит історії reminders.yml повертає 404. Розклад через описаний GitHub workflow ще не активний; можливий сторонній планувальник не перевірено |
+| Render / Neon dashboard | Обидві панелі показують вхід; авторизованої сесії на цьому ноутбуці немає. Проєктний .env також відсутній; пряме читання онлайн-БД неможливе |
+
+Не підтверджено: фактичний build SHA API/frontend у Render, Alembic revision онлайн-БД, збереження після керованого перезапуску API, наявність Gmail OAuth у середовищі Render та отримання реального листа. Для цього потрібні авторизовані панелі/командний доступ, а не висновок із /ready або успіху тестів. Перезапуск і надсилання листів не виконувалися.
+
 ## Використання ШІ — оновлення документації
 
 Codex (OpenAI) використано для перевірки актуальності тексту, посилань і джерел результатів. Агент прочитав відповідні файли й зауваження викладача, звірив локальні посилання та узгодженість requirements/test-plan/RTM; результати запусків зазначаються окремо з датою. Історичні результати не видаються за нові, людський взаємний огляд та ручне онлайн-приймання цим записом не підтверджуються. Команда переглядає зміни в PR перед злиттям. Джерела правил: [критерії курсу](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html).
