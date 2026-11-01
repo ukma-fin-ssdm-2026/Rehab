@@ -131,3 +131,14 @@ test('entry details do not fall back to black text', () => {
   assert.equal((detail.match(/style=\{styles\.detailValue\}/g) ?? []).length, 6);
   assert.doesNotMatch(detail, /<Text\b(?![^>]*\bstyle=)[^>]*>/);
 });
+
+test('sober days use mint backgrounds and readable dark numbers', () => {
+  const calendar = fs.readFileSync(
+    path.join(__dirname, '../src/app/(tabs)/calendar.tsx'), 'utf8',
+  );
+  assert.match(calendar, /soberDay:\s*\{\s*backgroundColor:\s*'#A8E2CB'/);
+  assert.match(calendar, /soberDayText:\s*\{\s*color:\s*'#163A2E'/);
+  assert.match(calendar, /status === 'sober' && styles\.soberDay,/);
+  assert.match(calendar, /isSelected && styles\.selectedDayText,\s*status === 'sober' && styles\.soberDayText/);
+  assert.match(calendar, /style=\{\[styles\.legendDot, styles\.soberDay\]\}/);
+});
