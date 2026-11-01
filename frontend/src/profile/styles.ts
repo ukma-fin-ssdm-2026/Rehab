@@ -11,15 +11,15 @@ export const profileStyles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     color: theme.colors.muted,
     fontSize: 15,
     lineHeight: 23,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -28,9 +28,9 @@ export const profileStyles = StyleSheet.create({
     gap: 14,
   },
   field: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   text: {
     color: theme.colors.text,
@@ -46,7 +46,7 @@ export const profileStyles = StyleSheet.create({
   },
   link: {
     paddingVertical: 10,
-    color: theme.colors.primary,
-    fontWeight: '700',
+    color: theme.colors.highlight,
+    fontWeight: '500',
   },
 });

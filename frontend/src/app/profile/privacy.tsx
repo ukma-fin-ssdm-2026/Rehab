@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { router } from 'expo-router';
 import { apiRequest } from '../../api/client';
 import { useAuth } from '../../auth/AuthProvider';
@@ -30,7 +32,7 @@ function PrivacyContent() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Приватність і доступ</Text>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.field}>Твої дані належать тобі</Text>
         <Text style={styles.text}>
           Календар і статистика приватні. Лише твій активний ментор може читати їх
@@ -65,7 +67,7 @@ function PrivacyContent() {
           onPress={() => router.push('/(tabs)/friends-support')}>
           <Text style={styles.link}>Перейти до підтримки та керування менторством</Text>
         </Pressable>
-      </View>
+      </GlassCard>
     </ScrollView>
   );
 }

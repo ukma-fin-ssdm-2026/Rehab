@@ -91,6 +91,7 @@ test('navigation waits for session restore before mounting protected routes', ()
     'expo-router': { Stack, usePathname:()=>'/home' },
     '../components/navigation/BackButton': {BackButton(){}},
     '../navigation/back': {showBack:()=>false},
+    '../constants/theme': {theme:{colors:{background:'#141210'}}},
     '../auth/AuthProvider': { AuthProvider() {}, useAuth: () => auth },
     '../components/ui/ScreenState': { ScreenState },
     '../profile/ProfileProvider': { ProfileProvider() {} },

@@ -1,3 +1,4 @@
+import { BotanicalBackdrop } from '../../components/visual/BotanicalBackdrop';
 // AI-GENERATED START
 import { useCallback, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -98,7 +99,7 @@ export default function AdminComplaints() {
       contentContainerStyle={styles.list}
       data={items ?? []}
       keyExtractor={(c) => String(c.complaint_id)}
-      ListHeaderComponent={<>{header}{body}</>}
+      ListHeaderComponent={<><BotanicalBackdrop />{header}{body}</>}
       ListEmptyComponent={items ? <ScreenState state="empty" message="Скарг у цьому розділі немає." /> : null}
       renderItem={({ item }) => (
         <Link href={`/admin/complaint/${item.complaint_id}`} asChild>
@@ -127,22 +128,22 @@ export default function AdminComplaints() {
 const styles = StyleSheet.create({
   list: { padding: 16, gap: 12, backgroundColor: theme.colors.background, flexGrow: 1 },
   header: { gap: 12 },
-  link: { color: theme.colors.primary, fontWeight: '700', fontSize: 16 },
+  link: { color: theme.colors.highlight, fontWeight: '500', fontSize: 16 },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     borderWidth: 1, borderColor: theme.colors.border, borderRadius: 999,
     paddingHorizontal: 14, minHeight: 40, justifyContent: 'center', backgroundColor: theme.colors.surface,
   },
-  chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-  chipText: { color: theme.colors.text, fontWeight: '600' },
-  chipTextActive: { color: '#FFFFFF' },
+  chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.buttonBorder },
+  chipText: { color: theme.colors.text, fontWeight: '500' },
+  chipTextActive: { color: theme.colors.text },
   error: { color: theme.colors.danger },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface, borderColor: theme.colors.border,
     borderWidth: 1, borderRadius: 14, padding: 14, gap: 6,
   },
-  pending: { color: theme.colors.danger, fontWeight: '700' },
-  meta: { color: theme.colors.muted, fontWeight: '600' },
+  pending: { color: theme.colors.danger, fontWeight: '500' },
+  meta: { color: theme.colors.muted, fontWeight: '500' },
   party: { color: theme.colors.text },
   reason: { color: theme.colors.text, fontStyle: 'italic' },
   footer: { gap: 12, marginTop: 8 },

@@ -1,5 +1,7 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { router } from 'expo-router';
 import { changeProfilePassword } from '../../api/profile';
 import { useAuth } from '../../auth/AuthProvider';
@@ -47,7 +49,7 @@ export default function PasswordScreen() {
       <Text style={styles.subtitle}>
         Після зміни всі попередні сеанси завершаться. Увійди з новим паролем.
       </Text>
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <FormField label="Поточний пароль" value={current} onChangeText={setCurrent}
           secureTextEntry autoCapitalize="none" />
         <FormField label="Новий пароль" value={next} onChangeText={setNext}
@@ -57,7 +59,7 @@ export default function PasswordScreen() {
         {!!error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
         <Button title="Змінити пароль" disabled={saving} loading={saving}
           onPress={() => { void save(); }} />
-      </View>
+      </GlassCard>
     </ScrollView>
   );
 }
