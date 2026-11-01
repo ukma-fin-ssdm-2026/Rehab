@@ -40,3 +40,22 @@ Render Static Site (Expo dist), Render Web Service Free (FastAPI) та Neon Free
 ![Сценарій зриву](uml/sequence-diagram.png)
 
 ![Розгортання](uml/deployment-diagram.png)
+
+## Внутрішні інтерфейси
+
+| Межа | Реальний інтерфейс | Відповідальність |
+|---|---|---|
+| Routes → Security | security.get_current_user, require_role | Валідація JWT, token_version і ролі за БД; user_id не береться з довільного тіла |
+| Routes → Database | db.session.get_db / security._db_session | Session на запит, відкат помилок; URI обирає core/config.py |
+| Calendar → Repository | repositories.entries.create_entry/update_entry/list_user_entries | Власник, дати, збереження DayRecord; точні сигнатури — в модулі |
+| Calendar → Progress | services.progress_sync.recompute_progress | Перерахунок рекорду без самостійного commit |
+| Calendar → Notifications | services.notifications.emit_relapse_once | Перша подія після flush, у тій самій транзакції |
+| Mentorship/Support → Access | services.mentorship.require_active_mentor | Активний зв’язок і узгоджені блокування; не лише роль |
+| Admin → Complaints | services.complaints.decide_complaint | Рішення та завершення пари в одній транзакції |
+| Job → Reminder/Email services | create_due_reminders; deliver_pending_reminders | Спочатку inbox/outbox і commit, потім зовнішня Gmail-відправка |
+
+Схеми HTTP — Pydantic у models.py та schemas/; збереження — окремі ORM у db/models/. Межі довіри: TB-1 Browser/Web, TB-2 API/Services/Job/Mail, TB-3 PostgreSQL; Gmail — зовнішній сервіс. Відповідні ризики — у [STRIDE](threat-model.md).
+
+## Використання ШІ — оновлення документації
+
+Codex (OpenAI) використано для звірки архітектурних описів, модулів і обмежень із кодом. Агент прочитав відповідні файли й зауваження викладача, звірив локальні посилання та узгодженість requirements/test-plan/RTM; результати запусків зазначаються окремо з датою. Історичні результати не видаються за нові, людський взаємний огляд та ручне онлайн-приймання цим записом не підтверджуються. Команда переглядає зміни в PR перед злиттям. Джерела правил: [критерії курсу](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html).

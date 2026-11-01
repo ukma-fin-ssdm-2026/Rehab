@@ -23,3 +23,20 @@
 ## Статус контрзаходів
 
 JWT/Argon2, перевірки ролі, власника й активного зв’язку, Pydantic-валідація та обмеження БД реалізовані. Поля рішення скарги фіксують адміністратора й час, але це не окремий незмінний audit trail. Rate limiting та HttpOnly cookies залишаються можливими посиленнями, а не реалізованими гарантіями. Gmail OAuth і X-Job-Token є окремими секретами; персональні повідомлення й фото не повинні потрапляти в журнали. Схвалення скарги закриває пару, а не акаунт.
+
+## Зв’язок із діаграмами
+
+| STRIDE | Компоненти / межа | Контроль у реалізації або залишковий ризик |
+|---|---|---|
+| Spoofing | Browser/Web → Routes/Security, TB-1→TB-2 | JWT підпис/строк/token_version, Argon2; sessionStorage не захищає від XSS |
+| Tampering | Calendar Routes → Services → DB, TB-2→TB-3 | Власник, Pydantic, 48 годин для PATCH, унікальність дати, транзакція |
+| Repudiation | Admin Routes → Complaints → DB | Зберігаються автор рішення й час; окремого незмінного audit trail немає |
+| Information Disclosure | Web → Mentorship/Notifications/Admin Routes → DB | Активний зв’язок, приватний inbox і фото, адміну лише доказ та агрегати |
+| Denial of Service | Browser/Actions → API/Job | Розміри фото, межі сторінок, advisory lock; gateway/rate limiter не реалізовані |
+| Elevation of Privilege | Browser → Admin Routes / Services | require_role(admin), захист role injection; код ментора не відкриває довільний чужий ресурс |
+
+Назви відповідають [компонентам](uml/component-diagram.puml) і [розгортанню](uml/deployment-diagram.puml). Gmail отримує лише opt-in нагадування, а не календар чи коментарі; секрети OAuth і job не передаються Web.
+
+## Використання ШІ — оновлення документації
+
+Codex (OpenAI) використано для звірки архітектурних описів, модулів і обмежень із кодом. Агент прочитав відповідні файли й зауваження викладача, звірив локальні посилання та узгодженість requirements/test-plan/RTM; результати запусків зазначаються окремо з датою. Історичні результати не видаються за нові, людський взаємний огляд та ручне онлайн-приймання цим записом не підтверджуються. Команда переглядає зміни в PR перед злиттям. Джерела правил: [критерії курсу](https://ssdm-2026.cs-courses.org/midterm-evaluation.html), [політика ШІ](https://ssdm-2026.cs-courses.org/ai-policy.html).
