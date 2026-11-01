@@ -80,7 +80,7 @@
 | SEC-001 | Реалізовано; перевіряються роль і активний зв’язок | security.py; services/mentorship.py | `tests/test_admin.py::test_admin_routes_for_user_and_mentor_return_403`; `tests/test_mentorship_foundation.py::test_only_active_mentor_can_read_mentee` |
 | SEC-002 | Реалізовано | services/auth.py; services/profile.py | `tests/test_auth.py::test_argon2_password_hash` |
 | REL-001 | Ціль, місячний uptime ще не виміряний | routers/health.py; PostgreSQL/хостинг | Перевірка /ready не замінює місячний моніторинг |
-| USAB-001 | UI реалізовано; ручний звіт Марії M05–M06/M26 отримано, SHA ще не зіставлено | frontend/src/app/(tabs)/goals.tsx | Ручний кейс №29 |
+| USAB-001 | UI реалізовано; ручний звіт Марії M05–M06/M26 отримано; SHA за Софією: API f9110bc / web 0ab8f53 | frontend/src/app/(tabs)/goals.tsx | Ручний кейс №29 |
 
 | Додаткова історія | Вимоги/правила | Реалізація та перевірки |
 |---|---|---|
