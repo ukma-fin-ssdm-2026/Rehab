@@ -26,6 +26,7 @@
 | **Lab 04** | Quality Lead | Integration Lead | Backend Lead + API Design Lead | Documentation Lead |
 | **Lab 05** | Quality Lead + Prototype Lead | Code Reviewer | Documentation Lead | Security Analyst |
 | **Lab 06** | Debugging Lead | Testing Strategist | Integration Lead | Testing Lead + Test stand manager |
+| **Lab 07** | Documentation Lead | Quality Analyst | Test Planner | Review Manager + AI Code Reviewer |
 
 Командні домовленості, правила співпраці, стандарти кодування, Code Review та Definition of Done описано в [TeamCharter.md](TeamCharter.md).
 
