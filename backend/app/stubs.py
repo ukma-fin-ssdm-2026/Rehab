@@ -21,22 +21,8 @@ def next_entry_id() -> int:
     return next(_entry_ids)
 
 
-def reset() -> None:
-    """Скидає сховище до стартових даних (використовується в тестах)."""
-
-    global _entry_ids
-
-    entries.clear()
-    tracking_start_dates.clear()
-
-    _entry_ids = count(1)
-
-    now = dt.datetime.now(dt.timezone.utc)
-    today = dt.date.today()
-
-    tracking_start_dates[42] = today - dt.timedelta(days=6)
-
-    for rec in (
+def _initial_entries(now: dt.datetime, today: dt.date) -> tuple[EntryOut, EntryOut]:
+    return (
         EntryOut(
             record_id=next_entry_id(),
             user_id=42,
@@ -53,7 +39,25 @@ def reset() -> None:
             trigger_category=TriggerCategory.stress,
             created_at=now - dt.timedelta(hours=1),
         ),
-    ):
+    )
+
+
+def reset() -> None:
+    """Скидає сховище до стартових даних (використовується в тестах)."""
+
+    global _entry_ids
+
+    entries.clear()
+    tracking_start_dates.clear()
+
+    _entry_ids = count(1)
+
+    now = dt.datetime.now(dt.timezone.utc)
+    today = dt.date.today()
+
+    tracking_start_dates[42] = today - dt.timedelta(days=6)
+
+    for rec in _initial_entries(now, today):
         entries[rec.record_id] = rec
 
 
