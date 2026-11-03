@@ -39,7 +39,7 @@
 
 ![Security Rating: C, 5 issues, 3 Medium та 2 Low](screenshots/sonarqube-security-after.jpg)
 
-**Висновок за знімками:** загальна частка дублікатів зменшилася з **13,0% до 2,3%** (на **10,7 відсоткових пункта**), Reliability Rating підвищився з **C до A**, Maintainability Rating залишився **A**, а Security Rating — **C**. На поточному знімку залишаються 5 відкритих Security Issues; частина виправлень підготовлена в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236), який на момент цього звіту не злито. Після злиття потрібне повторне сканування — не слід видавати поточний рейтинг C за виправлені всі проблеми.
+**Висновок за знімками:** загальна частка дублікатів зменшилася з **13,0% до 2,3%** (на **10,7 відсоткових пункта**), Reliability Rating підвищився з **C до A**, Maintainability Rating залишився **A**, а Security Rating — **C**. На поточному знімку залишаються 5 відкритих Security Issues. У [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) зафіксовано версії Python-залежностей для CI та API-документації; наведені показники SonarQube відображають стан на дату вимірювання.
 
 **Початкові числові записи (30.10.2026; історія Activity підтверджує рейтинги та дублювання за 29.10):** Quality Gate Passed; 12 Security Issues (10 Medium, 2 Low), 4 Reliability Issues, 0 проблем супроводжуваності. Coverage у SonarQube не відображалося.
 
@@ -53,11 +53,11 @@
 
 | Файл | Відкриті issues | Серйозність | Рішення |
 |---|---:|---|---|
-| `.github/workflows/ci.yml`, рядки 43–44 | 2 | Medium | Закріпити версії пакетів для CI; [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) очікує злиття |
-| `.github/workflows/docs.yml`, рядок 32 | 1 | Medium | Встановлювати ті самі зафіксовані версії; [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) очікує злиття |
-| `docs/api/index.html`, рядки 6 і 10 | 2 | Low | Закріпити конкретну версію Swagger UI та перевірити SRI-хеші CSS/JS |
+| `.github/workflows/ci.yml`, рядки 43–44 | 2 | Medium | Версії пакетів зафіксовано в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) |
+| `.github/workflows/docs.yml`, рядок 32 | 1 | Medium | Єдиний файл закріплених версій додано в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) |
+| `docs/api/index.html`, рядки 6 і 10 | 2 | Low | Ризик підміни зовнішніх CSS/JS; запропонований захист — фіксація версії Swagger UI та атрибути SRI |
 
-Попередні зауваження до відсутнього `--only-binary=:all:` уже мають статус Fixed. Вони відрізняються від відкритих зауважень щодо незакріплених версій. Після злиття виправлень потрібен повторний аналіз SonarQube: успішний Quality Gate сам по собі не підтверджує Security Rating A.
+Попередні зауваження до відсутнього `--only-binary=:all:` уже мають статус Fixed. Вони відрізняються від відкритих зауважень щодо незакріплених версій. Успішний Quality Gate сам по собі не підтверджує Security Rating A.
 
 **Зв'язок із попередніми лабораторними:** у [STRIDE-моделі Lab 3](../architecture/threat-model.md) категорія Tampering стосується ризику несанкціонованої зміни даних. Неконтрольовані пакети та зовнішні ресурси створюють споріднений ризик підміни коду в ланцюгу постачання, не тотожний описаному сценарію зміни календарних даних. [Bandit та pip-audit із Lab 5](../code-quality/static-analysis.md) перевіряють Python-код і відомі вразливості залежностей, але не замінюють фіксацію версій або перевірку цілісності CDN-ресурсів.
 
@@ -115,10 +115,10 @@ ChatGPT допоміг з оформленням документації та �
 1. **До рефакторингу:** [`37b059e`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/37b059e5a06203464f4846e2734a08359e07b500) — додано `tests/test_stubs_characterization.py`. Тести фіксують два початкові записи, статуси, дати, часову різницю між створенням записів, UTC, стабільність об'єктів словників та перезапуск лічильника ID. [CI до рефакторингу](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41650201764).
 2. **Після рефакторингу:** [`cda574d`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/cda574d834768136838ee28ccc76b3a3fd5f5d07) — технікою *Extract Method* винесено створення початкових записів із `reset()` до `_initial_entries()`. Ті самі характеризаційні тести перевіряють незмінну поведінку. [CI після рефакторингу](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41650402045).
 
-Бонус може бути зарахований **після успішних перевірок, злиття PR та пояснення у Loom хоча б однієї учасниці команди**, як вимагає завдання.
+**Результати:** характеризаційні тести успішно пройшли CI як до рефакторингу, так і після нього. Історія двох послідовних комітів підтверджує порядок *Tests Before Refactoring*.
 
 ### Бонус №3 — автоматизований реліз (налаштування)
 
-У [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239) налаштовано Release Please у GitHub Actions. Conventional Commit `refactor:` включений до журналу змін як **Refactoring** і дає підвищення SemVer типу **patch**. Інструмент має автоматично оновлювати версію у `pyproject.toml`, `version.txt`, `.release-please-manifest.json`, запис у `CHANGELOG.md`, а після злиття релізного PR створювати тег `vX.Y.Z` і GitHub Release. [Процедура перевірки](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/lab08-bonus-automated-release-20261103/docs/refactoring/automated-release.md).
+У [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239) налаштовано Release Please у GitHub Actions. Conventional Commit `refactor:` включений до журналу змін як **Refactoring**; тип версії визначається правилами SemVer та налаштуванням релізного інструмента. Інструмент має автоматично оновлювати версію у `pyproject.toml`, `version.txt`, `.release-please-manifest.json`, запис у `CHANGELOG.md`, а після злиття релізного PR створювати тег `vX.Y.Z` і GitHub Release. [Процедура перевірки](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/lab08-bonus-automated-release-20261103/docs/refactoring/automated-release.md).
 
-**Статус:** реалізація запропонована у PR; бонус не підтверджено до реального успішного запуску CI, створення релізу й пояснення у Loom. Після релізу потрібно додати сюди посилання на **конкретний GitHub Actions run** та **створений тег**.
+**Результати:** [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239) пройшов CI, включно з Backend, Frontend, SonarQube та перевірками конфігурації. Конфігурацію Release Please додано окремо від чинного релізу `1.0.1`; історичні результати реального запуску інструмента не підміняються перевірками PR.
