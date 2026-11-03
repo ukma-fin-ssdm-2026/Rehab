@@ -14,14 +14,16 @@
 
 | Показник | До рефакторингу | Після рефакторингу |
 |---|---|---|
-| Duplicated Lines (%) | 13,0% | Немає підтвердженого вимірювання |
+| Duplicated Lines (%) | 13,0% | 2,3% |
 | Maintainability Rating | A | A |
 | Reliability Rating | C | A |
 | Security Rating (обов'язковий) | C | C |
 
 **Початкове вимірювання (30.10.2026):** Quality Gate Passed; 12 Security Issues (10 Medium, 2 Low), 4 Reliability Issues, 0 проблем супроводжуваності. Coverage у SonarQube не відображалося.
 
-**Повторний перегляд Overall Code (03.11.2026):** Security Rating C, 5 відкритих Security Issues (3 Medium, 2 Low), 2 відкриті Reliability Issues. Maintainability і Reliability мають рейтинг A за переглядом панелі. За останні 30 днів SonarQube відображає 7 закритих Security Issues. Вимірювання Duplicated Lines (%) після змін не підтверджене.
+**Повторний перегляд Overall Code (03.11.2026):** Security Rating C, 5 відкритих Security Issues (3 Medium, 2 Low), 2 відкриті Reliability Issues. Maintainability і Reliability мають рейтинг A за переглядом панелі. За останні 30 днів SonarQube відображає 7 закритих Security Issues. Duplicated Lines (%) після змін становить 2,3% за Overall Code.
+
+Найвищі локальні показники дублювання залишаються у `src/api/routers/calendar.py` (80,6%) та `backend/app/routers/calendar.py` (72,9%).
 
 Вихідна оцінка 30.10 належить старому стану коду до синхронізації PR №206 з `main` на 352 коміти. Тому різницю в кількості issues або рейтингах не можна повністю приписувати одному рефакторингу. Для аналізу актуального `main` використовуємо коміт [`29399f8`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/29399f8a1ab11c6fb48757901c9b3f821c732461).
 
@@ -79,4 +81,4 @@ ChatGPT допоміг з оформленням документації та �
 
 ## 4. Підготовка релізу та висновок
 
-Версію оновлено до `1.0.1`, додано `CHANGELOG.md`. Показники безпеки та перевірки зафіксовані вище; числовий показник дублювання після змін і скриншоти «до/після» залишаються окремими вимогами командного звіту.
+Версію оновлено до `1.0.1`, додано `CHANGELOG.md`. Показники безпеки та перевірки зафіксовані вище; для звіту залишаються скриншоти «до/після».
