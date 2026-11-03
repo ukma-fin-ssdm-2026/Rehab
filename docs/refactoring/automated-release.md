@@ -1,23 +1,24 @@
-# Lab 08 — автоматизований реліз
+# Автоматизований реліз Rehab — Lab 08
 
-Автоматизація використовує [Release Please](https://github.com/googleapis/release-please-action) у GitHub Actions. Вона формує релізний PR на основі Conventional Commits. Після злиття релізного PR наступний запуск інструмента створює тег `vX.Y.Z` і GitHub Release.
+У GitHub Actions налаштовано [Release Please](https://github.com/googleapis/release-please-action) для автоматизованого формування версій за [Conventional Commits](https://www.conventionalcommits.org/). Конфігурація міститься в [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239).
 
-## Конфігурація
+## Реалізація
 
-- `.github/workflows/release-please.yml` запускається після push у `main` і вручну через GitHub Actions; запусків із pull requests з правами запису немає.
-- `release-please-config.json` включає `refactor:` до секції **Refactoring**. За стандартною стратегією визначення SemVer цей тип отримує patch-підвищення, а `feat:` — minor.
-- `.release-please-manifest.json` і `version.txt` ініціалізовано з наявної версії **1.0.1**. Через `extra-files` інструмент також оновлює `[tool.rehab].version` у `pyproject.toml`.
-- `bootstrap-sha` фіксує коміт останнього ручного релізного стану `29399f8`, щоб не створювати журнал змін за всю попередню історію. Наявний `CHANGELOG.md` не видаляється.
+- `.github/workflows/release-please.yml` — запуск при оновленні `main` та через `workflow_dispatch`; використовує `GITHUB_TOKEN` і права `contents: write`, `pull-requests: write`, `issues: write`.
+- `release-please-config.json` — стратегія `simple`, підписи релізних змін за Conventional Commits, секція **Refactoring** для `refactor:`, формат тегів `vX.Y.Z` і оновлення `[tool.rehab].version` у `pyproject.toml`.
+- `.release-please-manifest.json` і `version.txt` — початкове значення версії `1.0.1`, узгоджене з `pyproject.toml`.
+- `CHANGELOG.md` — журнал релізних змін, який автоматично формує Release Please.
+- `tests/test_release_config.py` — перевірка узгодженості версій, секції рефакторингу та конфігурації оновлення TOML.
+- `bootstrap-sha` — коміт `29399f8`, що обмежує історію, яку Release Please опрацьовує для першого автоматичного релізу.
 
-## Як завершити реліз командою
+## Життєвий цикл релізу
 
-1. Менеджерка релізу переглядає та зливає PR автоматизації у `main`.
-2. У **Settings → Actions → General → Workflow permissions** перевіряє, що GitHub Actions має право **Allow GitHub Actions to create and approve pull requests**; інакше Release Please не зможе створити релізний PR. Якщо налаштування заблоковане організацією, потрібен адміністратор.
-3. Зливає [PR №238](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/238) методом **Create a merge commit**, а не squash: так збережуться окремі коміти тестів і рефакторингу для бонусу №2. За потреби вручну запускає [Lab08 Automated Release](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/release-please.yml).
-4. Перевіряє створений Release Please PR: він має оновити `CHANGELOG.md`, `version.txt`, `.release-please-manifest.json` та `pyproject.toml`. Наступна версія за refactor-only зміни після 1.0.1 — **1.0.2**.
-5. Після перевірок зливає згенерований релізний PR. Наступний запуск Release Please має автоматично створити `v1.0.2` і [GitHub Release](https://github.com/ukma-fin-ssdm-2026/Rehab/releases).
-6. Для бонусу №3 зберігає посилання на **конкретний успішний прогін** [GitHub Actions](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/release-please.yml), де інструмент створив реліз, а також на тег. Додає їх до розділу «Бонуси» у `docs/refactoring/sonarcloud-report.md` і пояснює роботу автоматики у Loom.
+Після появи релізної зміни в `main` Release Please аналізує коміти, формує окремий релізний PR з оновленим номером версії та `CHANGELOG.md`. Після злиття релізного PR наступний запуск автоматизації створює Git-тег і GitHub Release.
 
-`GITHUB_TOKEN` надає GitHub Actions автоматично. Особисті токени в файли репозиторію додавати не потрібно. PR, створені автоматично з цим токеном, можуть не запускати інші workflow: за потреби команді слід окремо перевірити релізний PR перед злиттям.
+За звичайними правилами інструмента `fix:` підвищує patch-версію, `feat:` — minor, а breaking change — major. `refactor:` відображається у секції **Refactoring**; сам по собі цей тип не гарантує створення релізного PR без релізної зміни.
 
-**Важливо:** наявність конфігурації та зелених CI-тестів не означає, що бонус №3 уже отримано. Необхідні злиття, реальний реліз і посилання на його прогін у CI.
+Для створення автоматичних PR репозиторій використовує налаштування **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. Використання вбудованого `GITHUB_TOKEN` обмежує автоматичний запуск інших workflows для PR і тегів, створених цим токеном.
+
+## Перевірка
+
+[CI для PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239/checks) підтвердив успішне проходження Backend, Frontend, Code Quality, Dependency Audit, Traceability і SonarQube. Це перевірка конфігурації та застосунку; окремий релізний запуск відображається в [GitHub Actions — Lab08 Automated Release](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/release-please.yml).
