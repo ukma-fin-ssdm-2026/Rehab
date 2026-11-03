@@ -1,16 +1,16 @@
 # Аналіз SonarQube та рефакторинг — Лабораторна робота №8
 
 **Проєкт:** Rehab  
-**Дата:** 30.10.2026  
+**Дата звіту:** 03.11.2026 (історичний аналіз — 29.10.2026)  
 **Інструмент:** SonarQube Cloud  
-**Гілки:** `pre-refactor` — початковий стан, `lab08` — рефакторинг і синхронізація з `main`  
+**Порівняння:** історія аналізів `main` у SonarQube (29.10.2026, 13:45) та актуальний `main` (03.11.2026). Гілка `pre-refactor` зберігає історичний код, але окремо в SonarQube не аналізувалася; `lab08` — гілка рефакторингу.  
 **Pull Request:** [Рефакторинг Rehab #206](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/206)
 
 ## 1. Аналіз якості коду (етап 1)
 
-Переглянуто [панель Rehab у SonarQube Cloud](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab). Початковий стан коду збережено в гілці `pre-refactor`.
+Переглянуто [панель Rehab у SonarQube Cloud](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab) та історію показників на сторінці Activity. Початковий стан коду збережено в [гілці `pre-refactor`](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/pre-refactor), але метрики «до» отримані з **реального історичного аналізу `main` від 29.10.2026, 13:45**, а не з повторного сканування цієї гілки.
 
-Для лабораторної обрано три метрики з п'яти. **Security Rating записано окремо**, як вимагає завдання. Вихідні значення зафіксовано 30.10.2026 до оновлення `main` і не можна безпосередньо порівнювати зі станом після 352 нових комітів.
+Для лабораторної обрано три метрики з п'яти. **Security Rating записано окремо**, як вимагає завдання. Вихідні значення записані у звіті 30.10.2026 і підтверджені історією SonarQube за 29.10.2026. Показники «після» відображають результат **командних змін у `main`**, зокрема синхронізації 352 комітів; це не ефект лише особистого рефакторингу.
 
 | Показник | До рефакторингу | Після рефакторингу |
 |---|---|---|
@@ -19,7 +19,29 @@
 | Reliability Rating | C | A |
 | Security Rating (обов'язковий) | C | C |
 
-**Початкове вимірювання (30.10.2026):** Quality Gate Passed; 12 Security Issues (10 Medium, 2 Low), 4 Reliability Issues, 0 проблем супроводжуваності. Coverage у SonarQube не відображалося.
+### Скриншоти SonarQube: «до» і «після»
+
+Усі зображення відображають проєкт **Rehab**. Для стану «до» використано історію **Activity → main**, а для стану «після» — **Measures / Overall Code** та snapshots. Скриншоти «до» було відкрито 03.11.2026, проте курсор на графіках указує на **історичний аналіз 29.10.2026 о 13:45**. Це не скриншоти, зроблені 29 жовтня, і не аналіз окремої гілки `pre-refactor`.
+
+**До рефакторингу — 29.10.2026, 13:45:**
+
+![Історичний рівень дублювання 13,0% (main, 29.10.2026)](screenshots/sonarqube-duplication-before.jpg)
+
+![Історичні рейтинги: Maintainability A, Reliability C, Security C (main, 29.10.2026)](screenshots/sonarqube-ratings-before.jpg)
+
+**Після рефакторингу — 03.11.2026, main / Overall Code:**
+
+![Duplicated Lines: 2,3%](screenshots/sonarqube-duplication-after.png)
+
+![Maintainability Rating: A, 1 issue](screenshots/sonarqube-maintainability-after.png)
+
+![Reliability Rating: A, 2 issues](screenshots/sonarqube-reliability-after.png)
+
+![Security Rating: C, 5 issues, 3 Medium та 2 Low](screenshots/sonarqube-security-after.png)
+
+**Висновок за знімками:** загальна частка дублікатів зменшилася з **13,0% до 2,3%** (на **10,7 відсоткових пункта**), Reliability Rating підвищився з **C до A**, Maintainability Rating залишився **A**, а Security Rating — **C**. На поточному знімку залишаються 5 відкритих Security Issues; частина виправлень підготовлена в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236), який на момент цього звіту не злито. Після злиття потрібне повторне сканування — не слід видавати поточний рейтинг C за виправлені всі проблеми.
+
+**Початкові числові записи (30.10.2026; історія Activity підтверджує рейтинги та дублювання за 29.10):** Quality Gate Passed; 12 Security Issues (10 Medium, 2 Low), 4 Reliability Issues, 0 проблем супроводжуваності. Coverage у SonarQube не відображалося.
 
 **Повторний перегляд Overall Code (03.11.2026):** Security Rating C, 5 відкритих Security Issues (3 Medium, 2 Low), 2 відкриті Reliability Issues. Maintainability і Reliability мають рейтинг A за переглядом панелі. За останні 30 днів SonarQube відображає 7 закритих Security Issues. Duplicated Lines (%) після змін становить 2,3% за Overall Code.
 
@@ -81,4 +103,4 @@ ChatGPT допоміг з оформленням документації та �
 
 ## 4. Підготовка релізу та висновок
 
-Версію оновлено до `1.0.1`, додано `CHANGELOG.md`. Показники безпеки та перевірки зафіксовані вище; для звіту залишаються скриншоти «до/після».
+Версію оновлено до `1.0.1`, додано `CHANGELOG.md`. Показники якості та безпеки, посилання на шість скриншотів «до/після» й невирішені Security Issues задокументовано вище.
