@@ -116,3 +116,9 @@ ChatGPT допоміг з оформленням документації та �
 2. **Після рефакторингу:** [`cda574d`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/cda574d834768136838ee28ccc76b3a3fd5f5d07) — технікою *Extract Method* винесено створення початкових записів із `reset()` до `_initial_entries()`. Ті самі характеризаційні тести перевіряють незмінну поведінку. [CI після рефакторингу](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41650402045).
 
 Бонус може бути зарахований **після успішних перевірок, злиття PR та пояснення у Loom хоча б однієї учасниці команди**, як вимагає завдання.
+
+### Бонус №3 — автоматизований реліз (налаштування)
+
+У [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239) налаштовано Release Please у GitHub Actions. Conventional Commit `refactor:` включений до журналу змін як **Refactoring** і дає підвищення SemVer типу **patch**. Інструмент має автоматично оновлювати версію у `pyproject.toml`, `version.txt`, `.release-please-manifest.json`, запис у `CHANGELOG.md`, а після злиття релізного PR створювати тег `vX.Y.Z` і GitHub Release. [Процедура перевірки](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/lab08-bonus-automated-release-20261103/docs/refactoring/automated-release.md).
+
+**Статус:** реалізація запропонована у PR; бонус не підтверджено до реального успішного запуску CI, створення релізу й пояснення у Loom. Після релізу потрібно додати сюди посилання на **конкретний GitHub Actions run** та **створений тег**.
