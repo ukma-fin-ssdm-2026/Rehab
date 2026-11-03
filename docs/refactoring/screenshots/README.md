@@ -6,9 +6,9 @@
 |---|---|
 | `sonarqube-duplication-before.jpg` | Історія `main`: 29.10.2026 13:45, Duplicated Lines 13,0% |
 | `sonarqube-ratings-before.jpg` | Історія `main`: 29.10.2026 13:45, Maintainability A, Reliability C, Security C |
-| `sonarqube-duplication-after.png` | `main`: Duplicated Lines 2,3% |
-| `sonarqube-maintainability-after.png` | `main`: Maintainability Rating A |
-| `sonarqube-reliability-after.png` | `main`: Reliability Rating A |
-| `sonarqube-security-after.png` | `main`: Security Rating C, п'ять відкритих issues |
+| `sonarqube-duplication-after.jpg` | `main`: Duplicated Lines 2,3% |
+| `sonarqube-maintainability-after.jpg` | `main`: Maintainability Rating A |
+| `sonarqube-reliability-after.jpg` | `main`: Reliability Rating A |
+| `sonarqube-security-after.jpg` | `main`: Security Rating C, п'ять відкритих issues |
 
 Історичні значення «до» зняті з графіків **Activity**, а не отримані повторним запуском аналізу гілки `pre-refactor`. Поточні скриншоти «після» зроблено 03.11.2026, до злиття PR №236.

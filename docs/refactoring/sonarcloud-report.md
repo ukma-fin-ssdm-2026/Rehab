@@ -31,13 +31,13 @@
 
 **Після рефакторингу — 03.11.2026, main / Overall Code:**
 
-![Duplicated Lines: 2,3%](screenshots/sonarqube-duplication-after.png)
+![Duplicated Lines: 2,3%](screenshots/sonarqube-duplication-after.jpg)
 
-![Maintainability Rating: A, 1 issue](screenshots/sonarqube-maintainability-after.png)
+![Maintainability Rating: A, 1 issue](screenshots/sonarqube-maintainability-after.jpg)
 
-![Reliability Rating: A, 2 issues](screenshots/sonarqube-reliability-after.png)
+![Reliability Rating: A, 2 issues](screenshots/sonarqube-reliability-after.jpg)
 
-![Security Rating: C, 5 issues, 3 Medium та 2 Low](screenshots/sonarqube-security-after.png)
+![Security Rating: C, 5 issues, 3 Medium та 2 Low](screenshots/sonarqube-security-after.jpg)
 
 **Висновок за знімками:** загальна частка дублікатів зменшилася з **13,0% до 2,3%** (на **10,7 відсоткових пункта**), Reliability Rating підвищився з **C до A**, Maintainability Rating залишився **A**, а Security Rating — **C**. На поточному знімку залишаються 5 відкритих Security Issues; частина виправлень підготовлена в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236), який на момент цього звіту не злито. Після злиття потрібне повторне сканування — не слід видавати поточний рейтинг C за виправлені всі проблеми.
 
