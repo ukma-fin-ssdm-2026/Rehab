@@ -110,7 +110,7 @@ app = FastAPI(
         "Архітектура: Layered Monolith (ADR-001), СУБД PostgreSQL (ADR-002). "
         "Дані зберігаються в PostgreSQL (Neon у публічній версії)."
     ),
-    version="1.0.0",
+    version="1.0.1",
     openapi_tags=tags_metadata,
 )
 
