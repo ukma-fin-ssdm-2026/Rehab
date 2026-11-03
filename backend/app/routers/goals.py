@@ -1,108 +1,57 @@
-"""Ендпоінти цілей (ресурс Goal)."""
+"""Read-only API для фіксованих етапів тверезості."""
 
-from fastapi import APIRouter, Depends, Path, Request, Response
+from fastapi import APIRouter, Depends
 
-from backend.app import stubs
 from backend.app.errors import COMMON_RESPONSES, api_error
-from backend.app.models import ErrorResponse, GoalCreate, GoalOut
-from backend.app.security import CurrentUser, get_current_user
+from backend.app.models import GoalList, GoalMilestoneOut
+from backend.app.security import CurrentUser, _db_session, get_current_user
+from backend.app.services.statistics import FIXED_GOAL_DAYS, calculate_statistics
 
 router = APIRouter(prefix="/goals", tags=["Goals"])
 
-GOAL_ID = Path(..., ge=1, description="Ідентифікатор цілі.", examples=[1])
-NOT_FOUND = {"model": ErrorResponse, "description": "Ціль не знайдено"}
-
-
-def _get_own_goal(goal_id: int, user: CurrentUser) -> GoalOut:
-    goal = stubs.goals.get(goal_id)
-    if goal is None or goal.user_id != user.user_id:
-        raise api_error(404, "GOAL_NOT_FOUND", f"Ціль {goal_id} не знайдено")
-    return goal
-
-
-@router.post(
-    "",
-    status_code=201,
-    response_model=GoalOut,
-    summary="Створити ціль",
-    description=(
-        "Створює нову ціль тверезості (кількість днів від 1 до 3650). "
-        "Нова ціль завжди створюється з `is_achieved=false` (FR-004)."
-    ),
-    responses={
-        **COMMON_RESPONSES,
-        201: {
-            "description": "Ціль створено",
-            "headers": {
-                "Location": {
-                    "description": "URL створеної цілі",
-                    "schema": {"type": "string"},
-                }
-            },
-        },
-    },
-)
-def create_goal(
-    body: GoalCreate,
-    request: Request,
-    response: Response,
-    user: CurrentUser = Depends(get_current_user),
-):
-    goal = GoalOut(
-        goal_id=stubs.next_goal_id(),
-        user_id=user.user_id,
-        target_days=body.target_days,
-        is_achieved=False,
-    )
-    stubs.goals[goal.goal_id] = goal
-    response.headers["Location"] = f"{request.url.path.rstrip('/')}/{goal.goal_id}"
-    return goal
-
 
 @router.get(
-    "/{goal_id}",
-    response_model=GoalOut,
-    summary="Отримати ціль",
-    description="Повертає ціль поточного користувача та ознаку її досягнення (FR-004, FR-005).",
-    responses={**COMMON_RESPONSES, 404: NOT_FOUND},
+    "",
+    response_model=GoalList,
+    summary="Отримати фіксовані етапи тверезості",
+    description="Повертає етапи 7, 30, 90, 180 і 365 днів та їхній прогрес для поточного користувача.",
+    responses={**COMMON_RESPONSES},
 )
-def get_goal(goal_id: int = GOAL_ID, user: CurrentUser = Depends(get_current_user)):
-    return _get_own_goal(goal_id, user)
-
-
-@router.put(
-    "/{goal_id}",
-    response_model=GoalOut,
-    summary="Замінити ціль",
-    description=(
-        "Повністю замінює цільову кількість днів. Ознака `is_achieved` "
-        "керується системою (FR-005) і через цей ендпоінт не змінюється."
-    ),
-    responses={**COMMON_RESPONSES, 404: NOT_FOUND},
-)
-def replace_goal(
-    body: GoalCreate,
-    goal_id: int = GOAL_ID,
+def list_goals(
+    db=Depends(_db_session),
     user: CurrentUser = Depends(get_current_user),
 ):
-    goal = _get_own_goal(goal_id, user)
-    updated = goal.model_copy(update={"target_days": body.target_days})
-    stubs.goals[goal_id] = updated
-    return updated
+    from backend.app.core.clock import today_local
+    from backend.app.repositories.entries import list_user_entries
+    from backend.app.repositories.users import get_user
 
+    account = get_user(db, user.user_id)
+    if account is None or account.tracking_start_date is None:
+        raise api_error(
+            404,
+            "TRACKING_NOT_STARTED",
+            "Для користувача ще не встановлено дату початку відстеження",
+        )
 
-@router.delete(
-    "/{goal_id}",
-    status_code=204,
-    summary="Видалити ціль",
-    description="Видаляє ціль поточного користувача. Відповідь без тіла.",
-    responses={
-        **COMMON_RESPONSES,
-        204: {"description": "Ціль видалено"},
-        404: NOT_FOUND,
-    },
-)
-def delete_goal(goal_id: int = GOAL_ID, user: CurrentUser = Depends(get_current_user)):
-    _get_own_goal(goal_id, user)
-    del stubs.goals[goal_id]
-    return Response(status_code=204)
+    statistics = calculate_statistics(
+        tracking_start_date=account.tracking_start_date,
+        today=today_local(),
+        entries=list_user_entries(db, user.user_id),
+    )
+    current_streak = statistics["current_streak"]
+    completed_goal_days = statistics["completed_goal_days"]
+
+    return GoalList(
+        items=[
+            GoalMilestoneOut(
+                target_days=target_days,
+                is_achieved=target_days in completed_goal_days,
+                progress_days=(
+                    target_days
+                    if target_days in completed_goal_days
+                    else min(current_streak, target_days)
+                ),
+            )
+            for target_days in FIXED_GOAL_DAYS
+        ]
+    )

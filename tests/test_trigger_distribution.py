@@ -62,8 +62,20 @@ def test_trigger_distribution_uses_only_anonymous_categorized_relapses_in_last_3
     assert all("user_id" not in item for item in result["categories"])
 
 
-def test_trigger_distribution_rejects_future_reference_date() -> None:
-    tomorrow = dt.date.today() + dt.timedelta(days=1)
-    with pytest.raises(ValueError, match="Дата звіту не може бути в майбутньому"):
-        calculate_trigger_distribution([], today=tomorrow)
+def test_trigger_distribution_uses_supplied_business_day_not_host_clock(monkeypatch):
+    from backend.app.services import statistics
 
+    class HostDate(dt.date):
+        @classmethod
+        def today(cls):
+            raise AssertionError("Host date must not control a Kyiv report")
+
+    monkeypatch.setattr(statistics.dt, "date", HostDate)
+    business_day = HostDate(2030, 1, 1)
+    result = calculate_trigger_distribution(
+        [make_entry(day=business_day, category=TriggerCategory.stress)],
+        today=business_day,
+    )
+    assert result["period_end"] == business_day
+    assert result["period_start"] == HostDate(2029, 12, 3)
+    assert result["total"] == 1

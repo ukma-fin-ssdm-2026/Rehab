@@ -6,6 +6,8 @@
 2. docs/validation/test-plan.md — кейси №N з ID вимоги;
 3. docs/requirements/rtm.md — таблиця «Простежуваність тест-кейсів Лаб 7».
 
+Підтримка 7/8 колонок також наявна в main після PR №219.
+
 Зв'язок «вимога ↔ кейс» означає заплановане покриття, НЕ виконаний
 автоматизований тест. Запуски та статус реалізації перевіряються окремо.
 """
@@ -22,7 +24,9 @@ PLAN = ROOT / "docs/validation/test-plan.md"
 RTM = ROOT / "docs/requirements/rtm.md"
 
 REQ_ID = re.compile(r"(?:FR|PERF|SEC|REL|USAB)-\d{3}")
-REQ_DEFINITION = re.compile(r"^\s*[-*]\s+\*\*((?:FR|PERF|SEC|REL|USAB)-\d{3})(?=\s|\*\*)", re.M)
+REQ_DEFINITION = re.compile(
+    r"^\s*[-*]\s+\*\*((?:FR|PERF|SEC|REL|USAB)-\d{3})(?=\s|\*\*)", re.M
+)
 CASE_CELL = re.compile(r"^\d+$")
 CASE_REF = re.compile(r"№\s*(\d+)")
 
@@ -43,18 +47,20 @@ def plan_cases(text: str) -> tuple[dict[int, str], list[str]]:
     issues: list[str] = []
     for line in text.splitlines():
         cells = table_cells(line)
-        if len(cells) != 7 or not CASE_CELL.fullmatch(cells[0]):
+        if len(cells) not in (7, 8) or not CASE_CELL.fullmatch(cells[0]):
             continue
         number = int(cells[0])
         req = cells[-1].replace("`", "").strip()
         if number in cases:
             issues.append(f"Дубль кейсу №{number} у тест-плані")
         elif not REQ_ID.fullmatch(req):
-            issues.append(f"Кейс №{number} без коректного одиничного ID вимоги: {req!r}")
+            issues.append(
+                f"Кейс №{number} без коректного одиничного ID вимоги: {req!r}"
+            )
         else:
             cases[number] = req
     if not cases:
-        issues.append("У тест-плані не знайдено таблиці кейсів із 7 колонками")
+        issues.append("У тест-плані не знайдено таблиці кейсів із 7 або 8 колонками")
     return cases, issues
 
 

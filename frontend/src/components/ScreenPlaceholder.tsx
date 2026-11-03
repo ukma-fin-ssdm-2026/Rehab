@@ -1,3 +1,4 @@
+import { GlassCard } from './visual/GlassCard';
 
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -18,7 +19,7 @@ export default function ScreenPlaceholder({
         <Text style={styles.backText}>← До профілю</Text>
       </Pressable>
 
-      <View style={styles.card}>
+      <GlassCard style={styles.card}>
         <View style={styles.icon}>
           <Text style={styles.iconText}>✦</Text>
         </View>
@@ -27,7 +28,7 @@ export default function ScreenPlaceholder({
         <View style={styles.badge}>
           <Text style={styles.badgeText}>СКОРО</Text>
         </View>
-      </View>
+      </GlassCard>
     </View>
   );
 }
@@ -47,11 +48,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   backText: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '500',
   },
-  card: {
+  card: { ...theme.effects.card,
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
@@ -70,12 +71,12 @@ const styles = StyleSheet.create({
   },
   iconText: {
     fontSize: 29,
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
   },
   title: {
     fontSize: 25,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
     textAlign: 'center',
   },
   subtitle: {
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 11,
     letterSpacing: 1.2,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
 });

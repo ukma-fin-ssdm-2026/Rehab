@@ -1,36 +1,22 @@
-"""Тести записів із напоями та коментарями для КТ-5."""
+"""Тести записів із напоями та коментарями."""
 
 import datetime as dt
 
 import pytest
-from fastapi.testclient import TestClient
+from backend.app.core.clock import today_local
 
-from backend.app import stubs
-from backend.app.main import app
-
-client = TestClient(app)
-
-HEADERS = {"Authorization": "Bearer user-42"}
 URL = "/api/v1/calendar/entries"
 
 
-@pytest.fixture(autouse=True)
-def reset_data():
-    """Відновлює тестові дані перед кожним тестом."""
-
-    stubs.reset()
-    yield
-    stubs.reset()
-
-
-def test_create_entry_with_one_drink():
+def test_create_entry_with_one_drink(calendar_regression_data):
+    data = calendar_regression_data
     """Запис з одним напоєм успішно створюється."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "relapse",
             "trigger_category": None,
             "drinks": [{"type": "beer", "volume_ml": 330}],
@@ -46,14 +32,15 @@ def test_create_entry_with_one_drink():
     assert data["status"] == "relapse"
 
 
-def test_create_entry_with_multiple_drinks():
+def test_create_entry_with_multiple_drinks(calendar_regression_data):
+    data = calendar_regression_data
     """Один календарний запис може містити кілька напоїв."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "relapse",
             "trigger_category": "social",
             "drinks": [
@@ -74,14 +61,15 @@ def test_create_entry_with_multiple_drinks():
     assert data["comment"] == "Вечір із друзями"
 
 
-def test_created_drinks_are_returned_by_get():
+def test_created_drinks_are_returned_by_get(calendar_regression_data):
+    data = calendar_regression_data
     """GET повертає напої, збережені через POST."""
 
-    entry_date = str(dt.date.today() - dt.timedelta(days=2))
+    entry_date = str(today_local() - dt.timedelta(days=2))
 
-    created = client.post(
+    created = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
             "date": entry_date,
             "status": "relapse",
@@ -95,9 +83,9 @@ def test_created_drinks_are_returned_by_get():
 
     assert created.status_code == 201
 
-    response = client.get(
+    response = data.client.get(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         params={"from": entry_date, "to": entry_date},
     )
 
@@ -110,14 +98,15 @@ def test_created_drinks_are_returned_by_get():
     assert data["items"][0]["comment"] == "Перевірка GET"
 
 
-def test_old_entry_format_still_works():
+def test_old_entry_format_still_works(calendar_regression_data):
+    data = calendar_regression_data
     """Старі запити без drinks і comment залишаються сумісними."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "sober",
             "trigger_category": None,
         },
@@ -131,14 +120,15 @@ def test_old_entry_format_still_works():
 
 
 @pytest.mark.parametrize("volume", [0, -10, 1.5, "330"])
-def test_invalid_drink_volume(volume):
+def test_invalid_drink_volume(volume, calendar_regression_data):
+    data = calendar_regression_data
     """Некоректний об'єм не приймається."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "relapse",
             "drinks": [{"type": "beer", "volume_ml": volume}],
         },
@@ -147,14 +137,15 @@ def test_invalid_drink_volume(volume):
     assert response.status_code == 422
 
 
-def test_invalid_drink_type():
+def test_invalid_drink_type(calendar_regression_data):
+    data = calendar_regression_data
     """Невідомий тип напою не приймається."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "relapse",
             "drinks": [{"type": "unknown", "volume_ml": 200}],
         },
@@ -163,14 +154,15 @@ def test_invalid_drink_type():
     assert response.status_code == 422
 
 
-def test_sober_day_cannot_contain_alcohol():
+def test_sober_day_cannot_contain_alcohol(calendar_regression_data):
+    data = calendar_regression_data
     """Тверезий день не може містити алкогольні напої."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "sober",
             "drinks": [{"type": "wine", "volume_ml": 150}],
         },
@@ -179,30 +171,32 @@ def test_sober_day_cannot_contain_alcohol():
     assert response.status_code == 422
 
 
-def test_duplicate_date_returns_conflict():
+def test_duplicate_date_returns_conflict(calendar_regression_data):
+    data = calendar_regression_data
     """Другий запис на ту саму дату повертає 409."""
 
     payload = {
-        "date": str(dt.date.today() - dt.timedelta(days=2)),
+        "date": str(today_local() - dt.timedelta(days=2)),
         "status": "relapse",
         "drinks": [{"type": "beer", "volume_ml": 330}],
     }
 
-    first = client.post(URL, headers=HEADERS, json=payload)
-    second = client.post(URL, headers=HEADERS, json=payload)
+    first = data.client.post(URL, headers=data.headers, json=payload)
+    second = data.client.post(URL, headers=data.headers, json=payload)
 
     assert first.status_code == 201
     assert second.status_code == 409
 
 
-def test_future_date_is_rejected():
+def test_future_date_is_rejected(calendar_regression_data):
+    data = calendar_regression_data
     """Створення запису на майбутню дату заборонене."""
 
-    response = client.post(
+    response = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() + dt.timedelta(days=1)),
+            "date": str(today_local() + dt.timedelta(days=1)),
             "status": "relapse",
             "drinks": [{"type": "beer", "volume_ml": 330}],
         },
@@ -211,14 +205,15 @@ def test_future_date_is_rejected():
     assert response.status_code == 422
 
 
-def test_patch_to_sober_clears_drinks():
+def test_patch_to_sober_clears_drinks(calendar_regression_data):
+    data = calendar_regression_data
     """Зміна статусу на sober очищує список напоїв."""
 
-    created = client.post(
+    created = data.client.post(
         URL,
-        headers=HEADERS,
+        headers=data.headers,
         json={
-            "date": str(dt.date.today() - dt.timedelta(days=2)),
+            "date": str(today_local() - dt.timedelta(days=2)),
             "status": "relapse",
             "drinks": [{"type": "beer", "volume_ml": 330}],
         },
@@ -227,9 +222,9 @@ def test_patch_to_sober_clears_drinks():
     assert created.status_code == 201
     record_id = created.json()["record_id"]
 
-    updated = client.patch(
+    updated = data.client.patch(
         f"{URL}/{record_id}",
-        headers=HEADERS,
+        headers=data.headers,
         json={
             "status": "sober",
             "trigger_category": None,

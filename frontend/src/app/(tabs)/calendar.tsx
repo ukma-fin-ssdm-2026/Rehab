@@ -1,36 +1,15 @@
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
+import { useProfile } from '../../profile/ProfileProvider';
+import { relapseLabel } from '../../messages/catalog';
 
-import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { getCalendarEntriesUrl } from '../../config/api';
-import { getStatisticsUrl } from '../../config/api';
+import { useCallback, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { getMyAccount } from '../../api/auth';
+import { listEntries, type CalendarEntry } from '../../api/calendar';
+import { dayStatus, kyivDate, shiftedMonth, triggers } from '../../calendar/rules';
 import { theme } from '../../constants/theme';
-
-type CalendarEntry = {
-  record_id: number;
-  user_id: number;
-  date: string;
-  status: 'sober' | 'relapse';
-  trigger_category: string | null;
-  created_at: string;
-};
-
-type CalendarResponse = {
-  items: CalendarEntry[];
-  total: number;
-  limit: number;
-  offset: number;
-};
-
-type StatisticsResponse = {
-  tracking_start_date: string;
-};
 
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 
@@ -59,9 +38,11 @@ function getMonthDays(year: number, month: number): (string | null)[] {
 }
 
 export default function CalendarScreen() {
-  const today = formatDate(new Date());
+  const {profile}=useProfile();
+  const relapseName=relapseLabel(profile?.message_style ?? 'formal');
+  const [today, setToday] = useState(kyivDate());
   const [monthDate, setMonthDate] = useState(
-    () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    () => new Date(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 1, 1),
   );
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
   const [total, setTotal] = useState(0);
@@ -76,105 +57,35 @@ export default function CalendarScreen() {
   const monthEnd = formatDate(new Date(year, month + 1, 0));
   const monthDays = getMonthDays(year, month);
 
-  useEffect(() => {
+  const [attempt, setAttempt] = useState(0);
+  useFocusEffect(useCallback(() => {
     let active = true;
-
-    async function loadEntries() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const url =
-          `${getCalendarEntriesUrl()}?from=${monthStart}` +
-          `&to=${monthEnd}&limit=100&offset=0`;
-
-        const response = await fetch(url, {
-          headers: { Authorization: 'Bearer user-42' },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const result: CalendarResponse = await response.json();
-
-        if (active) {
-          setEntries(result.items);
-          setTotal(result.total);
-        }
-      } catch (err) {
-        if (active) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Не вдалося завантажити календар',
-          );
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
+    setLoading(true); setError(null); setEntries([]); setTrackingStart(null); setTotal(0);
+    Promise.all([listEntries(monthStart, monthEnd), getMyAccount()]).then(([result, account]) => {
+      if (active) {
+        setEntries(result.items); setTotal(result.total); setTrackingStart(account.tracking_start_date);
+        setToday(account.current_date);
       }
-    }
+    }).catch(err => {
+      if (active) setError(err instanceof Error ? err.message : 'Не вдалося завантажити календар');
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+    // attempt changes only when the user explicitly retries loading.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthStart, monthEnd, attempt]));
 
-    loadEntries();
-
-    return () => {
-      active = false;
-    };
-  }, [monthStart, monthEnd]);
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadTrackingStart() {
-      try {
-        const response = await fetch(getStatisticsUrl('all'), {
-          headers: { Authorization: 'Bearer user-42' },
-        });
-
-        if (!response.ok) return;
-
-        const result: StatisticsResponse = await response.json();
-
-        if (active && result.tracking_start_date) {
-          setTrackingStart(result.tracking_start_date);
-        }
-      } catch {
-        // Статистика може бути ще недоступною під час розробки.
-      }
-    }
-
-    loadTrackingStart();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const entryByDate = new Map(entries.map((entry) => [entry.date, entry]));
+  const entryByDate = new Map(entries.map(entry => [entry.date, entry]));
   const selectedEntry = entryByDate.get(selectedDate);
-
-  function getDayStatus(date: string): 'sober' | 'relapse' | 'empty' {
-    const entry = entryByDate.get(date);
-
-    if (entry) {
-      return entry.status === 'relapse' ? 'relapse' : 'sober';
-    }
-
-    if (
-      trackingStart &&
-      date >= trackingStart &&
-      date <= today
-    ) {
-      return 'sober';
-    }
-
-    return 'empty';
+  const available = !loading && !error && trackingStart !== null;
+  const mayCreate = available && selectedDate >= trackingStart! && selectedDate <= today;
+  function getDayStatus(date: string) {
+    return available ? dayStatus(date, entryByDate.get(date), trackingStart, today) : 'empty';
   }
 
   function changeMonth(offset: number) {
-    setMonthDate(new Date(year, month + offset, 1));
+    const next = shiftedMonth(year, month, offset);
+    setMonthDate(next.value);
+    setSelectedDate(next.selectedDate);
   }
 
   return (
@@ -252,6 +163,7 @@ export default function CalendarScreen() {
                       styles.dayNumber,
                       status !== 'empty' && styles.markedDayText,
                       isSelected && styles.selectedDayText,
+                      status === 'sober' && styles.soberDayText,
                     ]}
                   >
                     {Number(date.slice(-2))}
@@ -271,7 +183,7 @@ export default function CalendarScreen() {
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.relapseDay]} />
-          <Text style={styles.legendText}>Зрив</Text>
+          <Text style={styles.legendText}>{relapseName}</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.emptyDot]} />
@@ -279,7 +191,7 @@ export default function CalendarScreen() {
         </View>
       </View>
 
-      <View style={styles.card}>
+      {available && <GlassCard style={styles.card}>
         <Text style={styles.cardTitle}>Обраний день</Text>
         <Text style={styles.selectedDate}>{selectedDate}</Text>
 
@@ -290,10 +202,10 @@ export default function CalendarScreen() {
             return (
               <>
                 <Text style={styles.statusText}>
-                  Статус: {status === 'relapse' ? 'Зрив' : 'Тверезість'}
+                  Статус: {status === 'relapse' ? relapseName : 'Тверезість'}
                 </Text>
                 <Text style={styles.secondary}>
-                  Тригер: {selectedEntry.trigger_category ?? 'Не вказано'}
+                  Тригер: {triggers.find(item => item.value === selectedEntry.trigger_category)?.label ?? 'Не вказано'}
                 </Text>
               </>
             );
@@ -302,7 +214,7 @@ export default function CalendarScreen() {
           if (status === 'sober') {
             return (
               <Text style={styles.statusText}>
-                Тверезий день за даними відстеження.
+                Тверезий день за правилами відстеження. Окремий запис не створено.
               </Text>
             );
           }
@@ -313,34 +225,38 @@ export default function CalendarScreen() {
             </Text>
           );
         })()}
-      </View>
+        {selectedEntry ? <Pressable style={styles.retryButton} onPress={() => router.push({
+          pathname: '/entry/[record_id]', params: { record_id: selectedEntry.record_id },
+        })}><Text style={styles.retryText}>Відкрити запис</Text></Pressable>
+          : mayCreate ? <Pressable style={styles.retryButton} onPress={() => router.push({
+            pathname: '/add-entry', params: { date: selectedDate },
+          })}><Text style={styles.retryText}>Додати запис на цей день</Text></Pressable>
+          : <Text style={styles.secondary}>Запис можна додати лише від {trackingStart} до {today}.</Text>}
+      </GlassCard>}
 
-      <View style={styles.summary}>
+      {available && <GlassCard style={styles.summary}>
         <Text style={styles.summaryTitle}>Записи за місяць</Text>
         <Text style={styles.summaryNumber}>{total}</Text>
-      </View>
+      </GlassCard>}
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.secondary}>Завантаження записів...</Text>
         </View>
       )}
 
       {error && (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити записи</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable
             style={styles.retryButton}
-            onPress={() => {
-              setMonthDate(new Date(year, month + 1, 1));
-              setMonthDate(new Date(year, month, 1));
-            }}
+            onPress={() => setAttempt(value => value + 1)}
           >
             <Text style={styles.retryText}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
     </ScrollView>
   );
@@ -356,8 +272,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: theme.colors.primaryDark,
+    fontWeight: '500',
+    color: theme.colors.text,
   },
   subtitle: {
     marginTop: 6,
@@ -374,7 +290,7 @@ const styles = StyleSheet.create({
   monthTitle: {
     color: theme.colors.text,
     fontSize: 19,
-    fontWeight: '700',
+    fontWeight: '500',
     textTransform: 'capitalize',
   },
   monthButton: {
@@ -388,11 +304,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   arrow: {
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
     fontSize: 30,
     lineHeight: 34,
   },
-  calendar: {
+  calendar: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 20,
     padding: 10,
@@ -416,7 +332,7 @@ const styles = StyleSheet.create({
   weekday: {
     color: theme.colors.muted,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   dayButton: {
     width: '86%',
@@ -434,16 +350,19 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   soberDay: {
-    backgroundColor: theme.colors.accent,
+    backgroundColor: '#A8E2CB',
+  },
+  soberDayText: {
+    color: '#163A2E',
   },
   relapseDay: {
-    backgroundColor: '#F8DADA',
+    backgroundColor: theme.colors.dangerSurface,
   },
   markedDayText: {
-    fontWeight: '700',
+    fontWeight: '500',
   },
   today: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
     borderWidth: 2,
   },
   selectedDay: {
@@ -451,8 +370,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   selectedDayText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '800',
+    color: theme.colors.text,
+    fontWeight: '400',
   },
   todayDot: {
     position: 'absolute',
@@ -460,7 +379,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.hero,
   },
   legend: {
     flexDirection: 'row',
@@ -488,7 +407,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 12,
   },
-  card: {
+  card: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 18,
     borderWidth: 1,
@@ -501,9 +420,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   selectedDate: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   statusText: {
     color: theme.colors.text,
@@ -513,40 +432,40 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 14,
   },
-  summary: {
+  summary: { ...theme.effects.card,
     marginTop: 16,
     padding: 18,
     borderRadius: 18,
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.hero,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   summaryTitle: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   summaryNumber: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: '400',
   },
   message: {
     alignItems: 'center',
     gap: 12,
     padding: 24,
   },
-  errorBox: {
+  errorBox: { ...theme.effects.card,
     marginTop: 16,
-    backgroundColor: '#FDECEC',
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 12,
     padding: 16,
     gap: 8,
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.danger,
   },
   errorText: {
@@ -562,7 +481,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   retryText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

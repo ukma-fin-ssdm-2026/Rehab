@@ -1,96 +1,59 @@
-
-import { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { getStatisticsUrl } from '../../config/api';
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
+import { useProfile } from '../../profile/ProfileProvider';
+import { useMessageText } from '../../messages/useMessageText';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
-
-type Statistics = {
-  active_goal_days: number | null;
-  completed_goal_days: number[];
-  goal_progress_days: number;
-  total_sober_days: number;
-};
+import { FIXED_GOAL_DAYS, GOAL_LABELS, GOAL_DESCRIPTIONS } from '../../constants/goals';
 
 export default function GoalsScreen() {
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadGoals = useCallback(async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(getStatisticsUrl('all'), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити цілі',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadGoals();
-  }, [loadGoals]);
+  const messageText=useMessageText();
+  const { profile } = useProfile();
+  const motivation = profile ? messageText('goals.motivation', profile.message_style).body : '';
+  const { data, loading, error, reload: loadGoals } = useProgressStatistics();
 
   const completed = data?.completed_goal_days ?? [];
-  const activeGoal = data?.active_goal_days ?? null;
-  const progress = data?.goal_progress_days ?? 0;
+  const activeGoal =
+    FIXED_GOAL_DAYS.find((days) => !completed.includes(days)) ?? null;
+  const progress = activeGoal === null
+    ? 0
+    : Math.min(data?.current_streak ?? 0, activeGoal);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.eyebrow}>МАЛЕНЬКІ КРОКИ</Text>
       <Text style={styles.title}>Мої цілі</Text>
-      <Text style={styles.subtitle}>
-        Не потрібно робити все одразу. Рухайся у власному темпі.
-      </Text>
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.muted}>Завантажуємо цілі...</Text>
         </View>
       )}
 
       {error ? (
-        <View style={styles.errorBox}>
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити цілі</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable onPress={loadGoals}>
             <Text style={styles.retry}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       ) : null}
 
       {data && !loading && !error && (
         <>
           {activeGoal !== null ? (
-            <View style={styles.activeCard}>
+            <GlassCard style={styles.activeCard}>
               <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>АКТИВНА ЦІЛЬ</Text>
+                <Text style={styles.activeBadgeText}>ПОТОЧНИЙ ЕТАП</Text>
               </View>
               <Text style={styles.activeTitle}>
-                {activeGoal} днів тверезості
+                {GOAL_LABELS[activeGoal]} тверезості
               </Text>
               <Text style={styles.activeDescription}>
-                Твоя наступна ціль — один день за раз.
+                {motivation}
               </Text>
               <View style={styles.progressTrack}>
                 <View
@@ -106,28 +69,28 @@ export default function GoalsScreen() {
                 />
               </View>
               <Text style={styles.progressLabel}>
-                {Math.min(progress, activeGoal)} із {activeGoal} днів
+                {progress} із {activeGoal} днів
               </Text>
-            </View>
+            </GlassCard>
           ) : (
-            <View style={styles.successCard}>
+            <GlassCard style={styles.successCard}>
               <Text style={styles.successIcon}>★</Text>
-              <Text style={styles.successTitle}>Усі цілі виконано!</Text>
+              <Text style={styles.successTitle}>Усі етапи виконано!</Text>
               <Text style={styles.muted}>
                 Ти пройшла всі доступні етапи. Продовжуй рухатися у власному
                 темпі.
               </Text>
-            </View>
+            </GlassCard>
           )}
 
           <Text style={styles.sectionTitle}>Етапи твого шляху</Text>
 
-          {[7, 30].map((days) => {
+          {FIXED_GOAL_DAYS.map((days) => {
             const isCompleted = completed.includes(days);
             const isActive = activeGoal === days;
 
             return (
-              <View
+              <GlassCard
                 key={days}
                 style={[
                   styles.goalCard,
@@ -141,11 +104,12 @@ export default function GoalsScreen() {
                   </Text>
                 </View>
                 <View style={styles.goalInfo}>
-                  <Text style={styles.goalTitle}>{days} днів</Text>
+                  <Text style={styles.goalTitle}>{GOAL_LABELS[days]}</Text>
                   <Text style={styles.goalDescription}>
-                    {days === 7
-                      ? 'Перший тиждень твого шляху'
-                      : 'Місяць послідовності та турботи про себе'}
+                    Прогрес: {isCompleted ? days : Math.min(data.current_streak, days)} із {days} днів
+                  </Text>
+                  <Text style={styles.goalDescription}>
+                    {GOAL_DESCRIPTIONS[days]}
                   </Text>
                   <Text
                     style={[
@@ -157,21 +121,22 @@ export default function GoalsScreen() {
                     {isCompleted
                       ? 'Виконано'
                       : isActive
-                        ? 'Поточна ціль'
+                        ? 'Поточний етап'
                         : 'Наступний етап'}
                   </Text>
                 </View>
-              </View>
+              </GlassCard>
             );
           })}
 
-          <View style={styles.infoCard}>
+          <GlassCard style={styles.infoCard}>
             <Text style={styles.infoTitle}>Пам’ятай</Text>
             <Text style={styles.infoText}>
-              Твій прогрес — це не змагання. Навіть маленькі кроки мають
-              значення.
+              Відзнака зберігається після нового зриву. Виправлення минулих записів може змінити рекорд і відзнаки.
             </Text>
-          </View>
+          </GlassCard>
+          <Text style={styles.muted}>Етапи 7, 30, 90, 180 і 365 днів за безперервною серією.</Text>
+          <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
         </>
       )}
     </ScrollView>
@@ -188,14 +153,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 1.5,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -203,15 +168,15 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     marginTop: -10,
   },
-  activeCard: {
-    backgroundColor: theme.colors.primaryDark,
+  activeCard: { ...theme.effects.card,
+    backgroundColor: theme.colors.hero,
     borderRadius: 22,
     padding: 22,
     gap: 13,
   },
   activeBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#477C66',
+    backgroundColor: theme.colors.hero,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 9,
@@ -219,36 +184,36 @@ const styles = StyleSheet.create({
   activeBadgeText: {
     fontSize: 10,
     letterSpacing: 1,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   activeTitle: {
     fontSize: 26,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   activeDescription: {
     fontSize: 14,
-    color: '#E1F1E7',
+    color: theme.colors.heroMuted,
     lineHeight: 21,
   },
   progressTrack: {
     height: 9,
-    backgroundColor: '#628A78',
+    backgroundColor: theme.colors.progressTrack,
     borderRadius: 8,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.highlight,
     borderRadius: 8,
   },
   progressLabel: {
-    color: '#FFFFFF',
+    color: theme.colors.text,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '500',
   },
-  successCard: {
+  successCard: { ...theme.effects.card,
     backgroundColor: theme.colors.accent,
     borderRadius: 22,
     padding: 24,
@@ -257,19 +222,19 @@ const styles = StyleSheet.create({
   },
   successIcon: {
     fontSize: 36,
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
   },
   successTitle: {
     fontSize: 22,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
-  goalCard: {
+  goalCard: { ...theme.effects.card,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
@@ -280,7 +245,7 @@ const styles = StyleSheet.create({
     padding: 17,
   },
   goalCardActive: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
     borderWidth: 2,
   },
   goalCardCompleted: {
@@ -296,8 +261,8 @@ const styles = StyleSheet.create({
   },
   goalIconText: {
     fontSize: 23,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   goalInfo: {
     flex: 1,
@@ -305,7 +270,7 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: 17,
-    fontWeight: '800',
+    fontWeight: '400',
     color: theme.colors.text,
   },
   goalDescription: {
@@ -315,16 +280,16 @@ const styles = StyleSheet.create({
   },
   goalStatus: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.muted,
   },
   activeText: {
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   completedText: {
-    color: theme.colors.primaryDark,
+    color: theme.colors.text,
   },
-  infoCard: {
+  infoCard: { ...theme.effects.card,
     borderRadius: 18,
     padding: 18,
     backgroundColor: theme.colors.accent,
@@ -332,8 +297,8 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   infoText: {
     fontSize: 14,
@@ -350,8 +315,8 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  errorBox: {
-    backgroundColor: '#FDECEC',
+  errorBox: { ...theme.effects.card,
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 15,
     padding: 16,
     gap: 10,
@@ -359,14 +324,14 @@ const styles = StyleSheet.create({
   errorTitle: {
     color: theme.colors.danger,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   errorText: {
     color: theme.colors.danger,
     fontSize: 14,
   },
   retry: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

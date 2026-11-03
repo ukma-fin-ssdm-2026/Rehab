@@ -1,14 +1,10 @@
+import { ScreenScrollView as ScrollView } from '../components/visual/ScreenScrollView';
 
 import { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { theme } from '../constants/theme';
+import { useAuth } from '../auth/AuthProvider';
 
 const options = [
   'Хочу краще розуміти свої звички',
@@ -18,6 +14,7 @@ const options = [
 ];
 
 export default function OnboardingScreen() {
+  const { finishOnboarding } = useAuth();
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -27,6 +24,7 @@ export default function OnboardingScreen() {
       return;
     }
 
+    finishOnboarding();
     router.replace('/(tabs)/home');
   }
 
@@ -110,7 +108,7 @@ const styles = StyleSheet.create({
   progressFill: {
     width: '100%',
     height: '100%',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.highlight,
   },
   step: {
     color: theme.colors.muted,
@@ -118,15 +116,15 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 1.5,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 30,
     lineHeight: 37,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -137,7 +135,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 8,
   },
-  option: {
+  option: { ...theme.effects.card,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
@@ -149,8 +147,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
   },
   optionActive: {
-    borderColor: theme.colors.primary,
-    backgroundColor: '#EAF5EE',
+    borderColor: theme.colors.buttonBorder,
+    backgroundColor: theme.colors.hero,
   },
   radio: {
     width: 22,
@@ -162,13 +160,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioActive: {
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.buttonBorder,
   },
   radioDot: {
     width: 11,
     height: 11,
     borderRadius: 6,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.highlight,
   },
   optionText: {
     flex: 1,
@@ -177,8 +175,8 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   optionTextActive: {
-    fontWeight: '600',
-    color: theme.colors.primaryDark,
+    fontWeight: '500',
+    color: theme.colors.text,
   },
   error: {
     color: theme.colors.danger,
@@ -193,9 +191,9 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   note: {
     textAlign: 'center',

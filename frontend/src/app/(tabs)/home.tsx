@@ -1,120 +1,88 @@
-
-import { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
-import { getStatisticsUrl } from '../../config/api';
+import { LinearGradient } from 'expo-linear-gradient';
+import { IconBadge } from '../../components/visual/IconBadge';
+import { ScreenScrollView as ScrollView } from '../../components/visual/ScreenScrollView';
+import { GlassCard } from '../../components/visual/GlassCard';
+import { JourneyOrb } from '../../components/visual/JourneyOrb';
+import { LotusMark } from '../../components/visual/LotusMark';
+import { useUnreadMessages } from '../../messages/useMessages';
+import { useProfile } from '../../profile/ProfileProvider';
+import { useMessageText } from '../../messages/useMessageText';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useProgressStatistics } from '../../progress/useProgressStatistics';
 import { theme } from '../../constants/theme';
-
-type Statistics = {
-  total_sober_days: number;
-  current_streak: number;
-  longest_streak: number;
-  active_goal_days: number | null;
-  goal_progress_days: number;
-};
+import { FIXED_GOAL_DAYS, GOAL_LABELS } from '../../constants/goals';
 
 export default function HomeScreen() {
-  const [data, setData] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadStatistics = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(getStatisticsUrl('all'), {
-        headers: { Authorization: 'Bearer user-42' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      setData(await response.json());
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Не вдалося завантажити статистику',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadStatistics();
-  }, [loadStatistics]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadStatistics();
-    }, [loadStatistics]),
-  );
+  const messageText=useMessageText();
+  const unread = useUnreadMessages();
+  const { profile } = useProfile();
+  const motivation = profile ? messageText('home.motivation', profile.message_style).body : '';
+  const { data, loading, error, reload: loadStatistics } = useProgressStatistics();
+  const completedGoals = data?.completed_goal_days ?? [];
+  const activeGoal = FIXED_GOAL_DAYS.find(days => !completedGoals.includes(days)) ?? null;
+  const goalProgress = activeGoal === null ? 0 : Math.min(data?.current_streak ?? 0, activeGoal);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text>
-      <Text style={styles.title}>Привіт!</Text>
+      <View style={styles.headerRow}>
+        <View style={styles.brandRow}><LotusMark size={26} /><Text style={styles.eyebrow}>ТВІЙ ПРОСТІР</Text></View>
+        <Pressable style={styles.mailButton} accessibilityRole="button" accessibilityLabel={unread.error ? 'Повідомлення. Не вдалося оновити лічильник' : `Повідомлення. Непрочитаних: ${unread.data?.count ?? 'завантаження'}`} onPress={()=>router.push('/messages')}>
+          <Text style={styles.retryText}>✉{unread.data ? ` ${unread.data.count}` : unread.error ? ' !' : '…'}</Text>
+        </Pressable>
+      </View>
+      <Text style={styles.title}>{profile && profile.message_style !== 'formal' ? messageText('home.motivation',profile.message_style).title : 'Привіт!'}</Text>
       <Text style={styles.subtitle}>
-        Кожен день — це твій власний крок уперед.
+        {motivation}
       </Text>
+
+      <Text style={styles.muted}>Дні без записів від початку відстеження враховуються як тверезі.</Text>
 
       {loading && (
         <View style={styles.message}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.highlight} />
           <Text style={styles.muted}>Завантажуємо твою статистику...</Text>
         </View>
       )}
 
-      {error && (
-        <View style={styles.errorBox}>
+      {!!error && (
+        <GlassCard style={styles.errorBox}>
           <Text style={styles.errorTitle}>Не вдалося завантажити дані</Text>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable style={styles.retry} onPress={loadStatistics}>
             <Text style={styles.retryText}>Спробувати ще раз</Text>
           </Pressable>
-        </View>
+        </GlassCard>
       )}
 
       {data && !loading && !error && (
         <>
-          <View style={styles.hero}>
-            <Text style={styles.heroLabel}>Усього тверезих днів</Text>
-            <Text style={styles.heroNumber}>{data.total_sober_days}</Text>
-            <Text style={styles.heroCaption}>Твій прогрес має значення</Text>
-          </View>
+          <JourneyOrb total={data.total_sober_days} />
 
           <View style={styles.grid}>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>↗</Text>
+            <GlassCard style={styles.card}>
+              <IconBadge name="trending-up-outline" />
               <Text style={styles.cardNumber}>{data.current_streak}</Text>
               <Text style={styles.cardLabel}>Поточна серія</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>★</Text>
+            </GlassCard>
+            <GlassCard style={styles.card}>
+              <IconBadge name="flash-outline" />
               <Text style={styles.cardNumber}>{data.longest_streak}</Text>
               <Text style={styles.cardLabel}>Найкраща серія</Text>
-            </View>
+            </GlassCard>
           </View>
 
-          <View style={styles.goalCard}>
-            <Text style={styles.goalTitle}>Твоя поточна ціль</Text>
-            {data.active_goal_days == null ? (
-              <Text style={styles.goalText}>Усі цілі виконано!</Text>
+          <GlassCard illustrated style={styles.goalCard}>
+            <Text style={styles.goalTitle}>Твій поточний етап</Text>
+            {activeGoal === null ? (
+              <Text style={styles.goalText}>Усі етапи виконано!</Text>
             ) : (
               <>
                 <Text style={styles.goalNumber}>
-                  {data.active_goal_days} днів
+                  {GOAL_LABELS[activeGoal]}
                 </Text>
                 <Text style={styles.muted}>
-                  Прогрес: {data.goal_progress_days} із {data.active_goal_days}
+                  Прогрес: {goalProgress} із {activeGoal}
                 </Text>
                 <View style={styles.progressTrack}>
                   <View
@@ -123,7 +91,7 @@ export default function HomeScreen() {
                       {
                         width: `${Math.min(
                           100,
-                          (data.goal_progress_days / data.active_goal_days) * 100,
+                          (goalProgress / activeGoal) * 100,
                         )}%`,
                       },
                     ]}
@@ -131,7 +99,7 @@ export default function HomeScreen() {
                 </View>
               </>
             )}
-          </View>
+          </GlassCard>
         </>
       )}
 
@@ -139,6 +107,8 @@ export default function HomeScreen() {
         style={styles.button}
         onPress={() => router.push('/add-entry')}
       >
+        <LinearGradient pointerEvents="none" colors={theme.gradients.button} start={{x:0,y:0}} end={{x:1,y:1}}
+          style={{position:'absolute',top:0,right:0,bottom:0,left:0,borderRadius:26}} />
         <Text style={styles.buttonText}>＋  Додати запис</Text>
       </Pressable>
     </ScrollView>
@@ -146,6 +116,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  mailButton: { ...theme.effects.card, minWidth:44, minHeight:44, borderRadius:17, paddingHorizontal:12, justifyContent:'center', alignItems:'center', backgroundColor:theme.colors.surface, borderWidth:1, borderColor:theme.colors.border },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap'},
   container: {
     flexGrow: 1,
     backgroundColor: theme.colors.background,
@@ -155,14 +128,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 2,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   title: {
     fontSize: 32,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: 15,
@@ -171,29 +144,29 @@ const styles = StyleSheet.create({
     marginTop: -12,
   },
   hero: {
-    backgroundColor: theme.colors.primaryDark,
+    backgroundColor: theme.colors.hero,
     borderRadius: 24,
     padding: 24,
     gap: 8,
   },
   heroLabel: {
     fontSize: 15,
-    color: '#E1F1E7',
+    color: theme.colors.heroMuted,
   },
   heroNumber: {
     fontSize: 52,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   heroCaption: {
     fontSize: 14,
-    color: '#E1F1E7',
+    color: theme.colors.heroMuted,
   },
   grid: {
     flexDirection: 'row',
     gap: 12,
   },
-  card: {
+  card: { ...theme.effects.card,
     flex: 1,
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
@@ -204,18 +177,18 @@ const styles = StyleSheet.create({
   },
   cardIcon: {
     fontSize: 24,
-    color: theme.colors.primary,
+    color: theme.colors.highlight,
   },
   cardNumber: {
     fontSize: 28,
-    fontWeight: '800',
-    color: theme.colors.primaryDark,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
   cardLabel: {
     fontSize: 13,
     color: theme.colors.muted,
   },
-  goalCard: {
+  goalCard: { ...theme.effects.card,
     backgroundColor: theme.colors.surface,
     borderRadius: 20,
     borderWidth: 1,
@@ -225,18 +198,18 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.text,
   },
   goalText: {
   fontSize: 16,
-  fontWeight: '600',
-  color: theme.colors.primary,
+  fontWeight: '500',
+  color: theme.colors.highlight,
   },
   goalNumber: {
     fontSize: 25,
-    fontWeight: '800',
-    color: theme.colors.primary,
+    fontWeight: '400',
+    color: theme.colors.highlight,
   },
   progressTrack: {
     height: 8,
@@ -246,7 +219,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.highlight,
     borderRadius: 8,
   },
   muted: {
@@ -258,15 +231,15 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  errorBox: {
-    backgroundColor: '#FDECEC',
+  errorBox: { ...theme.effects.card,
+    backgroundColor: theme.colors.dangerSurface,
     borderRadius: 16,
     padding: 16,
     gap: 10,
   },
   errorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: theme.colors.danger,
   },
   errorText: {
@@ -277,19 +250,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   retryText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
   button: {
+    ...theme.effects.button,
     backgroundColor: theme.colors.primary,
-    borderRadius: 16,
+    borderRadius: 26,
+    borderWidth: 1,
+    borderColor: theme.colors.buttonBorder,
     alignItems: 'center',
     padding: 17,
     marginTop: 2,
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: '500',
+    color: theme.colors.text,
   },
 });

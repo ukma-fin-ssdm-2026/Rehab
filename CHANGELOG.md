@@ -1,7 +1,10 @@
 # Changelog
 
-## 1.0.1 — Lab 08 (2026-10-30)
-- Refactored Ukrainian day pluralization to reuse a shared helper without changing validation.
-- Centralized sobriety goal thresholds (7 and 30 days) to remove duplication.
-- Restricted Python package installs in GitHub Actions to binary distributions.
-- The results of automated tests and SonarQube reanalysis require verification.
+## [1.0.1] - 2026-11-03
+
+### Refactoring
+- Усунуто дублювання форматування днів через повторне використання `_day_word()` (Reuse Method).
+- Узгоджено рефакторинг цілей з актуальними етапами 7, 30, 90, 180, 365 днів (`FIXED_GOAL_DAYS`).
+
+### Security
+- Обмежено встановлення Python-залежностей у GitHub Actions бінарними дистрибутивами.
