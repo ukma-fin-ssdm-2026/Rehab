@@ -2,7 +2,7 @@
 
 Формат — [Keep a Changelog](https://keepachangelog.com/uk/1.1.0/), версії — [SemVer](https://semver.org/lang/uk/).
 
-## [1.0.1] - 2026-11-03
+## [1.0.1] - 2026-11-04
 
 ### Refactoring
 - Усунуто дублювання форматування днів через повторне використання `_day_word()` (Reuse Method).
