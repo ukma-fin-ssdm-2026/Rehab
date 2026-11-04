@@ -119,3 +119,21 @@ CHANGELOG і релізний тег залишаються відповідал
 ## 4. Підготовка релізу та висновок
 
 Оновила версію до `1.0.1` і додала `CHANGELOG.md`. У коді стало менше повторень, а автоматичні перевірки пройшли. Показники SonarQube після змін ще не виміряні.
+
+## 5. Бонуси
+
+### 5.1. Бонус №1 — обов’язковий Quality Gate (`maryxseee`)
+
+Я перевірила блокування на [PR №243](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/243).
+Для контрольованого червоного результату додала тимчасовий модуль
+`backend/app/quality_gate_probe.py` з двома однаковими функціями.
+Модуль не підключався до застосунку.
+
+| Стан | Коміт | Дублювання нового коду | Поріг | SonarCloud Code Analysis |
+|---|---|---:|---:|---|
+| До виправлення | [d72f1e5](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/d72f1e59ca504809b3c5ed48a71898651f703f2c) | 80,0% | ≤ 3% | [Failure — червона перевірка](https://github.com/ukma-fin-ssdm-2026/Rehab/runs/126767356859) |
+
+У [чинних правилах main](https://api.github.com/repos/ukma-fin-ssdm-2026/Rehab/rules/branches/main)
+перевірка `SonarCloud Code Analysis` від SonarQube Cloud (integration ID 12526)
+є обов’язковою. Її червоний результат не задовольняв вимогу до злиття;
+інші умови самого Quality Gate проходили. Правила захисту не змінювалися.
