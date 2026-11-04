@@ -27,6 +27,9 @@
 | **Lab 05** | Quality Lead + Prototype Lead | Code Reviewer | Documentation Lead | Security Analyst |
 | **Lab 06** | Debugging Lead | Testing Strategist | Integration Lead | Testing Lead + Test stand manager |
 | **Lab 07** | Documentation Lead | Quality Analyst | Test Planner | Review Manager + AI Code Reviewer |
+| **Lab 08** | Аналітик коду + Security Rating | Менеджер релізу | Керівник рефакторингу + нотатка «Використання ШІ» | Інженер з тестування |
+
+У Lab 08 кожна учасниця також виконує власний рефакторинг і пояснює його перевірку в індивідуальному відео.
 
 Командні домовленості, правила співпраці, стандарти кодування, Code Review та Definition of Done описано в [TeamCharter.md](TeamCharter.md).
 
@@ -175,6 +178,20 @@ Rehab/
 │   │   ├── testing-strategy.md
 │   │   └── debugging-log.md
 │   │
+│   ├── validation/
+│   │   ├── test-plan.md
+│   │   ├── review-log.md
+│   │   └── traceability-check.md
+│   │
+│   ├── refactoring/
+│   │   ├── sonarcloud-report.md
+│   │   └── screenshots/         # докази SonarQube до/після
+│   │
+│   ├── development/
+│   │   └── postgres-local.md
+│   ├── deployment/
+│   │   └── render-neon.md
+│   │
 │   └── design/
 │       ├── design.md
 │       └── overview.png
@@ -183,6 +200,10 @@ Rehab/
 ├── scripts/
 │   └── export_openapi.py
 ├── tests/
+├── .sonarcloud.properties       # виключення згенерованих звітів з аналізу
+├── CHANGELOG.md
+├── pyproject.toml               # конфігурація тестів і версія проєкту
+├── compose.yaml
 ├── requirements.txt
 ├── Project-Description.md
 ├── TeamCharter.md
@@ -191,9 +212,9 @@ Rehab/
 └── .gitignore
 ```
 
-Документація організована за окремими напрямами: вимоги, архітектура, API, якість коду та тестування. Такий підхід забезпечує простежуваність між проєктними рішеннями, реалізацією й перевірками.
+Документація організована за окремими напрямами: вимоги, архітектура, API, якість коду, тестування, валідація, рефакторинг і розгортання. Такий підхід забезпечує простежуваність між проєктними рішеннями, реалізацією й перевірками.
 
-## 5. Документація лабораторних робіт (Labs 1–6)
+## 5. Документація лабораторних робіт (Labs 1–8)
 
 У таблиці зібрано основні результати лабораторних робіт і відповідні матеріали репозиторію.
 
@@ -205,8 +226,41 @@ Rehab/
 | **Lab 04 — API** | [API Design](docs/api/api-design.md), [OpenAPI](docs/api/openapi-generated.yaml), [Quality Attributes](docs/api/quality-attributes.md), [Swagger UI](https://ukma-fin-ssdm-2026.github.io/Rehab/) |
 | **Lab 05 — Якість коду** | [Progress Report](docs/code-quality/progress.md), [Static Analysis](docs/code-quality/static-analysis.md), [Code Review](docs/code-quality/review-report.md) |
 | **Lab 06 — Тестування та налагодження** | [Testing Strategy](docs/testing/testing-strategy.md), [Debugging Log](docs/testing/debugging-log.md), [Tests](tests/), [CI Results](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| **Lab 07 — Планування тестування та взаємні огляди** | [Тест-план](docs/validation/test-plan.md), [Журнал взаємного огляду](docs/validation/review-log.md), [Перевірка простежуваності](docs/validation/traceability-check.md) |
+| **Lab 08 — Рефакторинг та управління релізами** | [Звіт SonarQube, рефакторинги й регресія](docs/refactoring/sonarcloud-report.md), [Скриншоти до/після](docs/refactoring/screenshots/README.md), [CHANGELOG](CHANGELOG.md), [Тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1) |
 
 Матеріали лабораторних робіт та посилання на індивідуальні демонстраційні відео розміщуються в каталозі [Labs/](Labs/).
+
+### Lab 08: звіт, перевірки та реліз
+
+Матеріали оформлено за [завданням Lab 08](https://ssdm-2026.cs-courses.org/labs/lab08/lab08.html).
+Основний артефакт — [sonarcloud-report.md](docs/refactoring/sonarcloud-report.md):
+у ньому зібрано три обрані метрики до/після, обов'язковий Security Rating,
+опис запахів коду, техніки рефакторингу, незмінну поведінку та тести-докази.
+У тому самому звіті наведено конкретне використання ШІ, результати регресії
+та окремий розділ [«Бонуси»](docs/refactoring/sonarcloud-report.md#бонуси).
+
+| Матеріал | Де знайти |
+|---|---|
+| Метрики якості й причини Security Rating | [Звіт SonarQube](docs/refactoring/sonarcloud-report.md#1-аналіз-якості-коду-етап-1), [панель проєкту](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab) |
+| Зображення з панелі до/після | [Покажчик скриншотів](docs/refactoring/screenshots/README.md) |
+| Рефакторинги учасниць та докази незмінності поведінки | [Опис і таблиця рефакторингів](docs/refactoring/sonarcloud-report.md#2-рефакторинг-етап-2), [автоматичні тести](tests/) |
+| Регресійні результати з датами й основою коду | [Перевірка результату](docs/refactoring/sonarcloud-report.md#3-перевірка-результату-етап-3), [CI](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| Версія та зміни релізу | [pyproject.toml](pyproject.toml), [CHANGELOG.md](CHANGELOG.md), [git-тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1) |
+| Докази бонусних пунктів | [Розділ «Бонуси»](docs/refactoring/sonarcloud-report.md#бонуси), [демонстрація червоного та зеленого Quality Gate — PR №243](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/243) |
+
+Результати регресії та метрики у звіті належать зазначеним датам і станам коду;
+поточні перевірки конкретного коміту потрібно дивитися в GitHub Actions.
+Погоджена ціль покриття Backend — **не нижче 90%** за
+[критеріями виходу тест-плану](docs/validation/test-plan.md#критерії-виходу).
+Порівняння метрик між історичними станами відображає сукупність командних змін.
+
+Індивідуальне Loom-відео до 5 хвилин має пояснювати власну зміну та її перевірку.
+Посилання додається у `Labs/Lab08/video_<ім'я>.txt`; станом на 05.11.2026
+тека `Labs/Lab08` ще не представлена в перевіреному `main`.
+Для кожного заявленого бонусу потрібне пояснення у відео хоча б однієї учасниці.
+Git-тег `v1.0.1` уже існує; налаштування автоматизованого релізу та результат
+його фактичного запуску описуються окремо в розділі «Бонуси» звіту.
 
 Основні артефакти взаємопов'язані:
 
@@ -444,6 +498,9 @@ npm run export:web
 |---|---|
 | Репозиторій Rehab | [GitHub](https://github.com/ukma-fin-ssdm-2026/Rehab) |
 | CI Pipeline | [GitHub Actions](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| Аналіз якості коду | [SonarQube Cloud](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab) |
+| Результати Lab 08 | [Звіт, рефакторинги, регресія та бонуси](docs/refactoring/sonarcloud-report.md) |
+| Журнал змін і реліз | [CHANGELOG.md](CHANGELOG.md), [git-тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1) |
 | API-документація | [Swagger UI](https://ukma-fin-ssdm-2026.github.io/Rehab/) |
 | Інструкція запуску | [setup_and_run.md](setup_and_run.md) |
 | Командний статут | [TeamCharter.md](TeamCharter.md) |
@@ -466,6 +523,7 @@ npm run export:web
 
 - [Тест-план і статуси кейсів](docs/validation/test-plan.md), [журнал взаємного огляду](docs/validation/review-log.md), [історія валідатора простежуваності](docs/validation/traceability-check.md).
 - [Мутаційне тестування](docs/testing/mutation-testing.md), [рекомендації щодо якості тестів](docs/testing/test-quality-recommendations.md).
+- [Lab 08 — звіт SonarQube, рефакторинги, регресія та бонуси](docs/refactoring/sonarcloud-report.md), [скриншоти до/після](docs/refactoring/screenshots/README.md), [журнал змін](CHANGELOG.md), [git-тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1).
 - [ADR-001](docs/architecture/decisions/ADR-001.md), [ADR-002](docs/architecture/decisions/ADR-002.md), [джерело ER-моделі](docs/architecture/uml/implemented-data-model.puml).
 - [Локальна PostgreSQL](docs/development/postgres-local.md), [онлайн-розгортання й Gmail](docs/deployment/render-neon.md).
 - Workflows: [CI](.github/workflows/ci.yml), [якість коду](.github/workflows/code-quality.yml), [залежності](.github/workflows/dependency-audit.yml), [API Pages](.github/workflows/docs.yml), [простежуваність](.github/workflows/traceability.yml), [нагадування](.github/workflows/reminders.yml).
