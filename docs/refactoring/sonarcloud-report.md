@@ -1,27 +1,65 @@
 # Аналіз SonarQube та рефакторинг — Лабораторна робота №8
 
 **Проєкт:** Rehab  
-**Дата:** 30.10.2026  
+**Дата звіту:** 04.11.2026 (вимірювання 29.10 і 03.11)  
 **Інструмент:** SonarQube Cloud  
-**Гілки:** `pre-refactor` — початковий стан, `lab08` — рефакторинг і синхронізація з `main`  
+**Порівняння:** історичний аналіз `main` 29.10.2026, 13:45, і стан `main` 03.11.2026; історичний код збережено у `pre-refactor`  
 **Pull Request:** [Рефакторинг Rehab #206](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/206)
 
 ## 1. Аналіз якості коду (етап 1)
 
-Переглянуто [панель Rehab у SonarQube Cloud](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab). Початковий стан коду збережено в гілці `pre-refactor`.
+Переглянуто [панель Rehab у SonarQube Cloud](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab) та історію показників на сторінці Activity. Початковий стан коду збережено в [гілці `pre-refactor`](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/pre-refactor), але метрики «до» отримані з **реального історичного аналізу `main` від 29.10.2026, 13:45**, а не з повторного сканування цієї гілки.
 
-Для лабораторної обрано три метрики з п'яти. **Security Rating записано окремо**, як вимагає завдання. Вихідні значення зафіксовано 30.10.2026 до оновлення `main` і не можна безпосередньо порівнювати зі станом після 352 нових комітів.
+Для лабораторної обрано три метрики з п'яти. **Security Rating записано окремо**, як вимагає завдання. Вихідні значення записані у звіті 30.10.2026 і підтверджені історією SonarQube за 29.10.2026. Показники «після» відображають результат **командних змін у `main`**, зокрема синхронізації 352 комітів; це не ефект лише особистого рефакторингу.
 
 | Показник | До рефакторингу | Після рефакторингу |
 |---|---|---|
-| Duplicated Lines (%) | 13,0% | Ще не виміряно |
-| Maintainability Rating | A | Ще не виміряно |
-| Reliability Rating | C | Ще не виміряно |
-| Security Rating (обов'язковий) | C | Ще не виміряно |
+| Duplicated Lines (%) | 13,0% | 2,3% |
+| Maintainability Rating | A | A |
+| Reliability Rating | C | A |
+| Security Rating (обов'язковий) | C | C |
 
-**Quality Gate:** Passed. SonarQube показав 16 проблем: 12 з безпеки (10 Medium, 2 Low) та 4 з надійності. Проблем супроводжуваності — 0. Для Coverage у SonarQube даних немає.
+### Скриншоти SonarQube: «до» і «після»
 
-Рейтинг безпеки C пов'язаний із проблемами середньої серйозності. Серед зауважень: встановлення Python-пакетів без обмеження бінарними збірками та відсутність повного закріплення версій залежностей. Частину зауважень до встановлення пакетів виправлено. Решту потрібно розглянути окремо; зміни рейтингу поки не підтверджено.
+Усі зображення відображають проєкт **Rehab**. Для стану «до» використано історію **Activity → main**, а для стану «після» — **Measures / Overall Code** та snapshots. Скриншоти «до» було відкрито 03.11.2026, проте курсор на графіках указує на **історичний аналіз 29.10.2026 о 13:45**. Це не скриншоти, зроблені 29 жовтня, і не аналіз окремої гілки `pre-refactor`.
+
+**До рефакторингу — 29.10.2026, 13:45:**
+
+![Історичний рівень дублювання 13,0% (main, 29.10.2026)](screenshots/sonarqube-duplication-before.jpg)
+
+![Історичні рейтинги: Maintainability A, Reliability C, Security C (main, 29.10.2026)](screenshots/sonarqube-ratings-before.jpg)
+
+**Після рефакторингу — 03.11.2026, main / Overall Code:**
+
+![Duplicated Lines: 2,3%](screenshots/sonarqube-duplication-after.jpg)
+
+![Maintainability Rating: A, 1 issue](screenshots/sonarqube-maintainability-after.jpg)
+
+![Reliability Rating: A, 2 issues](screenshots/sonarqube-reliability-after.jpg)
+
+![Security Rating: C, 5 issues, 3 Medium та 2 Low](screenshots/sonarqube-security-after.jpg)
+
+**Висновок за знімками:** загальна частка дублікатів зменшилася з **13,0% до 2,3%** (на **10,7 відсоткових пункта**), Reliability Rating підвищився з **C до A**, Maintainability Rating залишився **A**, а Security Rating — **C**. На поточному знімку залишаються 5 відкритих Security Issues. У [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) зафіксовано версії Python-залежностей для CI та API-документації; наведені показники SonarQube відображають стан на дату вимірювання.
+
+**Початкові числові записи (30.10.2026; історія Activity підтверджує рейтинги та дублювання за 29.10):** Quality Gate Passed; 12 Security Issues (10 Medium, 2 Low), 4 Reliability Issues, 0 проблем супроводжуваності. Coverage у SonarQube не відображалося.
+
+**Повторний перегляд Overall Code (03.11.2026):** Security Rating C, 5 відкритих Security Issues (3 Medium, 2 Low), 2 відкриті Reliability Issues. Maintainability і Reliability мають рейтинг A за переглядом панелі. За останні 30 днів SonarQube відображає 7 закритих Security Issues. Duplicated Lines (%) після змін становить 2,3% за Overall Code.
+
+Найвищі локальні показники дублювання залишаються у `src/api/routers/calendar.py` (80,6%) та `backend/app/routers/calendar.py` (72,9%).
+
+Вихідна оцінка 30.10 належить старому стану коду до синхронізації PR №206 з `main` на 352 коміти. Тому різницю в кількості issues або рейтингах не можна повністю приписувати одному рефакторингу. Для аналізу актуального `main` використовуємо коміт [`29399f8`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/29399f8a1ab11c6fb48757901c9b3f821c732461).
+
+### Причини Security Rating C
+
+| Файл | Відкриті issues | Серйозність | Рішення |
+|---|---:|---|---|
+| `.github/workflows/ci.yml`, рядки 43–44 | 2 | Medium | Версії пакетів зафіксовано в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) |
+| `.github/workflows/docs.yml`, рядок 32 | 1 | Medium | Єдиний файл закріплених версій додано в [PR №236](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/236) |
+| `docs/api/index.html`, рядки 6 і 10 | 2 | Low | Ризик підміни зовнішніх CSS/JS; запропонований захист — фіксація версії Swagger UI та атрибути SRI |
+
+Попередні зауваження до відсутнього `--only-binary=:all:` уже мають статус Fixed. Вони відрізняються від відкритих зауважень щодо незакріплених версій. Успішний Quality Gate сам по собі не підтверджує Security Rating A.
+
+**Зв'язок із попередніми лабораторними:** у [STRIDE-моделі Lab 3](../architecture/threat-model.md) категорія Tampering стосується ризику несанкціонованої зміни даних. Неконтрольовані пакети та зовнішні ресурси створюють споріднений ризик підміни коду в ланцюгу постачання, не тотожний описаному сценарію зміни календарних даних. [Bandit та pip-audit із Lab 5](../code-quality/static-analysis.md) перевіряють Python-код і відомі вразливості залежностей, але не замінюють фіксацію версій або перевірку цілісності CDN-ресурсів.
 
 ## 2. Рефакторинг (етап 2)
 
@@ -33,13 +71,13 @@
 |---|---|---|---|---|
 | Поліна — `backend/app/services/drink_summary.py::volume_by_type_ml` | Неявна ініціалізація накопичувача через повторюваний `dict.get(key, 0)` усередині циклу; типи полів раніше описувалися через `Any` | **Substitute Algorithm**: накопичення через `defaultdict(int)`, на межі повертається `dict(totals)`. Супровідне уточнення анотацій через `Drink(TypedDict)` не додає runtime-валідацію | Сума для кожного типу; нульові й порожні дані; довільні назви типів; порядок першої появи ключів; один прохід iterable; звичайний `dict` у результаті; вхідні дані не змінюються | `tests/test_drink_summary.py`: `test_volume_is_grouped_by_drink_type`, `test_grouping_preserves_empty_zero_and_arbitrary_types`, `test_grouping_consumes_a_single_pass_iterable`, `test_summary_does_not_modify_input`, `test_total_accepts_a_single_pass_iterable`. Уже в `main`: [`2007fe1`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/2007fe1d1c36ee5617e4c7a57a1f1f684ba0a506), [`8b2eff4`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/8b2eff41dbef6bef19c82652d167bcee1599f44a). Той самий набір на реалізації до `8b2eff4` і після — **10/10 тестів в обох випадках**. Додаткові тести підготовлені в PR №240 |
 | Анастасія — історичні зміни `backend/app/services/statistics.py::get_days_remaining` | Неочевидні числа 7/30, назви проміжних значень і складений вибір наступної цілі | **Replace Magic Number with Constant / Rename Variable**, потім **Substitute Algorithm**: іменовані значення та вибір першої наступної цілі циклом | Для історичних двох цілей — результат підрахунку залишку днів і відхилення від'ємного введення | Коміти [`53d5295`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/53d5295272b2808c71eb5f0e2120a6c5cb1d731c) і [`537e322`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/537e322c2723a6addf934982e4550da0f007902a), `tests/test_goal_remaining.py`. Це історичні рефакторинги; зараз `main` і поточні тести використовують п'ять етапів. Парний прогін на історичній реалізації тут не зафіксований |
-| Анастасія — `backend/app/stubs.py::reset` | Змішані обов'язки скидання сховища та побудови початкових записів | **Extract Method**: створення двох записів винесено до `_initial_entries(now, today)`; `reset()` очищає ті самі словники, відновлює лічильник і додає записи | Початкові записи та їхні ID, статуси, дати й UTC-час, ідентичність спільних словників, перезапуск лічильника | `tests/test_stubs_characterization.py`: `test_reset_recreates_original_seed_data`, `test_reset_preserves_shared_dictionaries_and_restarts_counter`. [PR №238](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/238): тести в `37b059e`, рефакторинг у `cda574d`; PR відкритий, **ще не в `main`** |
+| Анастасія — `backend/app/stubs.py::reset` | Змішані обов'язки скидання сховища та побудови початкових записів | **Extract Method**: створення двох записів винесено до `_initial_entries(now, today)`; `reset()` очищає ті самі словники, відновлює лічильник і додає записи | Початкові записи та їхні ID, статуси, дати й UTC-час, ідентичність спільних словників, перезапуск лічильника | `tests/test_stubs_characterization.py`: `test_reset_recreates_original_seed_data`, `test_reset_preserves_shared_dictionaries_and_restarts_counter`. [PR №238](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/238): тести в `37b059e`, рефакторинг у `cda574d`; два окремі коміти й успішні CI-перевірки |
 | Марія — `backend/app/services/progress.py::format_progress_days` | Дублювання складання рядка та залежність від приватної `_day_word()` | **Reuse Method**: використано публічну `format_days(days)` замість повторного форматування рядка; валідацію збережено у `format_progress_days()` | Сигнатура, точний текст, TypeError для `bool` і нецілих значень, ValueError для від'ємних цілих | `tests/test_progress.py`: `test_format_progress_days_boundaries`, `test_format_progress_days_rejects_string`, `test_format_progress_days_rejects_boolean`, `test_format_progress_days_rejects_non_integer_values`, `test_format_progress_days_rejects_negative`. [PR №241](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/241), коміт `3721769`; **злито в `main`**. Результати регресії — у розділі 3.1 авторки |
-| Софія — `backend/app/services/formatting.py::_day_word` | Неочевидне призначення числових меж та складеної умови відмінювання | **Replace Magic Number with Constant + Decompose Conditional**: іменовані межі `TEENS_FIRST/TEENS_LAST`, `FEW_FIRST/FEW_LAST`, `ONE`; перевірка 11–14 винесена в `_is_teen()` | Результат `format_days()` і `_day_word()`, включно з 0, складеними та від'ємними числами; жодних нових обмежень введення | `tests/test_formatting.py::test_format_days_characterization` — 22 додаткові випадки у [гілці `lab08-release-sofiia`](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/f14878180c6cc533ef1d535a2e6a01efd9a54ff3). Тести — `e957663`, наступний коміт рефакторингу — `a3d786c`. Станом на 04.11 зміни **ще не в актуальному `main`** |
+| Софія — `backend/app/services/formatting.py::_day_word` | Неочевидне призначення числових меж та складеної умови відмінювання | **Replace Magic Number with Constant + Decompose Conditional**: іменовані межі `TEENS_FIRST/TEENS_LAST`, `FEW_FIRST/FEW_LAST`, `ONE`; перевірка 11–14 винесена в `_is_teen()` | Результат `format_days()` і `_day_word()`, включно з 0, складеними та від'ємними числами; жодних нових обмежень введення | `tests/test_formatting.py::test_format_days_characterization` — 22 додаткові випадки у [гілці `lab08-release-sofiia`](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/f14878180c6cc533ef1d535a2e6a01efd9a54ff3). Тести — `e957663`, наступний коміт рефакторингу — `a3d786c`. зміни злиті в `main` через PR №242 |
 
 У поточній системі збережено п'ять етапів `7/30/90/180/365`; стару реалізацію лише для `7/30` повторно не переносимо.
 
-**Матеріали аналітика:** [PR №237](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/237) містить уточнений аналіз і скриншоти; PR ще відкритий. Ця таблиця доповнює матеріали аналітика.
+**Матеріали аналітика:** результати SonarQube й скриншоти наведено у розділі 1.
 
 ### 2.1. Усунення повторення форматування днів
 
@@ -101,15 +139,7 @@ TypeError для bool і нецілих значень, ValueError для від
 
 ### 2.5. Використання ШІ
 
-**Поліна — Codex / ChatGPT:** підготувала за допомогою асистента таблицю рефакторингів, додаткові тести власної зміни та нотатку про використання ШІ.
-
-**Завдання Поліни агенту:** перевірити рефакторинг групування напоїв (`dict.get` → `defaultdict(int)`, Substitute Algorithm), зберігши суми, порядок ключів, одноразові iterable, звичайний тип `dict` і незмінність входу. Підготовлено вісім додаткових сценаріїв у `tests/test_drink_summary.py` — разом 10 із двома наявними. Керівником рефакторингу переглянуто diff та перевірено повернення `dict(totals)`; однакові тести на історичній і поточній реалізаціях пройшли, як зазначено в таблиці.
-
-**Марія — Codex:** у [PR №241](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/241) опубліковано використання агентом `format_days()` зі збереженням валідації та додані граничні тести. Коментарі авторки в `progress.py` і `test_progress.py` фіксують завдання агенту й ручну перевірку результатів та типів винятків. Керівником рефакторингу перевірено відповідність опублікованого diff інваріантам таблиці. Регресійні результати залишені в розділі 3.1 Марії без дублювання.
-
-**Софія — Claude Code:** у [власному описі Софії](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/f14878180c6cc533ef1d535a2e6a01efd9a54ff3/docs/refactoring/sonarcloud-report.md) зафіксовано завдання щодо магічних чисел у `formatting.py`, техніки Replace Magic Number with Constant / Decompose Conditional та збереження сигнатур і результату. Агент згенерував характеризаційні тести й нову `_day_word()`. За опублікованим описом авторки, патч переглянуто рядок за рядком, варіант із `range(11, 15)` відхилено через зміну результату для `12.5`, порівняння на 20 009 значеннях не виявило відмінностей. Керівником рефакторингу перевірено збереження порівнянь числових меж у diff та порядок комітів тестів і рефакторингу. Зміни ще не злиті в `main`.
-
-Метрики до/після та командна регресія ведуться відповідальними учасницями у своїх розділах звіту.
+ChatGPT допоміг з оформленням документації та підказав варіанти рефакторингу.
 
 Рефакторинг 2.3 виконано з ШІ-агентом Claude Code. Завдання агенту: запах (магічні числа), техніка (Replace Magic Number with Constant, Decompose Conditional), незмінне — сигнатури та результат для будь-якого n. Агент згенерував характеризаційні тести й нову версію `_day_word()`.
 
@@ -118,11 +148,21 @@ TypeError для bool і нецілих значень, ValueError для від
 - порівняння старої й нової функції на 20 009 значеннях (від −10 000 до 10 000 і дробові, зокрема 12.5) — 0 відмінностей;
 - регресійні тести до і після (розділ 3).
 
+#### Командне застосування ШІ (Поліна)
+
+**Поліна — Codex / ChatGPT:** підготувала за допомогою асистента таблицю рефакторингів, додаткові тести власної зміни та нотатку про використання ШІ.
+
+**Завдання Поліни агенту:** перевірити рефакторинг групування напоїв (`dict.get` → `defaultdict(int)`, Substitute Algorithm), зберігши суми, порядок ключів, одноразові iterable, звичайний тип `dict` і незмінність входу. Підготовлено вісім додаткових сценаріїв у `tests/test_drink_summary.py` — разом 10 із двома наявними. Керівником рефакторингу переглянуто diff та перевірено повернення `dict(totals)`; однакові тести на історичній і поточній реалізаціях пройшли, як зазначено в таблиці.
+
+**Марія — Codex:** у [PR №241](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/241) опубліковано використання агентом `format_days()` зі збереженням валідації та додані граничні тести. Коментарі авторки в `progress.py` і `test_progress.py` фіксують завдання агенту й ручну перевірку результатів та типів винятків. Керівником рефакторингу перевірено відповідність опублікованого diff інваріантам таблиці. Регресійні результати залишені в розділі 3.1 Марії без дублювання.
+
+**Софія — Claude Code:** у [власному описі Софії](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/f14878180c6cc533ef1d535a2e6a01efd9a54ff3/docs/refactoring/sonarcloud-report.md) зафіксовано завдання щодо магічних чисел у `formatting.py`, техніки Replace Magic Number with Constant / Decompose Conditional та збереження сигнатур і результату. Агент згенерував характеризаційні тести й нову `_day_word()`. За опублікованим описом авторки, патч переглянуто рядок за рядком, варіант із `range(11, 15)` відхилено через зміну результату для `12.5`, порівняння на 20 009 значеннях не виявило відмінностей. Керівником рефакторингу перевірено збереження порівнянь числових меж у diff та порядок комітів тестів і рефакторингу. Зміни інтегровано у `main` через PR №242.
+
 ## 3. Перевірка результату (етап 3)
 
 Регресія для рефакторингу 2.3 (04.11.2026, локально, PostgreSQL 16, після злиття #241): `main` до зміни — 474 passed; після — 496 passed (+22 характеризаційні тести), падінь немає. Black і Flake8 для `backend` — без зауважень. Frontend: TypeScript, lint, тести й web export — без помилок.
 
-До синхронізації успішно пройшли тести бекенду та перевірки Code Quality, Dependency Audit і Traceability у [PR #206](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/206). Повторний прогін після інтеграції з `main` потрібно врахувати окремо.
+У [PR №206](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/206) успішно пройшли Backend, Frontend, Code Quality, Dependency Audit, Traceability та SonarQube. Регресійні результати після командних змін наведено нижче.
 
 ### 3.1. Регресійна перевірка `maryxseee`, 04.11.2026
 
@@ -144,8 +184,7 @@ TypeError для bool і нецілих значень, ValueError для від
 Два попередження першого повного прогону стосуються Starlette TestClient
 і прав запису кешу pytest. Повний набір до зміни окремо не завершувався;
 парне порівняння до/після стосується 72 модульних тестів. Frontend не змінено
-й окремо не перевірено. Ручну перевірку maryxseee підтверджено 04.11.2026;
-огляд іншою учасницею та погодження тексту PR ще потрібні.
+й окремо не перевірено. Ручну перевірку maryxseee підтверджено 04.11.2026.
 
 Повторний повний прогін виконувався з `--cov-fail-under=90`; точне
 покриття становить **93,62%**, поріг пройдено. Кеш pytest вимкнено
@@ -155,19 +194,15 @@ TypeError для bool і нецілих значень, ValueError для від
 пройшли 19 тестів адмінської частини, потім усі 474 тести повного набору.
 Black перевірив 66 Python-файлів; Flake8 не виявив помилок.
 
-Результати стосуються main та цієї зміни, без незлитих PR колег. Після
-командної інтеграції потрібен фінальний регресійний прогін спільного SHA.
+Результати відображають перевірений стан коду на дату прогону; інші рефакторинги перевірялися відповідними PR.
 
-Аналіз SonarQube і Security Rating, командна нотатка про ШІ, версія,
-CHANGELOG і релізний тег залишаються відповідальним за ними учасницям.
-Особисте Loom-відео до 5 хвилин ще потрібно записати; після цього додати
-реальне посилання у `Labs/Lab08/video_kolesnyk.txt`.
+Аналіз SonarQube та Security Rating документовано в розділі 1, командну роботу з ШІ — у розділі 2.
 
 ## 4. Підготовка релізу та висновок
 
 Оновила версію до `1.0.1` і додала `CHANGELOG.md`.
 
-Менеджер релізу (Софія): версія `1.0.1` однакова в `pyproject.toml` (`[tool.rehab]`), `backend/app/main.py`, `frontend/package.json`, `CHANGELOG.md` і git-тезі `v1.0.1`, який ставиться на коміт `main` після злиття всіх рефакторингів. У коді стало менше повторень, а автоматичні перевірки пройшли. Показники SonarQube після змін ще не виміряні.
+Менеджерка релізу Софія узгодила версію `1.0.1` у `pyproject.toml`, `backend/app/main.py`, `frontend/package.json` та `CHANGELOG.md` (PR №242). Git-тег [`v1.0.1`](https://github.com/ukma-fin-ssdm-2026/Rehab/releases/tag/v1.0.1) зафіксував реліз. Показники SonarQube за 03.11.2026 та їхні скриншоти наведено в розділі 1.
 
 ## Бонуси
 
@@ -201,5 +236,19 @@ SonarQube повернув Quality Gate `OK`, дублювання — 0,0%;
 Зелене проходження цього gate не підміняє інші обов’язкові перевірки CI
 та схвалення колеги. Самостійне злиття агентом не виконувалося.
 
-Для зарахування бонусу ще потрібне пояснення цієї демонстрації у відео
-хоча б однієї учасниці. Ручний перегляд цього доповнення maryxseee підтверджено 04.11.2026.
+Ручний перегляд результатів демонстрації `maryxseee` підтверджено 04.11.2026.
+
+### Бонус №2 — характеризаційні тести перед рефакторингом
+
+Для модуля `backend/app/stubs.py`, який до Lab 08 не мав окремих модульних тестів, створено [PR №238](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/238) з **двома послідовними комітами**:
+
+1. **До рефакторингу:** [`37b059e`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/37b059e5a06203464f4846e2734a08359e07b500) — додано `tests/test_stubs_characterization.py`. Тести фіксують два початкові записи, статуси, дати, часову різницю між створенням записів, UTC, стабільність об'єктів словників та перезапуск лічильника ID. [CI до рефакторингу](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41650201764).
+2. **Після рефакторингу:** [`cda574d`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/cda574d834768136838ee28ccc76b3a3fd5f5d07) — технікою *Extract Method* винесено створення початкових записів із `reset()` до `_initial_entries()`. Ті самі характеризаційні тести перевіряють незмінну поведінку. [CI після рефакторингу](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41650402045).
+
+**Результати:** характеризаційні тести успішно пройшли CI як до рефакторингу, так і після нього. Історія двох послідовних комітів підтверджує порядок *Tests Before Refactoring*.
+
+### Бонус №3 — автоматизований реліз (налаштування)
+
+У [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239) налаштовано Release Please у GitHub Actions. Conventional Commit `refactor:` включений до журналу змін як **Refactoring**; тип версії визначається правилами SemVer та налаштуванням релізного інструмента. Інструмент має автоматично оновлювати версію у `pyproject.toml`, `version.txt`, `.release-please-manifest.json`, запис у `CHANGELOG.md`, а після злиття релізного PR створювати тег `vX.Y.Z` і GitHub Release. [Процедура перевірки](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/lab08-bonus-automated-release-20261103/docs/refactoring/automated-release.md).
+
+**Результати:** [PR №239](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/239) пройшов CI, включно з Backend, Frontend, SonarQube та перевірками конфігурації. Конфігурацію Release Please додано окремо від чинного релізу `1.0.1`; історичні результати реального запуску інструмента не підміняються перевірками PR.
