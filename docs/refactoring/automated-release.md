@@ -4,12 +4,12 @@
 
 ## Реалізація
 
-- `.github/workflows/release-please.yml` — запуск при оновленні `main` та через `workflow_dispatch`; використовує `GITHUB_TOKEN` і права `contents: write`, `pull-requests: write`, `issues: write`.
-- `release-please-config.json` — стратегія `simple`, підписи релізних змін за Conventional Commits, секція **Refactoring** для `refactor:`, формат тегів `vX.Y.Z` і оновлення `[tool.rehab].version` у `pyproject.toml`.
-- `.release-please-manifest.json` і `version.txt` — початкове значення версії `1.0.1`, узгоджене з `pyproject.toml`.
+- `.github/workflows/release-please.yml` — запуск при оновленні `main` та через `workflow_dispatch`; права `contents: write`, `pull-requests: write`, `issues: write`. Токен — секрет `RELEASE_PLEASE_TOKEN` (fine-grained PAT з правами Contents і Pull requests на репозиторій), резервно — `GITHUB_TOKEN`.
+- `release-please-config.json` — стратегія `simple`, підписи релізних змін за Conventional Commits, секція **Refactoring** для `refactor:`, формат тегів `vX.Y.Z`. Через `extra-files` номер версії синхронно оновлюється в усіх місцях: `pyproject.toml` (`[tool.rehab].version`), `frontend/package.json`, `frontend/package-lock.json` (`version` і `packages[""].version`) та `backend/app/main.py` (рядок із позначкою `x-release-please-version`).
+- `.release-please-manifest.json` і `version.txt` — поточна випущена версія `1.0.1` (тег `v1.0.1`).
 - `CHANGELOG.md` — журнал релізних змін, який автоматично формує Release Please.
-- `tests/test_release_config.py` — перевірка узгодженості версій, секції рефакторингу та конфігурації оновлення TOML.
-- `bootstrap-sha` — коміт `29399f8`, що обмежує історію, яку Release Please опрацьовує для першого автоматичного релізу.
+- `tests/test_release_config.py` — перевірка, що номер версії однаковий в усіх семи джерелах, що `extra-files` охоплює кожне з них, секції рефакторингу та точки відліку історії.
+- `bootstrap-sha` — коміт `861c504` релізу `v1.0.1`: наступний автоматичний реліз враховує лише зміни після нього й не повторює записи `1.0.1` у `CHANGELOG.md`.
 
 ## Життєвий цикл релізу
 
@@ -17,7 +17,7 @@
 
 За звичайними правилами інструмента `fix:` підвищує patch-версію, `feat:` — minor, а breaking change — major. `refactor:` відображається у секції **Refactoring**; сам по собі цей тип не гарантує створення релізного PR без релізної зміни.
 
-Для створення автоматичних PR репозиторій використовує налаштування **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. Використання вбудованого `GITHUB_TOKEN` обмежує автоматичний запуск інших workflows для PR і тегів, створених цим токеном.
+Для створення автоматичних PR потрібне налаштування **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. Релізний PR, створений через `RELEASE_PLEASE_TOKEN`, запускає всі обов'язкові перевірки гілки `main`, як і звичайний PR. Якщо використовується резервний `GITHUB_TOKEN`, GitHub не запускає інші workflows для створених ним PR; тоді перевірки релізного PR запускаються закриттям і повторним відкриттям PR.
 
 ## Перевірка
 
