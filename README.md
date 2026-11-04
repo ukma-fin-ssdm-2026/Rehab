@@ -498,6 +498,9 @@ npm run export:web
 |---|---|
 | Репозиторій Rehab | [GitHub](https://github.com/ukma-fin-ssdm-2026/Rehab) |
 | CI Pipeline | [GitHub Actions](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| Аналіз якості коду | [SonarQube Cloud](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab) |
+| Результати Lab 08 | [Звіт, рефакторинги, регресія та бонуси](docs/refactoring/sonarcloud-report.md) |
+| Журнал змін і реліз | [CHANGELOG.md](CHANGELOG.md), [git-тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1) |
 | API-документація | [Swagger UI](https://ukma-fin-ssdm-2026.github.io/Rehab/) |
 | Інструкція запуску | [setup_and_run.md](setup_and_run.md) |
 | Командний статут | [TeamCharter.md](TeamCharter.md) |
@@ -520,6 +523,7 @@ npm run export:web
 
 - [Тест-план і статуси кейсів](docs/validation/test-plan.md), [журнал взаємного огляду](docs/validation/review-log.md), [історія валідатора простежуваності](docs/validation/traceability-check.md).
 - [Мутаційне тестування](docs/testing/mutation-testing.md), [рекомендації щодо якості тестів](docs/testing/test-quality-recommendations.md).
+- [Lab 08 — звіт SonarQube, рефакторинги, регресія та бонуси](docs/refactoring/sonarcloud-report.md), [скриншоти до/після](docs/refactoring/screenshots/README.md), [журнал змін](CHANGELOG.md), [git-тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1).
 - [ADR-001](docs/architecture/decisions/ADR-001.md), [ADR-002](docs/architecture/decisions/ADR-002.md), [джерело ER-моделі](docs/architecture/uml/implemented-data-model.puml).
 - [Локальна PostgreSQL](docs/development/postgres-local.md), [онлайн-розгортання й Gmail](docs/deployment/render-neon.md).
 - Workflows: [CI](.github/workflows/ci.yml), [якість коду](.github/workflows/code-quality.yml), [залежності](.github/workflows/dependency-audit.yml), [API Pages](.github/workflows/docs.yml), [простежуваність](.github/workflows/traceability.yml), [нагадування](.github/workflows/reminders.yml).
