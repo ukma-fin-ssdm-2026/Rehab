@@ -25,6 +25,22 @@
 
 ## 2. Рефакторинг (етап 2)
 
+### Таблиця рефакторингів: запах → техніка → інваріант → тест
+
+У таблиці згруповано зміни за трьома напрямами: ініціалізація та накопичення даних, дублювання логіки, неочевидні числові межі й умови. Для кожного рефакторингу наведено окремі інваріанти, тести та статус. Джерела — опубліковані коміти та PR; неперевірені ідентифікатори SonarQube issues не приписуються цим змінам.
+
+| Відповідальна / місце | Запах | Техніка з каталогу та зміна структури | Що лишається незмінним | Точний доказ і статус |
+|---|---|---|---|---|
+| Поліна — `backend/app/services/drink_summary.py::volume_by_type_ml` | Неявна ініціалізація накопичувача через повторюваний `dict.get(key, 0)` усередині циклу; типи полів раніше описувалися через `Any` | **Substitute Algorithm**: накопичення через `defaultdict(int)`, на межі повертається `dict(totals)`. Супровідне уточнення анотацій через `Drink(TypedDict)` не додає runtime-валідацію | Сума для кожного типу; нульові й порожні дані; довільні назви типів; порядок першої появи ключів; один прохід iterable; звичайний `dict` у результаті; вхідні дані не змінюються | `tests/test_drink_summary.py`: `test_volume_is_grouped_by_drink_type`, `test_grouping_preserves_empty_zero_and_arbitrary_types`, `test_grouping_consumes_a_single_pass_iterable`, `test_summary_does_not_modify_input`, `test_total_accepts_a_single_pass_iterable`. Уже в `main`: [`2007fe1`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/2007fe1d1c36ee5617e4c7a57a1f1f684ba0a506), [`8b2eff4`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/8b2eff41dbef6bef19c82652d167bcee1599f44a). Той самий набір на реалізації до `8b2eff4` і після — **10/10 тестів в обох випадках**. Додаткові тести підготовлені в PR №240 |
+| Анастасія — історичні зміни `backend/app/services/statistics.py::get_days_remaining` | Неочевидні числа 7/30, назви проміжних значень і складений вибір наступної цілі | **Replace Magic Number with Constant / Rename Variable**, потім **Substitute Algorithm**: іменовані значення та вибір першої наступної цілі циклом | Для історичних двох цілей — результат підрахунку залишку днів і відхилення від'ємного введення | Коміти [`53d5295`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/53d5295272b2808c71eb5f0e2120a6c5cb1d731c) і [`537e322`](https://github.com/ukma-fin-ssdm-2026/Rehab/commit/537e322c2723a6addf934982e4550da0f007902a), `tests/test_goal_remaining.py`. Це історичні рефакторинги; зараз `main` і поточні тести використовують п'ять етапів. Парний прогін на історичній реалізації тут не зафіксований |
+| Анастасія — `backend/app/stubs.py::reset` | Змішані обов'язки скидання сховища та побудови початкових записів | **Extract Method**: створення двох записів винесено до `_initial_entries(now, today)`; `reset()` очищає ті самі словники, відновлює лічильник і додає записи | Початкові записи та їхні ID, статуси, дати й UTC-час, ідентичність спільних словників, перезапуск лічильника | `tests/test_stubs_characterization.py`: `test_reset_recreates_original_seed_data`, `test_reset_preserves_shared_dictionaries_and_restarts_counter`. [PR №238](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/238): тести в `37b059e`, рефакторинг у `cda574d`; PR відкритий, **ще не в `main`** |
+| Марія — `backend/app/services/progress.py::format_progress_days` | Дублювання складання рядка та залежність від приватної `_day_word()` | **Reuse Method**: використано публічну `format_days(days)` замість повторного форматування рядка; валідацію збережено у `format_progress_days()` | Сигнатура, точний текст, TypeError для `bool` і нецілих значень, ValueError для від'ємних цілих | `tests/test_progress.py`: `test_format_progress_days_boundaries`, `test_format_progress_days_rejects_string`, `test_format_progress_days_rejects_boolean`, `test_format_progress_days_rejects_non_integer_values`, `test_format_progress_days_rejects_negative`. [PR №241](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/241), коміт `3721769`; **злито в `main`**. Результати регресії — у розділі 3.1 авторки |
+| Софія — `backend/app/services/formatting.py::_day_word` | Неочевидне призначення числових меж та складеної умови відмінювання | **Replace Magic Number with Constant + Decompose Conditional**: іменовані межі `TEENS_FIRST/TEENS_LAST`, `FEW_FIRST/FEW_LAST`, `ONE`; перевірка 11–14 винесена в `_is_teen()` | Результат `format_days()` і `_day_word()`, включно з 0, складеними та від'ємними числами; жодних нових обмежень введення | `tests/test_formatting.py::test_format_days_characterization` — 22 додаткові випадки у [гілці `lab08-release-sofiia`](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/f14878180c6cc533ef1d535a2e6a01efd9a54ff3). Тести — `e957663`, наступний коміт рефакторингу — `a3d786c`. Станом на 04.11 зміни **ще не в актуальному `main`** |
+
+У поточній системі збережено п'ять етапів `7/30/90/180/365`; стару реалізацію лише для `7/30` повторно не переносимо.
+
+**Матеріали аналітика:** [PR №237](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/237) містить уточнений аналіз і скриншоти; PR ще відкритий. Ця таблиця доповнює матеріали аналітика.
+
 ### 2.1. Усунення повторення форматування днів
 
 **Запах коду:** повторення умов для вибору слова «день», «дні», «днів».  
@@ -85,7 +101,15 @@ TypeError для bool і нецілих значень, ValueError для від
 
 ### 2.5. Використання ШІ
 
-ChatGPT допоміг з оформленням документації та підказав варіанти рефакторингу.
+**Поліна — Codex / ChatGPT:** підготувала за допомогою асистента таблицю рефакторингів, додаткові тести власної зміни та нотатку про використання ШІ.
+
+**Завдання Поліни агенту:** перевірити рефакторинг групування напоїв (`dict.get` → `defaultdict(int)`, Substitute Algorithm), зберігши суми, порядок ключів, одноразові iterable, звичайний тип `dict` і незмінність входу. Підготовлено вісім додаткових сценаріїв у `tests/test_drink_summary.py` — разом 10 із двома наявними. Керівником рефакторингу переглянуто diff та перевірено повернення `dict(totals)`; однакові тести на історичній і поточній реалізаціях пройшли, як зазначено в таблиці.
+
+**Марія — Codex:** у [PR №241](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/241) опубліковано використання агентом `format_days()` зі збереженням валідації та додані граничні тести. Коментарі авторки в `progress.py` і `test_progress.py` фіксують завдання агенту й ручну перевірку результатів та типів винятків. Керівником рефакторингу перевірено відповідність опублікованого diff інваріантам таблиці. Регресійні результати залишені в розділі 3.1 Марії без дублювання.
+
+**Софія — Claude Code:** у [власному описі Софії](https://github.com/ukma-fin-ssdm-2026/Rehab/blob/f14878180c6cc533ef1d535a2e6a01efd9a54ff3/docs/refactoring/sonarcloud-report.md) зафіксовано завдання щодо магічних чисел у `formatting.py`, техніки Replace Magic Number with Constant / Decompose Conditional та збереження сигнатур і результату. Агент згенерував характеризаційні тести й нову `_day_word()`. За опублікованим описом авторки, патч переглянуто рядок за рядком, варіант із `range(11, 15)` відхилено через зміну результату для `12.5`, порівняння на 20 009 значеннях не виявило відмінностей. Керівником рефакторингу перевірено збереження порівнянь числових меж у diff та порядок комітів тестів і рефакторингу. Зміни ще не злиті в `main`.
+
+Метрики до/після та командна регресія ведуться відповідальними учасницями у своїх розділах звіту.
 
 Рефакторинг 2.3 виконано з ШІ-агентом Claude Code. Завдання агенту: запах (магічні числа), техніка (Replace Magic Number with Constant, Decompose Conditional), незмінне — сигнатури та результат для будь-якого n. Агент згенерував характеризаційні тести й нову версію `_day_word()`.
 
