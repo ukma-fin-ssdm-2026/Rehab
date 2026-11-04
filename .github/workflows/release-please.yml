@@ -1,0 +1,34 @@
+name: Lab08 Automated Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release:
+    if: github.repository == 'ukma-fin-ssdm-2026/Rehab'
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Generate release PR or publish tagged release
+        id: release
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071
+        with:
+          # AI-GENERATED START
+          # PAT запускає обов'язкові перевірки для релізного PR; GITHUB_TOKEN — резервний варіант.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # AI-GENERATED END
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - name: Report release outcome
+        env:
+          PRS_CREATED: ${{ steps.release.outputs.prs_created }}
+          RELEASES_CREATED: ${{ steps.release.outputs.releases_created }}
+        run: |
+          echo "Release PRs created: ${PRS_CREATED}"
+          echo "Releases created: ${RELEASES_CREATED}"
