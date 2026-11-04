@@ -214,7 +214,7 @@ Rehab/
 
 Документація організована за окремими напрямами: вимоги, архітектура, API, якість коду, тестування, валідація, рефакторинг і розгортання. Такий підхід забезпечує простежуваність між проєктними рішеннями, реалізацією й перевірками.
 
-## 5. Документація лабораторних робіт (Labs 1–6)
+## 5. Документація лабораторних робіт (Labs 1–8)
 
 У таблиці зібрано основні результати лабораторних робіт і відповідні матеріали репозиторію.
 
@@ -226,8 +226,41 @@ Rehab/
 | **Lab 04 — API** | [API Design](docs/api/api-design.md), [OpenAPI](docs/api/openapi-generated.yaml), [Quality Attributes](docs/api/quality-attributes.md), [Swagger UI](https://ukma-fin-ssdm-2026.github.io/Rehab/) |
 | **Lab 05 — Якість коду** | [Progress Report](docs/code-quality/progress.md), [Static Analysis](docs/code-quality/static-analysis.md), [Code Review](docs/code-quality/review-report.md) |
 | **Lab 06 — Тестування та налагодження** | [Testing Strategy](docs/testing/testing-strategy.md), [Debugging Log](docs/testing/debugging-log.md), [Tests](tests/), [CI Results](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| **Lab 07 — Планування тестування та взаємні огляди** | [Тест-план](docs/validation/test-plan.md), [Журнал взаємного огляду](docs/validation/review-log.md), [Перевірка простежуваності](docs/validation/traceability-check.md) |
+| **Lab 08 — Рефакторинг та управління релізами** | [Звіт SonarQube, рефакторинги й регресія](docs/refactoring/sonarcloud-report.md), [Скриншоти до/після](docs/refactoring/screenshots/README.md), [CHANGELOG](CHANGELOG.md), [Тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1) |
 
 Матеріали лабораторних робіт та посилання на індивідуальні демонстраційні відео розміщуються в каталозі [Labs/](Labs/).
+
+### Lab 08: звіт, перевірки та реліз
+
+Матеріали оформлено за [завданням Lab 08](https://ssdm-2026.cs-courses.org/labs/lab08/lab08.html).
+Основний артефакт — [sonarcloud-report.md](docs/refactoring/sonarcloud-report.md):
+у ньому зібрано три обрані метрики до/після, обов'язковий Security Rating,
+опис запахів коду, техніки рефакторингу, незмінну поведінку та тести-докази.
+У тому самому звіті наведено конкретне використання ШІ, результати регресії
+та окремий розділ [«Бонуси»](docs/refactoring/sonarcloud-report.md#бонуси).
+
+| Матеріал | Де знайти |
+|---|---|
+| Метрики якості й причини Security Rating | [Звіт SonarQube](docs/refactoring/sonarcloud-report.md#1-аналіз-якості-коду-етап-1), [панель проєкту](https://sonarcloud.io/project/overview?id=ukma-fin-ssdm-2026_Rehab) |
+| Зображення з панелі до/після | [Покажчик скриншотів](docs/refactoring/screenshots/README.md) |
+| Рефакторинги учасниць та докази незмінності поведінки | [Опис і таблиця рефакторингів](docs/refactoring/sonarcloud-report.md#2-рефакторинг-етап-2), [автоматичні тести](tests/) |
+| Регресійні результати з датами й основою коду | [Перевірка результату](docs/refactoring/sonarcloud-report.md#3-перевірка-результату-етап-3), [CI](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml) |
+| Версія та зміни релізу | [pyproject.toml](pyproject.toml), [CHANGELOG.md](CHANGELOG.md), [git-тег v1.0.1](https://github.com/ukma-fin-ssdm-2026/Rehab/tree/v1.0.1) |
+| Докази бонусних пунктів | [Розділ «Бонуси»](docs/refactoring/sonarcloud-report.md#бонуси), [демонстрація червоного та зеленого Quality Gate — PR №243](https://github.com/ukma-fin-ssdm-2026/Rehab/pull/243) |
+
+Результати регресії та метрики у звіті належать зазначеним датам і станам коду;
+поточні перевірки конкретного коміту потрібно дивитися в GitHub Actions.
+Погоджена ціль покриття Backend — **не нижче 90%** за
+[критеріями виходу тест-плану](docs/validation/test-plan.md#критерії-виходу).
+Порівняння метрик між історичними станами відображає сукупність командних змін.
+
+Індивідуальне Loom-відео до 5 хвилин має пояснювати власну зміну та її перевірку.
+Посилання додається у `Labs/Lab08/video_<ім'я>.txt`; станом на 05.11.2026
+тека `Labs/Lab08` ще не представлена в перевіреному `main`.
+Для кожного заявленого бонусу потрібне пояснення у відео хоча б однієї учасниці.
+Git-тег `v1.0.1` уже існує; налаштування автоматизованого релізу та результат
+його фактичного запуску описуються окремо в розділі «Бонуси» звіту.
 
 Основні артефакти взаємопов'язані:
 
