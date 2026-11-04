@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "bootstrap-sha": "29399f8a1ab11c6fb48757901c9b3f821c732461",
+  "bootstrap-sha": "861c5043f331e7c96dc91ca160e32b8e41a3a09d",
   "release-type": "simple",
   "versioning": "default",
   "include-v-in-tag": true,
@@ -48,6 +48,25 @@
       "type": "toml",
       "path": "pyproject.toml",
       "jsonpath": "$.tool.rehab.version"
+    },
+    {
+      "type": "json",
+      "path": "frontend/package.json",
+      "jsonpath": "$.version"
+    },
+    {
+      "type": "json",
+      "path": "frontend/package-lock.json",
+      "jsonpath": "$.version"
+    },
+    {
+      "type": "json",
+      "path": "frontend/package-lock.json",
+      "jsonpath": "$.packages[''].version"
+    },
+    {
+      "type": "generic",
+      "path": "backend/app/main.py"
     }
   ],
   "packages": {
