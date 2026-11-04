@@ -27,6 +27,9 @@
 | **Lab 05** | Quality Lead + Prototype Lead | Code Reviewer | Documentation Lead | Security Analyst |
 | **Lab 06** | Debugging Lead | Testing Strategist | Integration Lead | Testing Lead + Test stand manager |
 | **Lab 07** | Documentation Lead | Quality Analyst | Test Planner | Review Manager + AI Code Reviewer |
+| **Lab 08** | Аналітик коду + Security Rating | Менеджер релізу | Керівник рефакторингу + нотатка «Використання ШІ» | Інженер з тестування |
+
+У Lab 08 кожна учасниця також виконує власний рефакторинг і пояснює його перевірку в індивідуальному відео.
 
 Командні домовленості, правила співпраці, стандарти кодування, Code Review та Definition of Done описано в [TeamCharter.md](TeamCharter.md).
 
@@ -175,6 +178,20 @@ Rehab/
 │   │   ├── testing-strategy.md
 │   │   └── debugging-log.md
 │   │
+│   ├── validation/
+│   │   ├── test-plan.md
+│   │   ├── review-log.md
+│   │   └── traceability-check.md
+│   │
+│   ├── refactoring/
+│   │   ├── sonarcloud-report.md
+│   │   └── screenshots/         # докази SonarQube до/після
+│   │
+│   ├── development/
+│   │   └── postgres-local.md
+│   ├── deployment/
+│   │   └── render-neon.md
+│   │
 │   └── design/
 │       ├── design.md
 │       └── overview.png
@@ -183,6 +200,10 @@ Rehab/
 ├── scripts/
 │   └── export_openapi.py
 ├── tests/
+├── .sonarcloud.properties       # виключення згенерованих звітів з аналізу
+├── CHANGELOG.md
+├── pyproject.toml               # конфігурація тестів і версія проєкту
+├── compose.yaml
 ├── requirements.txt
 ├── Project-Description.md
 ├── TeamCharter.md
@@ -191,7 +212,7 @@ Rehab/
 └── .gitignore
 ```
 
-Документація організована за окремими напрямами: вимоги, архітектура, API, якість коду та тестування. Такий підхід забезпечує простежуваність між проєктними рішеннями, реалізацією й перевірками.
+Документація організована за окремими напрямами: вимоги, архітектура, API, якість коду, тестування, валідація, рефакторинг і розгортання. Такий підхід забезпечує простежуваність між проєктними рішеннями, реалізацією й перевірками.
 
 ## 5. Документація лабораторних робіт (Labs 1–6)
 
