@@ -1,8 +1,17 @@
 
 const configuredUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
 
-export const API_BASE_URL =
-  configuredUrl?.replace(/\/+$/, "") ?? "";
+// AI-GENERATED START: Substitute Algorithm for SonarQube typescript:S8786.
+function removeTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
+export const API_BASE_URL = removeTrailingSlashes(configuredUrl ?? "");
+// AI-GENERATED END
 
 function getApiUrl(path: string): string {
   if (!API_BASE_URL) {
