@@ -80,8 +80,6 @@ async def put_avatar(
     user: CurrentUser = Depends(get_current_user),
     db=Depends(_db_session),
 ):
-    from backend.app.db.models.avatar import UserAvatar
-
     mime = request.headers.get("content-type", "").split(";", 1)[0].lower()
     if mime not in {
         "image/jpeg",
@@ -101,19 +99,31 @@ async def put_avatar(
         raw.extend(chunk)
 
     processed = await run_in_threadpool(normalize_avatar, bytes(raw))
-    account = lock_user_for_update(db, user.user_id)
+    result = await run_in_threadpool(_save_avatar, db, user.user_id, processed)
+    response.headers["Cache-Control"] = "no-store"
+    return result
+
+
+def _save_avatar(db, user_id: int, processed: bytes) -> AvatarUploadOut:
+    """Keep the synchronous transaction together and off the event loop.
+
+    The request awaits this operation; its session is never used concurrently.
+    Return a DTO so no lazy ORM access escapes back onto the event loop.
+    """
+    from backend.app.db.models.avatar import UserAvatar
+
+    account = lock_user_for_update(db, user_id)
     if account is None:
         raise api_error(401, "UNAUTHORIZED", "Недійсна сесія")
-    avatar = db.get(UserAvatar, user.user_id)
+    avatar = db.get(UserAvatar, user_id)
     if avatar is None:
-        avatar = UserAvatar(user_id=user.user_id, image_data=processed, version=1)
+        avatar = UserAvatar(user_id=user_id, image_data=processed, version=1)
         db.add(avatar)
     else:
         avatar.image_data = processed
         avatar.version += 1
         avatar.updated_at = datetime.now(timezone.utc)
     db.commit()
-    response.headers["Cache-Control"] = "no-store"
     return AvatarUploadOut(has_avatar=True, avatar_version=avatar.version)
 
 
