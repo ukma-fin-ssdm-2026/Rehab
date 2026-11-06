@@ -348,4 +348,59 @@ def test_job_without_sender_still_expires_queue(job_client, calendar_db, factory
     assert job_client.sender.sent == []
 
 
+def test_r6_postgres_batches_keep_pending_and_prevent_duplicates(calendar_db, factory):
+    delivery_ids = [
+        queue(calendar_db, make_user(calendar_db, f"r6_batch_{i}"))
+        for i in range(7)
+    ]
+    sender = FakeSender()
+
+    first = deliver_pending_reminders(
+        factory, EVENING, sender, max_deliveries=3, max_duration_seconds=120
+    )
+    assert first["sent"] == 3
+    assert sum(status(factory, delivery_id).status == "pending" for delivery_id in delivery_ids) == 4
+
+    remaining = [
+        deliver_pending_reminders(
+            factory, EVENING, sender, max_deliveries=3, max_duration_seconds=120
+        )
+        for _ in range(3)
+    ]
+
+    assert [result["sent"] for result in [first, *remaining]] == [3, 3, 1, 0]
+    assert len(sender.sent) == 7
+    assert len({to for to, _, _ in sender.sent}) == 7
+    assert all(status(factory, delivery_id).status == "sent" for delivery_id in delivery_ids)
+
+
+def test_r6_job_releases_advisory_lock_between_batches(
+    job_client, calendar_db, engine, monkeypatch
+):
+    for i in range(5):
+        queue(calendar_db, make_user(calendar_db, f"r6_job_{i}"))
+
+    def small_batch(db_factory, now, sender, clock):
+        return deliver_pending_reminders(
+            db_factory, now, sender, clock, max_deliveries=3, max_duration_seconds=120
+        )
+
+    monkeypatch.setattr(email_reminders, "deliver_pending_reminders", small_batch)
+    headers = {"X-Job-Token": TOKEN}
+
+    first = job_client.post("/internal/jobs/reminders", headers=headers)
+    assert first.status_code == 200, first.text
+    assert first.json()["sent"] == 3
+    with jobs.job_lock(engine) as acquired:
+        assert acquired
+
+    second = job_client.post("/internal/jobs/reminders", headers=headers)
+    assert second.status_code == 200, second.text
+    assert second.json()["sent"] == 2
+    with jobs.job_lock(engine) as acquired:
+        assert acquired
+
+    assert len(job_client.sender.sent) == 5
+
+
 # AI-GENERATED END
