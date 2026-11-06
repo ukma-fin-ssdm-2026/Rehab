@@ -22,7 +22,7 @@ function clientWith(transport) {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
     }).outputText;
     vm.runInNewContext(output, {
-      module, exports: module.exports, Headers, fetch: transport,
+      module, exports: module.exports, Headers, AbortController, setTimeout, clearTimeout, fetch: transport,
       process: { env: { EXPO_PUBLIC_API_URL: 'https://api.example.test/' } },
       require: specifier => {
         assert.equal(specifier, '../config/api');
