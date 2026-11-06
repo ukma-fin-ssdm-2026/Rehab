@@ -43,10 +43,21 @@ def get_engine_for_job():
 def get_reminder_creator() -> Callable:
     try:
         from backend.app.services.reminders import create_due_reminders
-    except ImportError:
+    except ModuleNotFoundError as error:
+        if error.name == "backend.app.services.reminders":
+            log.error("reminder job: reminders module is missing")
+            raise api_error(
+                503, "REMINDERS_NOT_READY", "Створення нагадувань ще не підключено"
+            ) from error
+        log.exception("reminder job: dependency module import failed")
         raise api_error(
-            503, "REMINDERS_NOT_READY", "Створення нагадувань ще не підключено"
-        ) from None
+            503, "REMINDERS_DEPENDENCY_ERROR", "Нагадування тимчасово недоступні"
+        ) from error
+    except ImportError as error:
+        log.exception("reminder job: dependency import failed")
+        raise api_error(
+            503, "REMINDERS_DEPENDENCY_ERROR", "Нагадування тимчасово недоступні"
+        ) from error
     return create_due_reminders
 
 
