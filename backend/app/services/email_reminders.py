@@ -12,6 +12,7 @@ import base64
 import datetime as dt
 import logging
 import os
+import time
 from collections.abc import Callable
 from email.message import EmailMessage
 from typing import Protocol
@@ -27,6 +28,8 @@ from backend.app.db.models.user import User
 log = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 3
+MAX_DELIVERIES_PER_RUN = 25
+MAX_RUN_SECONDS = 20.0
 SENDING_TIMEOUT = dt.timedelta(minutes=5)
 SUBJECT = "Нагадування Rehab"
 GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
@@ -224,21 +227,33 @@ def deliver_pending_reminders(
     now: dt.datetime,
     sender: Sender,
     clock: Callable[[], dt.datetime] | None = None,
+    *,
+    max_deliveries: int = MAX_DELIVERIES_PER_RUN,
+    max_duration_seconds: float = MAX_RUN_SECONDS,
+    monotonic_clock: Callable[[], float] | None = None,
 ) -> dict[str, int]:
     """Обробляє чергу поточної київської дати; повертає лічильники результатів.
 
     now — момент запуску; clock (за замовчуванням now) — поточний час перед
     кожним листом, щоб не надіслати прострочене після київської півночі.
+    Бюджет перевіряється між листами, а не перериває поточне надсилання.
     """
     if now.tzinfo is None:
         raise ValueError("now має містити часовий пояс")
+    if max_deliveries <= 0 or max_duration_seconds <= 0:
+        raise ValueError("Ліміти обробки мають бути додатними")
     clock = clock or (lambda: now)
+    monotonic_clock = monotonic_clock or time.monotonic
+    started_at = monotonic_clock()
     today = now.astimezone(BUSINESS_TIMEZONE).date()
     counts = _counts()
     seen: set[int] = set()
     maintain_reminder_queue(db_factory, now)
 
-    while True:
+    while len(seen) < max_deliveries:
+        if monotonic_clock() - started_at >= max_duration_seconds:
+            log.info("email reminders: time budget reached (claimed=%d)", len(seen))
+            break
         current = clock()
         if current.astimezone(BUSINESS_TIMEZONE).date() != today:
             break
@@ -283,6 +298,8 @@ def deliver_pending_reminders(
             last_error_code=None,
         )
         counts["sent"] += 1
+    if len(seen) >= max_deliveries:
+        log.info("email reminders: batch limit reached (claimed=%d)", len(seen))
     return counts
 
 
