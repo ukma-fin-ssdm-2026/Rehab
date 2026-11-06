@@ -16,7 +16,7 @@ function loader(transport) {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
     }).outputText;
     vm.runInNewContext(code, { module, exports: module.exports, Headers, URLSearchParams, AbortController,
-      Date, Intl, fetch: transport, process: { env: { EXPO_PUBLIC_API_URL: 'https://api.example.test' } },
+      Date, Intl, setTimeout, clearTimeout, fetch: transport, process: { env: { EXPO_PUBLIC_API_URL: 'https://api.example.test' } },
       require: spec => load(path.relative(path.join(__dirname, '../src'), path.resolve(path.dirname(file), spec + '.ts'))),
     }, { filename: file });
     return module.exports;
@@ -65,11 +65,15 @@ test('mentee data uses relationship-scoped read paths and cancellation signal', 
   assert.ok(requests[1][0].endsWith('/mentorships/7/calendar/entries?from=2026-10-01&to=2026-10-31&limit=100&offset=0'));
   assert.ok(requests[2][0].endsWith('/mentorships/7/calendar/entries/19'));
   assert.ok(requests[3][0].endsWith('/mentorships/7/statistics?period=month'));
-  assert.equal(requests[3][1].signal,signal);
+  assert.equal(requests[3][1].signal.aborted,false);
   assert.equal(requests[4][1].method,'DELETE');
   await assert.rejects(api.getMentorship(NaN));
   await assert.rejects(api.getMenteeEntry(7,-1));
   assert.equal(requests.length,5);
+  const cancelled=new AbortController();
+  cancelled.abort();
+  await assert.rejects(api.getMentorship(7,cancelled.signal), error=>error.name==='AbortError');
+  assert.equal(requests.length,5,'cancelled read must not reach the transport');
 });
 
 test('calendar month has correct leap-day and Monday offsets',()=>{

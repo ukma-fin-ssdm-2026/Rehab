@@ -15,6 +15,8 @@ export class ApiError extends Error {
 let token: string | null = null;
 let sessionInvalid: (() => void) | null = null;
 
+const REQUEST_TIMEOUT_MS = 30_000;
+
 export function setAccessToken(value: string | null): void {
   token = value;
 }
@@ -27,6 +29,37 @@ export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  const controller = new AbortController();
+  const callerSignal = options.signal;
+  const cancellationError = () => callerSignal?.reason ??
+    Object.assign(new Error('Запит скасовано'), { name: 'AbortError' });
+  if (callerSignal?.aborted) throw cancellationError();
+
+  let cancel = (_error: unknown): void => {};
+  const cancelled = new Promise<never>((_resolve, reject) => { cancel = reject; });
+  const onAbort = () => {
+    cancel(cancellationError());
+    controller.abort();
+  };
+  callerSignal?.addEventListener('abort', onAbort, { once: true });
+  const timer = setTimeout(() => {
+    cancel(new ApiError(0, 'REQUEST_TIMEOUT', 'Час очікування відповіді минув. Перевір з’єднання.'));
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
+  try {
+    // The deadline includes reading the body. Do not retry writes automatically:
+    // a timeout does not prove that the server rolled back the operation.
+    return await Promise.race([
+      performRequest<T>(path, { ...options, signal: controller.signal }),
+      cancelled,
+    ]);
+  } finally {
+    clearTimeout(timer);
+    callerSignal?.removeEventListener('abort', onAbort);
+  }
+}
+
+async function performRequest<T>(path: string, options: RequestInit): Promise<T> {
   if (!path.startsWith('/') || path.startsWith('/api/v1')) {
     throw new Error('Шлях API має починатися з /, без /api/v1');
   }
@@ -44,11 +77,26 @@ export async function apiRequest<T>(
     ...options,
     headers,
   });
+  if (options.signal?.aborted) throw Object.assign(new Error('Запит скасовано'), { name: 'AbortError' });
+  if (requestToken !== null && requestToken === token && response.status === 401) {
+    sessionInvalid?.();
+  }
   if (response.status === 204) return undefined as T;
   const contentType = response.headers.get('content-type') ?? '';
-  const payload: unknown = contentType.includes('application/json')
-    ? await response.json()
-    : await response.text();
+  const text = await response.text();
+  let payload: unknown = text;
+  if (contentType.includes('application/json')) {
+    try {
+      payload = JSON.parse(text);
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
+      if (response.ok) {
+        throw new ApiError(response.status, 'INVALID_RESPONSE', 'Сервер повернув некоректну відповідь. Спробуй пізніше.');
+      }
+      // Keep the HTTP status even when the error body cannot be decoded.
+      payload = null;
+    }
+  }
   if (!response.ok) {
     const body =
       payload && typeof payload === 'object' && !Array.isArray(payload)
@@ -66,13 +114,6 @@ export async function apiRequest<T>(
       : response.status === 422 && Array.isArray(body.detail)
         ? 'Перевір правильність заповнених полів.'
         : `Помилка сервера (${response.status})`;
-    if (
-      requestToken !== null &&
-      requestToken === token &&
-      response.status === 401
-    ) {
-      sessionInvalid?.();
-    }
     throw new ApiError(response.status, code, message, body.details ?? detail.details ?? null);
   }
   return payload as T;

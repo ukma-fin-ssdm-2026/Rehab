@@ -20,6 +20,7 @@ function createClient(transport) {
       module,
       exports: module.exports,
       Headers,
+      AbortController, setTimeout, clearTimeout,
       fetch: transport,
       process: { env: { EXPO_PUBLIC_API_URL: 'https://api.example.test' } },
       require: specifier => {
