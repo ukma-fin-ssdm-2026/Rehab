@@ -359,7 +359,13 @@ def test_r6_postgres_batches_keep_pending_and_prevent_duplicates(calendar_db, fa
         factory, EVENING, sender, max_deliveries=3, max_duration_seconds=120
     )
     assert first["sent"] == 3
-    assert sum(status(factory, delivery_id).status == "pending" for delivery_id in delivery_ids) == 4
+    assert (
+        sum(
+            status(factory, delivery_id).status == "pending"
+            for delivery_id in delivery_ids
+        )
+        == 4
+    )
 
     remaining = [
         deliver_pending_reminders(
@@ -371,7 +377,9 @@ def test_r6_postgres_batches_keep_pending_and_prevent_duplicates(calendar_db, fa
     assert [result["sent"] for result in [first, *remaining]] == [3, 3, 1, 0]
     assert len(sender.sent) == 7
     assert len({to for to, _, _ in sender.sent}) == 7
-    assert all(status(factory, delivery_id).status == "sent" for delivery_id in delivery_ids)
+    assert all(
+        status(factory, delivery_id).status == "sent" for delivery_id in delivery_ids
+    )
 
 
 def test_r6_job_releases_advisory_lock_between_batches(
