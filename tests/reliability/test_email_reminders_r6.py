@@ -8,6 +8,7 @@ from backend.app.services import email_reminders
 
 EVENING = dt.datetime(2026, 10, 30, 20, 15, tzinfo=BUSINESS_TIMEZONE)
 
+
 class FakeDatabase:
     def __enter__(self):
         return self
@@ -17,6 +18,7 @@ class FakeDatabase:
 
     def commit(self):
         pass
+
 
 class FakeSender:
     def __init__(self, outcomes=None, after_send=None):
@@ -32,6 +34,7 @@ class FakeSender:
         if isinstance(outcome, Exception):
             raise outcome
         return f"gmail-{len(self.sent)}"
+
 
 @pytest.fixture
 def fake_queue(monkeypatch):
@@ -80,6 +83,7 @@ def fake_queue(monkeypatch):
     )
     return add, deliveries, FakeDatabase
 
+
 def test_r6_batch_leaves_rest_for_next_runs(fake_queue):
     add, rows, factory = fake_queue
     for _ in range(7):
@@ -105,6 +109,7 @@ def test_r6_batch_leaves_rest_for_next_runs(fake_queue):
     assert len(sender.sent) == len(set(sender.sent)) == 7
     assert all(row.status == "sent" and row.attempts == 1 for row in rows)
 
+
 def test_r6_default_batch_limit_is_bounded(fake_queue):
     add, rows, factory = fake_queue
     for _ in range(27):
@@ -114,6 +119,7 @@ def test_r6_default_batch_limit_is_bounded(fake_queue):
     first = email_reminders.deliver_pending_reminders(factory, EVENING, sender)
     assert first["sent"] == 25
     assert [row.status for row in rows].count("pending") == 2
+
 
 def test_r6_monotonic_budget_stops_between_sends(fake_queue):
     add, rows, factory = fake_queue
@@ -144,6 +150,7 @@ def test_r6_monotonic_budget_stops_between_sends(fake_queue):
     assert second["sent"] == 2
     assert all(row.status == "sent" for row in rows)
 
+
 def test_r6_uncertain_result_not_sent_again(fake_queue):
     add, rows, factory = fake_queue
     add()
@@ -165,6 +172,7 @@ def test_r6_uncertain_result_not_sent_again(fake_queue):
     assert [row.status for row in rows] == ["unknown", "sent"]
     assert len(sender.sent) == 2
 
+
 def test_r6_in_flight_send_finishes_even_after_budget(fake_queue):
     add, rows, factory = fake_queue
     add()
@@ -183,6 +191,7 @@ def test_r6_in_flight_send_finishes_even_after_budget(fake_queue):
     assert result["sent"] == 1
     assert [row.status for row in rows] == ["sent", "pending"]
 
+
 def test_r6_invalid_limits_are_rejected(fake_queue):
     _, _, factory = fake_queue
     with pytest.raises(ValueError, match="Ліміти"):
@@ -193,6 +202,7 @@ def test_r6_invalid_limits_are_rejected(fake_queue):
         email_reminders.deliver_pending_reminders(
             factory, EVENING, FakeSender(), max_duration_seconds=0
         )
+
 
 def test_r6_skips_and_rejections_count_toward_batch(fake_queue):
     add, rows, factory = fake_queue
@@ -214,6 +224,7 @@ def test_r6_skips_and_rejections_count_toward_batch(fake_queue):
     assert second["sent"] == 2
     assert [row.status for row in rows] == ["skipped", "sent", "sent"]
     assert rows[1].attempts == 2
+
 
 def test_r6_midnight_still_prevents_late_sends(fake_queue):
     add, rows, factory = fake_queue
