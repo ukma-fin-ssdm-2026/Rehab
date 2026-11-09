@@ -72,9 +72,7 @@ return create_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 5
 ```python
 processed = await run_in_threadpool(normalize_avatar, bytes(raw))
 account = lock_user_for_update(db, user.user_id)
-# ...
 avatar = db.get(UserAvatar, user.user_id)
-# ...
 db.commit()
 ```
 
@@ -92,7 +90,6 @@ while True:
     current = clock()
     if current.astimezone(BUSINESS_TIMEZONE).date() != today:
         break
-    # ... захоплення одного листа ...
     message_id = sender.send(to, SUBJECT, reminder_body(style, today))
 ```
 
