@@ -48,6 +48,12 @@ jobs:
           TEST_DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports[5432] }}/rehab_test
         run: python -m alembic -x test_db=true upgrade head
 
+      - name: Run tests/reliability
+        env:
+          DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports[5432] }}/rehab_dev
+          TEST_DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports[5432] }}/rehab_test
+        run: python -m pytest tests/reliability/ -q
+
       - name: Run tests with coverage
         env:
           DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports[5432] }}/rehab_dev
