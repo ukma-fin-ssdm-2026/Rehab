@@ -40,8 +40,7 @@ class SendUncertain(Exception):
 
 
 class Sender(Protocol):
-    def send(self, to: str, subject: str, body: str) -> str:
-        ...
+    def send(self, to: str, subject: str, body: str) -> str: ...
 
 
 def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMessage:
