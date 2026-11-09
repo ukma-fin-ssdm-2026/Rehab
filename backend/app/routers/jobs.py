@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 JOB_LOCK_KEY = 0x5245_4841_4252_454D
 
+
 class ReminderJobResult(BaseModel):
     created_in_app: int = Field(..., ge=0)
     queued_email: int = Field(..., ge=0)
@@ -23,10 +24,12 @@ class ReminderJobResult(BaseModel):
     failed: int = Field(..., ge=0)
     unknown: int = Field(..., ge=0)
 
+
 def get_engine_for_job():
     from backend.app.db.session import get_engine
 
     return get_engine()
+
 
 def get_reminder_creator() -> Callable:
     try:
@@ -48,15 +51,18 @@ def get_reminder_creator() -> Callable:
         ) from error
     return create_due_reminders
 
+
 def get_sender():
     from backend.app.services.email_reminders import sender_from_env
 
     return sender_from_env()
 
+
 def get_clock() -> Callable:
     from backend.app.core.clock import utc_now
 
     return utc_now
+
 
 def require_job_token(x_job_token: str | None = Header(None)) -> None:
     expected = os.getenv("REMINDERS_JOB_TOKEN", "")
@@ -66,6 +72,7 @@ def require_job_token(x_job_token: str | None = Header(None)) -> None:
         x_job_token.encode(), expected.encode()
     ):
         raise api_error(401, "INVALID_JOB_TOKEN", "Недійсний секрет job")
+
 
 @contextmanager
 def job_lock(engine):
@@ -83,6 +90,7 @@ def job_lock(engine):
                 conn.execute(
                     text("SELECT pg_advisory_unlock(:key)"), {"key": JOB_LOCK_KEY}
                 )
+
 
 @router.post(
     "/reminders",
