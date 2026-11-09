@@ -9,6 +9,7 @@ from backend.app.routers import jobs
 
 TOKEN = "r7-test-token-at-least-thirty-two-characters"
 
+
 @pytest.fixture
 def broken_reminders_import(monkeypatch):
     original_import = builtins.__import__
@@ -23,8 +24,10 @@ def broken_reminders_import(monkeypatch):
 
     return inject
 
+
 def test_r7_valid_reminders_module_is_loaded():
     assert callable(jobs.get_reminder_creator())
+
 
 def test_r7_target_module_missing_returns_specific_503(
     broken_reminders_import, caplog
@@ -43,6 +46,7 @@ def test_r7_target_module_missing_returns_specific_503(
     assert caught.value.detail["code"] == "REMINDERS_NOT_READY"
     assert caught.value.__cause__ is cause
     assert "reminders module is missing" in caplog.text
+
 
 def test_r7_missing_internal_dependency_is_not_mislabelled(
     broken_reminders_import, caplog
@@ -64,6 +68,7 @@ def test_r7_missing_internal_dependency_is_not_mislabelled(
     assert caught.value.__cause__ is cause
     assert "dependency module import failed" in caplog.text
 
+
 def test_r7_internal_import_error_is_logged_and_safe(
     broken_reminders_import, caplog
 ):
@@ -79,6 +84,7 @@ def test_r7_internal_import_error_is_logged_and_safe(
     assert "internal-private-import-error" not in str(caught.value.detail)
     assert caught.value.__cause__ is cause
     assert "dependency import failed" in caplog.text
+
 
 def test_r7_endpoint_returns_safe_503_without_starting_job(
     broken_reminders_import, monkeypatch
