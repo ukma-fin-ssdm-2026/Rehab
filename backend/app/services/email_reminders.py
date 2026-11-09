@@ -26,11 +26,13 @@ GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
 GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.send"
 GOOGLE_OAUTH_EXCHANGE_URL = "https://oauth2.googleapis.com/token"
 
+
 class SendRejected(Exception):
 
     def __init__(self, code: str):
         super().__init__(code)
         self.code = code
+
 
 class SendUncertain(Exception):
 
@@ -38,9 +40,11 @@ class SendUncertain(Exception):
         super().__init__(code)
         self.code = code
 
+
 class Sender(Protocol):
     def send(self, to: str, subject: str, body: str) -> str:
         ...
+
 
 def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMessage:
     message = EmailMessage()
@@ -50,6 +54,7 @@ def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMess
     message["Subject"] = subject
     message.set_content(body)
     return message
+
 
 class GmailSender:
 
@@ -92,6 +97,7 @@ class GmailSender:
             raise SendUncertain("GMAIL_NO_ID")
         return message_id
 
+
 def sender_from_env() -> GmailSender | None:
     names = (
         "GMAIL_CLIENT_ID",
@@ -102,6 +108,7 @@ def sender_from_env() -> GmailSender | None:
     values = [os.getenv(name, "").strip() for name in names]
     return GmailSender(*values) if all(values) else None
 
+
 def calendar_url() -> str:
 
     for origin in os.getenv("CORS_ORIGINS", "").split(","):
@@ -109,6 +116,7 @@ def calendar_url() -> str:
         if origin.startswith("https://"):
             return f"{origin}/calendar"
     return ""
+
 
 def reminder_body(style: str, day: dt.date | None = None) -> str:
     from backend.app.services.message_texts import render_message
@@ -120,8 +128,10 @@ def reminder_body(style: str, day: dt.date | None = None) -> str:
     link = calendar_url()
     return f"{body}\n\nКалендар: {link}" if link else body
 
+
 def _counts() -> dict[str, int]:
     return {"sent": 0, "skipped": 0, "failed": 0, "unknown": 0}
+
 
 def _housekeeping(db: Session, now: dt.datetime, today: dt.date) -> None:
     db.execute(
@@ -140,6 +150,7 @@ def _housekeeping(db: Session, now: dt.datetime, today: dt.date) -> None:
         )
         .values(status="skipped", last_error_code="EXPIRED")
     )
+
 
 def _claim(
     db: Session, now: dt.datetime, today: dt.date, seen: set[int]
@@ -162,6 +173,7 @@ def _claim(
         delivery.attempts += 1
     return delivery
 
+
 def _still_wanted(db: Session, delivery: EmailReminderDelivery) -> User | None:
     user = db.get(User, delivery.recipient_id)
     if user is None or not user.email_reminders_enabled:
@@ -174,6 +186,7 @@ def _still_wanted(db: Session, delivery: EmailReminderDelivery) -> User | None:
     )
     return None if has_entry is not None else user
 
+
 def _finish(db_factory, delivery_id: int, **values) -> None:
     with db_factory() as db:
         db.execute(
@@ -182,6 +195,7 @@ def _finish(db_factory, delivery_id: int, **values) -> None:
             .values(**values)
         )
         db.commit()
+
 
 def maintain_reminder_queue(
     db_factory: Callable[[], Session], now: dt.datetime
@@ -192,6 +206,7 @@ def maintain_reminder_queue(
     with db_factory() as db:
         _housekeeping(db, now, now.astimezone(BUSINESS_TIMEZONE).date())
         db.commit()
+
 
 def deliver_pending_reminders(
     db_factory: Callable[[], Session],
