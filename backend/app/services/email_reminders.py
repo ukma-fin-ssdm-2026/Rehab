@@ -1,13 +1,3 @@
-# AI-GENERATED START
-"""Поштова копія щоденного нагадування через Gmail API (ТЗ С-3).
-
-Черга — таблиця email_reminder_deliveries. Кожен рядок захоплює один worker
-(status=sending) у короткій транзакції; мережевий запит до Gmail іде поза
-транзакцією. Невизначений результат (таймаут, розрив, падіння між Gmail і
-збереженням) → unknown без сліпого повтору: exactly-once зовнішня пошта не обіцяє.
-Журнали містять лише delivery_id і код помилки — без адрес, текстів і токенів.
-"""
-
 import base64
 import datetime as dt
 import logging
@@ -36,27 +26,23 @@ GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
 GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.send"
 GOOGLE_OAUTH_EXCHANGE_URL = "https://oauth2.googleapis.com/token"
 
-
 class SendRejected(Exception):
-    """Gmail явно не прийняв лист: можна повторити в межах MAX_ATTEMPTS."""
+    
 
     def __init__(self, code: str):
         super().__init__(code)
         self.code = code
-
 
 class SendUncertain(Exception):
-    """Невідомо, чи лист пішов: результат unknown, без автоматичного повтору."""
+    
 
     def __init__(self, code: str):
         super().__init__(code)
         self.code = code
-
 
 class Sender(Protocol):
     def send(self, to: str, subject: str, body: str) -> str:
-        """Повертає provider_message_id або кидає SendRejected/SendUncertain."""
-
+        
 
 def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMessage:
     message = EmailMessage()
@@ -67,9 +53,8 @@ def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMess
     message.set_content(body)
     return message
 
-
 class GmailSender:
-    """Надсилання від rehab.support.web@gmail.com, scope лише gmail.send."""
+    
 
     def __init__(self, client_id, client_secret, refresh_token, mail_from):
         from google.auth.transport.requests import AuthorizedSession
@@ -110,7 +95,6 @@ class GmailSender:
             raise SendUncertain("GMAIL_NO_ID")
         return message_id
 
-
 def sender_from_env() -> GmailSender | None:
     names = (
         "GMAIL_CLIENT_ID",
@@ -121,15 +105,13 @@ def sender_from_env() -> GmailSender | None:
     values = [os.getenv(name, "").strip() for name in names]
     return GmailSender(*values) if all(values) else None
 
-
 def calendar_url() -> str:
-    """Перша HTTPS-адреса frontend із CORS_ORIGINS (без секретів)."""
+    
     for origin in os.getenv("CORS_ORIGINS", "").split(","):
         origin = origin.strip().rstrip("/")
         if origin.startswith("https://"):
             return f"{origin}/calendar"
     return ""
-
 
 def reminder_body(style: str, day: dt.date | None = None) -> str:
     from backend.app.services.message_texts import render_message
@@ -141,10 +123,8 @@ def reminder_body(style: str, day: dt.date | None = None) -> str:
     link = calendar_url()
     return f"{body}\n\nКалендар: {link}" if link else body
 
-
 def _counts() -> dict[str, int]:
     return {"sent": 0, "skipped": 0, "failed": 0, "unknown": 0}
-
 
 def _housekeeping(db: Session, now: dt.datetime, today: dt.date) -> None:
     db.execute(
@@ -164,11 +144,9 @@ def _housekeeping(db: Session, now: dt.datetime, today: dt.date) -> None:
         .values(status="skipped", last_error_code="EXPIRED")
     )
 
-
 def _claim(
     db: Session, now: dt.datetime, today: dt.date, seen: set[int]
 ) -> EmailReminderDelivery | None:
-    # Повтор після відмови — у наступному запуску розкладу, не в тому самому.
     delivery = db.scalar(
         select(EmailReminderDelivery)
         .where(
@@ -187,7 +165,6 @@ def _claim(
         delivery.attempts += 1
     return delivery
 
-
 def _still_wanted(db: Session, delivery: EmailReminderDelivery) -> User | None:
     user = db.get(User, delivery.recipient_id)
     if user is None or not user.email_reminders_enabled:
@@ -200,7 +177,6 @@ def _still_wanted(db: Session, delivery: EmailReminderDelivery) -> User | None:
     )
     return None if has_entry is not None else user
 
-
 def _finish(db_factory, delivery_id: int, **values) -> None:
     with db_factory() as db:
         db.execute(
@@ -210,17 +186,15 @@ def _finish(db_factory, delivery_id: int, **values) -> None:
         )
         db.commit()
 
-
 def maintain_reminder_queue(
     db_factory: Callable[[], Session], now: dt.datetime
 ) -> None:
-    """Expire old work even when Gmail credentials are not configured."""
+    
     if now.tzinfo is None:
         raise ValueError("now має містити часовий пояс")
     with db_factory() as db:
         _housekeeping(db, now, now.astimezone(BUSINESS_TIMEZONE).date())
         db.commit()
-
 
 def deliver_pending_reminders(
     db_factory: Callable[[], Session],
@@ -232,12 +206,7 @@ def deliver_pending_reminders(
     max_duration_seconds: float = MAX_RUN_SECONDS,
     monotonic_clock: Callable[[], float] | None = None,
 ) -> dict[str, int]:
-    """Обробляє чергу поточної київської дати; повертає лічильники результатів.
-
-    now — момент запуску; clock (за замовчуванням now) — поточний час перед
-    кожним листом, щоб не надіслати прострочене після київської півночі.
-    Бюджет перевіряється між листами, а не перериває поточне надсилання.
-    """
+    
     if now.tzinfo is None:
         raise ValueError("now має містити часовий пояс")
     if max_deliveries <= 0 or max_duration_seconds <= 0:
@@ -283,7 +252,7 @@ def deliver_pending_reminders(
             )
             counts["failed"] += 1
             continue
-        except Exception as error:  # noqa: BLE001 — будь-який інший збій невизначений
+        except Exception as error:
             code = getattr(error, "code", "SEND_UNCERTAIN")
             log.warning("email delivery %s uncertain: %s", delivery_id, code)
             _finish(db_factory, delivery_id, status="unknown", last_error_code=code)
@@ -301,6 +270,3 @@ def deliver_pending_reminders(
     if len(seen) >= max_deliveries:
         log.info("email reminders: batch limit reached (claimed=%d)", len(seen))
     return counts
-
-
-# AI-GENERATED END
