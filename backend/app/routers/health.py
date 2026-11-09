@@ -35,6 +35,7 @@ def ready(db=Depends(_db_session)) -> dict:
         ) from None
     return {"status": "ok", "database": "ok"}
 
+
 @router.get("/health/dependencies")
 def dependency_health(db=Depends(_db_session)):
     dependencies = {"database": "ok", "gmail_api": "ok"}
@@ -47,9 +48,11 @@ def dependency_health(db=Depends(_db_session)):
         response = requests.get(GMAIL_DISCOVERY_URL, timeout=3)
         response.raise_for_status()
         payload = response.json()
-        if not isinstance(payload, dict) or (
-            payload.get("name"), payload.get("version")
-        ) != ("gmail", "v1"):
+        if (
+            not isinstance(payload, dict)
+            or payload.get("name") != "gmail"
+            or payload.get("version") != "v1"
+        ):
             dependencies["gmail_api"] = "unhealthy"
     except (requests.RequestException, ValueError):
         dependencies["gmail_api"] = "unhealthy"
