@@ -60,7 +60,7 @@
 
 **До:**
 ~~~python
-while True:
+while True: ...
 ~~~
 
 **Після:**
