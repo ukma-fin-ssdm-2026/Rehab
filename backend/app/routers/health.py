@@ -1,10 +1,3 @@
-"""Перевірки стану сервісу: /health (без БД) і /ready (SELECT 1).
-
-Підключається в main.py БЕЗ префікса /api/v1. Залежність від сесії БД та ж,
-що в security.py, а імпорт шару БД відкладений, тому модуль безпечно
-імпортувати з OpenAPI-скрипта й CI без підключення до PostgreSQL.
-"""
-
 import requests
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -20,13 +13,11 @@ GMAIL_DISCOVERY_URL = "https://gmail.googleapis.com/$discovery/rest?version=v1"
 
 @router.get("/health")
 def health() -> dict:
-    """Процес працює. До БД не звертається."""
     return {"status": "ok"}
 
 
 @router.get("/ready")
 def ready(db=Depends(_db_session)) -> dict:
-    """Сервіс готовий: БД відповідає на SELECT 1."""
     try:
         db.execute(text("SELECT 1"))
     except SQLAlchemyError:
