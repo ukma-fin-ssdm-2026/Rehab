@@ -76,7 +76,6 @@ def require_job_token(x_job_token: str | None = Header(None)) -> None:
 
 @contextmanager
 def job_lock(engine):
-    
     with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
         from sqlalchemy import text
 
@@ -108,7 +107,6 @@ def run_reminders(
     sender=Depends(get_sender),
     clock: Callable = Depends(get_clock),
 ) -> ReminderJobResult:
-    
     from sqlalchemy.orm import Session
 
     from backend.app.services.email_reminders import (
