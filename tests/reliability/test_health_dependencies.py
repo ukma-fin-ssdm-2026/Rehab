@@ -21,7 +21,9 @@ class BrokenDatabase:
 
 class GmailResponse:
     def __init__(self, payload=None, error=None):
-        self.payload = {"name": "gmail", "version": "v1"} if payload is None else payload
+        self.payload = (
+            {"name": "gmail", "version": "v1"} if payload is None else payload
+        )
         self.error = error
 
     def raise_for_status(self):
@@ -110,7 +112,9 @@ def test_bonus2_invalid_gmail_discovery_returns_unhealthy(monkeypatch):
     monkeypatch.setattr(
         health.requests,
         "get",
-        lambda *args, **kwargs: GmailResponse(payload={"name": "other", "version": "v1"}),
+        lambda *args, **kwargs: GmailResponse(
+            payload={"name": "other", "version": "v1"}
+        ),
     )
 
     response = client_for(WorkingDatabase()).get("/health/dependencies")
