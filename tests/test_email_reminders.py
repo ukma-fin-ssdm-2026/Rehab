@@ -28,6 +28,7 @@ TOKEN = "job-test-token-at-least-32-characters-long"
 TODAY = dt.date(2026, 10, 30)
 EVENING = dt.datetime(2026, 10, 30, 20, 15, tzinfo=BUSINESS_TIMEZONE)
 
+
 class FakeSender:
     def __init__(self, outcomes=None):
         self.outcomes = list(outcomes or [])
@@ -40,13 +41,16 @@ class FakeSender:
             raise outcome
         return f"gmail-{len(self.sent)}"
 
+
 @pytest.fixture
 def engine(calendar_db, postgres_schema):
     return postgres_schema
 
+
 @pytest.fixture
 def factory(engine):
     return lambda: Session(engine, expire_on_commit=False)
+
 
 def make_user(db, nickname, opt_in=True, style="formal"):
     user = User(
@@ -61,6 +65,7 @@ def make_user(db, nickname, opt_in=True, style="formal"):
     db.add(user)
     db.flush()
     return user
+
 
 def queue(db, user, business_date=TODAY, **extra):
     notification = Notification(
@@ -81,9 +86,11 @@ def queue(db, user, business_date=TODAY, **extra):
     db.commit()
     return delivery.delivery_id
 
+
 def status(factory, delivery_id):
     with factory() as db:
         return db.get(EmailReminderDelivery, delivery_id)
+
 
 def test_opt_in_reminder_is_sent_once(calendar_db, factory):
     delivery_id = queue(calendar_db, make_user(calendar_db, "anna", style="zen"))
@@ -101,6 +108,7 @@ def test_opt_in_reminder_is_sent_once(calendar_db, factory):
     row = status(factory, delivery_id)
     assert (row.status, row.provider_message_id, row.attempts) == ("sent", "gmail-1", 1)
 
+
 def test_opt_out_and_existing_entry_are_skipped_before_sending(calendar_db, factory):
     off = queue(calendar_db, make_user(calendar_db, "off", opt_in=False))
     writer = make_user(calendar_db, "writer")
@@ -114,6 +122,7 @@ def test_opt_out_and_existing_entry_are_skipped_before_sending(calendar_db, fact
     assert (
         status(factory, off).status == status(factory, with_entry).status == "skipped"
     )
+
 
 def test_rejection_is_retried_in_later_runs_at_most_three_times(calendar_db, factory):
     delivery_id = queue(calendar_db, make_user(calendar_db, "retry"))
@@ -129,6 +138,7 @@ def test_rejection_is_retried_in_later_runs_at_most_three_times(calendar_db, fac
         "GMAIL_HTTP_500",
     )
 
+
 @pytest.mark.parametrize(
     "error", [SendUncertain("GMAIL_NETWORK"), RuntimeError("crash")]
 )
@@ -142,6 +152,7 @@ def test_uncertain_result_becomes_unknown_without_retry(calendar_db, factory, er
     assert first["unknown"] == 1 and again["unknown"] == 0
     assert len(sender.sent) == 1
     assert status(factory, delivery_id).status == "unknown"
+
 
 def test_stale_sending_becomes_unknown_and_past_dates_are_skipped(calendar_db, factory):
     stale = queue(
@@ -162,6 +173,7 @@ def test_stale_sending_becomes_unknown_and_past_dates_are_skipped(calendar_db, f
     assert status(factory, old).status == "skipped"
     assert sender.sent == []
 
+
 def test_nothing_is_sent_after_kyiv_midnight(calendar_db, factory):
     delivery_id = queue(calendar_db, make_user(calendar_db, "late"))
     sender = FakeSender()
@@ -172,6 +184,7 @@ def test_nothing_is_sent_after_kyiv_midnight(calendar_db, factory):
     assert sender.sent == []
     assert status(factory, delivery_id).status == "pending"
 
+
 def test_message_has_neutral_subject_and_shared_reply_to():
     message = build_message(
         "rehab.support.web@gmail.com", "a@example.test", SUBJECT, "текст"
@@ -181,12 +194,14 @@ def test_message_has_neutral_subject_and_shared_reply_to():
     assert message["Reply-To"] == message["From"] == "rehab.support.web@gmail.com"
     assert message["To"] == "a@example.test"
 
+
 def test_calendar_link_uses_public_frontend(monkeypatch):
     monkeypatch.setenv(
         "CORS_ORIGINS", "http://localhost:8081, https://rehab-web.example/"
     )
 
     assert email_reminders.calendar_url() == "https://rehab-web.example/calendar"
+
 
 @pytest.fixture
 def job_client(engine, monkeypatch):
@@ -210,6 +225,7 @@ def job_client(engine, monkeypatch):
     client.calls, client.sender = calls, sender
     return client
 
+
 @pytest.mark.parametrize("headers", [{}, {"X-Job-Token": "wrong"}])
 def test_job_rejects_missing_or_wrong_token(job_client, headers):
     response = job_client.post("/internal/jobs/reminders", headers=headers)
@@ -217,6 +233,7 @@ def test_job_rejects_missing_or_wrong_token(job_client, headers):
     assert response.status_code == 401
     assert response.json()["code"] == "INVALID_JOB_TOKEN"
     assert job_client.calls == []
+
 
 def test_job_is_not_configured_without_strong_secret(job_client, monkeypatch):
     monkeypatch.setenv("REMINDERS_JOB_TOKEN", "short")
@@ -228,12 +245,14 @@ def test_job_is_not_configured_without_strong_secret(job_client, monkeypatch):
     assert response.status_code == 503
     assert job_client.calls == []
 
+
 def test_job_has_no_get_trigger(job_client):
     response = job_client.get(
         "/internal/jobs/reminders", headers={"X-Job-Token": TOKEN}
     )
 
     assert response.status_code == 405
+
 
 def test_job_creates_and_delivers_and_returns_only_counters(job_client, calendar_db):
     queue(calendar_db, make_user(calendar_db, "mail"))
@@ -254,6 +273,7 @@ def test_job_creates_and_delivers_and_returns_only_counters(job_client, calendar
     assert job_client.calls == [EVENING]
     assert "mail@example.test" not in response.text
 
+
 def test_parallel_job_is_rejected_while_lock_is_held(job_client, engine):
     with jobs.job_lock(engine) as held:
         assert held
@@ -264,6 +284,7 @@ def test_parallel_job_is_rejected_while_lock_is_held(job_client, engine):
     assert response.status_code == 409
     assert response.json()["code"] == "JOB_ALREADY_RUNNING"
     assert job_client.calls == []
+
 
 def test_two_concurrent_workers_send_each_delivery_once(calendar_db, factory):
     for name in ("p1", "p2", "p3", "p4"):
@@ -286,6 +307,7 @@ def test_two_concurrent_workers_send_each_delivery_once(calendar_db, factory):
     ]
     with factory() as db:
         assert set(db.scalars(select(EmailReminderDelivery.status))) == {"sent"}
+
 
 def test_job_without_sender_still_expires_queue(job_client, calendar_db, factory):
     old_day = TODAY - dt.timedelta(days=1)
@@ -319,6 +341,7 @@ def test_job_without_sender_still_expires_queue(job_client, calendar_db, factory
     assert status(factory, current).status == "pending"
     assert job_client.sender.sent == []
 
+
 def test_r6_postgres_batches_keep_pending_and_prevent_duplicates(calendar_db, factory):
     delivery_ids = [
         queue(calendar_db, make_user(calendar_db, f"r6_batch_{i}"))
@@ -351,6 +374,7 @@ def test_r6_postgres_batches_keep_pending_and_prevent_duplicates(calendar_db, fa
     assert all(
         status(factory, delivery_id).status == "sent" for delivery_id in delivery_ids
     )
+
 
 def test_r6_job_releases_advisory_lock_between_batches(
     job_client, calendar_db, engine, monkeypatch
