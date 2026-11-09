@@ -1,11 +1,3 @@
-# AI-GENERATED START
-"""Службовий запуск нагадувань за розкладом (ТЗ С-4).
-
-Не користувацький маршрут: без JWT і ролі admin, лише секрет X-Job-Token.
-Немає GET-запуску, параметрів дати чи отримувача. Паралельні виклики
-серіалізує advisory-lock PostgreSQL; повтори зупиняють унікальні ключі.
-"""
-
 import hmac
 import logging
 import os
@@ -21,7 +13,6 @@ from backend.app.models import ErrorResponse
 router = APIRouter(prefix="/internal/jobs", tags=["Jobs"])
 log = logging.getLogger(__name__)
 
-# Довільна стала 64-бітна мітка саме цього job у pg_advisory_lock.
 JOB_LOCK_KEY = 0x5245_4841_4252_454D
 
 
@@ -43,10 +34,21 @@ def get_engine_for_job():
 def get_reminder_creator() -> Callable:
     try:
         from backend.app.services.reminders import create_due_reminders
-    except ImportError:
+    except ModuleNotFoundError as error:
+        if error.name == "backend.app.services.reminders":
+            log.error("reminder job: reminders module is missing")
+            raise api_error(
+                503, "REMINDERS_NOT_READY", "Створення нагадувань ще не підключено"
+            ) from error
+        log.exception("reminder job: dependency module import failed")
         raise api_error(
-            503, "REMINDERS_NOT_READY", "Створення нагадувань ще не підключено"
-        ) from None
+            503, "REMINDERS_DEPENDENCY_ERROR", "Нагадування тимчасово недоступні"
+        ) from error
+    except ImportError as error:
+        log.exception("reminder job: dependency import failed")
+        raise api_error(
+            503, "REMINDERS_DEPENDENCY_ERROR", "Нагадування тимчасово недоступні"
+        ) from error
     return create_due_reminders
 
 
@@ -74,7 +76,6 @@ def require_job_token(x_job_token: str | None = Header(None)) -> None:
 
 @contextmanager
 def job_lock(engine):
-    """Окреме autocommit-з'єднання: лок без відкритої транзакції даних."""
     with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
         from sqlalchemy import text
 
@@ -106,7 +107,6 @@ def run_reminders(
     sender=Depends(get_sender),
     clock: Callable = Depends(get_clock),
 ) -> ReminderJobResult:
-    """Створює нагадування за поточну київську дату й обробляє поштову чергу."""
     from sqlalchemy.orm import Session
 
     from backend.app.services.email_reminders import (
@@ -126,7 +126,6 @@ def run_reminders(
             db.commit()
         if sender is None:
             maintain_reminder_queue(db_factory, now)
-            # Листи лишаються в черзі pending; наступної доби їх позначить skipped.
             log.warning("reminder job: GMAIL_NOT_CONFIGURED")
             delivered = {"sent": 0, "skipped": 0, "failed": 0, "unknown": 0}
         else:
@@ -139,6 +138,3 @@ def run_reminders(
         failed=delivered["failed"],
         unknown=delivered["unknown"],
     )
-
-
-# AI-GENERATED END

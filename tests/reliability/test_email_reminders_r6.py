@@ -1,5 +1,3 @@
-"""R6: перевірки розміру пакета й бюджету часу без PostgreSQL/Gmail."""
-
 import datetime as dt
 from types import SimpleNamespace
 
@@ -40,7 +38,7 @@ class FakeSender:
 
 @pytest.fixture
 def fake_queue(monkeypatch):
-    """Імітація лише черги: не створює БД і не відправляє листів."""
+    
     deliveries = []
 
     def add(*, wanted=True):
