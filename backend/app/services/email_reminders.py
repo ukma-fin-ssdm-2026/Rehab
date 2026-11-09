@@ -27,14 +27,12 @@ GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.send"
 GOOGLE_OAUTH_EXCHANGE_URL = "https://oauth2.googleapis.com/token"
 
 class SendRejected(Exception):
-    
 
     def __init__(self, code: str):
         super().__init__(code)
         self.code = code
 
 class SendUncertain(Exception):
-    
 
     def __init__(self, code: str):
         super().__init__(code)
@@ -42,7 +40,7 @@ class SendUncertain(Exception):
 
 class Sender(Protocol):
     def send(self, to: str, subject: str, body: str) -> str:
-        
+        ...
 
 def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMessage:
     message = EmailMessage()
@@ -54,7 +52,6 @@ def build_message(mail_from: str, to: str, subject: str, body: str) -> EmailMess
     return message
 
 class GmailSender:
-    
 
     def __init__(self, client_id, client_secret, refresh_token, mail_from):
         from google.auth.transport.requests import AuthorizedSession
@@ -106,7 +103,7 @@ def sender_from_env() -> GmailSender | None:
     return GmailSender(*values) if all(values) else None
 
 def calendar_url() -> str:
-    
+
     for origin in os.getenv("CORS_ORIGINS", "").split(","):
         origin = origin.strip().rstrip("/")
         if origin.startswith("https://"):
@@ -189,7 +186,7 @@ def _finish(db_factory, delivery_id: int, **values) -> None:
 def maintain_reminder_queue(
     db_factory: Callable[[], Session], now: dt.datetime
 ) -> None:
-    
+
     if now.tzinfo is None:
         raise ValueError("now має містити часовий пояс")
     with db_factory() as db:
@@ -206,7 +203,7 @@ def deliver_pending_reminders(
     max_duration_seconds: float = MAX_RUN_SECONDS,
     monotonic_clock: Callable[[], float] | None = None,
 ) -> dict[str, int]:
-    
+
     if now.tzinfo is None:
         raise ValueError("now має містити часовий пояс")
     if max_deliveries <= 0 or max_duration_seconds <= 0:
