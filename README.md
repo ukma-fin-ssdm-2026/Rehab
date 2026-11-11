@@ -28,6 +28,7 @@
 | **Lab 06** | Debugging Lead | Testing Strategist | Integration Lead | Testing Lead + Test stand manager |
 | **Lab 07** | Documentation Lead | Quality Analyst | Test Planner | Review Manager + AI Code Reviewer |
 | **Lab 08** | Аналітик коду + Security Rating | Менеджер релізу | Керівник рефакторингу + нотатка «Використання ШІ» | Інженер з тестування |
+| **Lab 09** | Інженер надійності + Тестувальник надійності | Відповідальний за документацію + Інженер надійності | Інженер надійності + Тестувальник надійності | Дослідник ризиків + Аналітик відмов + Інженер надійності |
 
 У Lab 08 кожна учасниця також виконує власний рефакторинг і пояснює його перевірку в індивідуальному відео.
 
@@ -187,6 +188,10 @@ Rehab/
 │   │   ├── sonarcloud-report.md
 │   │   └── screenshots/         # докази SonarQube до/після
 │   │
+│   ├── reliability/
+│   │   ├── scavenger-hunt.md
+│   │   └── reliability-report.md
+│   │
 │   ├── development/
 │   │   └── postgres-local.md
 │   ├── deployment/
@@ -200,6 +205,7 @@ Rehab/
 ├── scripts/
 │   └── export_openapi.py
 ├── tests/
+│   └── reliability/         # тести надійності (Лаб 9)
 ├── .sonarcloud.properties       # виключення згенерованих звітів з аналізу
 ├── CHANGELOG.md
 ├── pyproject.toml               # конфігурація тестів і версія проєкту

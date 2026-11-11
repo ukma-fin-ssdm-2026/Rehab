@@ -21,7 +21,10 @@ const plain = value => JSON.parse(JSON.stringify(value));
 test('calendar client keeps the API contract for list, detail, create and patch', async () => {
   const requests = [];
   const api = load('api/calendar.ts', { '../progress/changes': { notifyProgressChanged() {} }, './client': { apiRequest: async (...args) => {
-    requests.push(args); return { record_id: 8 };
+    requests.push(args);
+    const entry = { record_id: 8, user_id: 1, date: '2026-10-29', status: 'sober', trigger_category: null,
+      drinks: [], comment: null, created_at: '2026-10-29T10:00:00Z' };
+    return args[0].includes('?') ? { items: [entry], total: 1, limit: 100, offset: 0 } : entry;
   } } });
   await api.listEntries('2026-10-01', '2026-10-31');
   await api.getEntry(8);
