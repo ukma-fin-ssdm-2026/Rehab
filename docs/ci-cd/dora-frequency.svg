@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 390" role="img" aria-labelledby="chart-title chart-desc">
+<title id="chart-title">Частота успішних CI-запусків Rehab за тижнями</title>
+<desc id="chart-desc">27 успішних запусків з 27 жовтня до 2 листопада, 20 з 3 до 9 листопада, 6 з 10 до 16 листопада 2026 року.</desc>
+<rect width="940" height="390" rx="20" fill="#f8fafc"/>
+<text x="48" y="46" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#152238">Успішні CI Pipeline на main</text>
+<text x="48" y="75" font-family="Arial,sans-serif" font-size="15" fill="#526174">Rehab · 27.10–16.11.2026 · UTC</text>
+<line x1="105" y1="315" x2="875" y2="315" stroke="#94a3b8" stroke-width="2"/>
+<line x1="105" y1="105" x2="105" y2="315" stroke="#94a3b8" stroke-width="2"/>
+<line x1="105" y1="245" x2="875" y2="245" stroke="#d4dce8" stroke-dasharray="4 5"/>
+<line x1="105" y1="175" x2="875" y2="175" stroke="#d4dce8" stroke-dasharray="4 5"/>
+<line x1="105" y1="105" x2="875" y2="105" stroke="#d4dce8" stroke-dasharray="4 5"/>
+<text x="80" y="320" text-anchor="end" font-family="Arial,sans-serif" font-size="13" fill="#526174">0</text>
+<text x="80" y="250" text-anchor="end" font-family="Arial,sans-serif" font-size="13" fill="#526174">10</text>
+<text x="80" y="180" text-anchor="end" font-family="Arial,sans-serif" font-size="13" fill="#526174">20</text>
+<text x="80" y="110" text-anchor="end" font-family="Arial,sans-serif" font-size="13" fill="#526174">30</text>
+<rect x="165" y="126" width="148" height="189" rx="8" fill="#176b81"/>
+<rect x="402" y="175" width="148" height="140" rx="8" fill="#248ca0"/>
+<rect x="639" y="273" width="148" height="42" rx="8" fill="#58adbd"/>
+<text x="239" y="115" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#1b3146">27</text>
+<text x="476" y="164" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#1b3146">20</text>
+<text x="713" y="262" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#1b3146">6</text>
+<text x="239" y="340" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#28384b">27.10–02.11</text>
+<text x="476" y="340" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#28384b">03.11–09.11</text>
+<text x="713" y="340" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#28384b">10.11–16.11</text>
+<text x="48" y="373" font-family="Arial,sans-serif" font-size="13" fill="#526174">53 успішні CI за 21 день; 1 queued не включено.</text>
+</svg>
