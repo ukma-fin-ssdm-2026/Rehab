@@ -1,6 +1,6 @@
 # Lab 10 — звірка DORA між CI Pipeline і Code Quality
 
-**Роль:** аналітик DORA (учасник №2).  
+**Роль:** аналітик DORA.  
 **Репозиторій:** [Rehab](https://github.com/ukma-fin-ssdm-2026/Rehab).  
 **Період:** 27.10–16.11.2026 включно (21 доба, UTC).  
 **Джерела:** GitHub Actions REST API; 54 merge-коміти, зіставлені за повним SHA.
