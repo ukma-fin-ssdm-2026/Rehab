@@ -1,6 +1,5 @@
 # Lab10 — першопричини і план покращень
-
-**Роль №3: проєктувальниця покращень** — Софія Мілевська ([@Sof222](https://github.com/Sof222)).
+## Виконано за допомогою ШІ агенту Claude Code
 
 Період і вибірка ті самі, що в [metrics-raw.md](./metrics-raw.md): CI Pipeline, push у `main`, 27.10–16.11.2026 UTC, 53 завершені запуски (усі зелені) і 1 запуск у черзі. Для пошуку першопричин додатково переглянуто Code Quality, Lab07 Traceability і Dependency Audit на `main` за той самий період. Усі значення нижче пораховано з таблиці metrics-raw.md та GitHub Actions API.
 
