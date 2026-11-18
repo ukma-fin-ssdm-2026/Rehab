@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 10 — DORA Rehab</title>
+<style>
+:root{color-scheme:light;--ink:#17324d;--muted:#52677d;--teal:#176b81;--blue:#347ea0;--red:#b64142;--paper:#f3f7fa;--card:#fff;--line:#d9e3eb}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1080px;margin:0 auto;padding:36px 22px 52px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:24px}
+h1{font-size:clamp(28px,4vw,42px);line-height:1.1;margin:0 0 8px}h2{font-size:20px;margin:0 0 16px}p{margin:5px 0;color:var(--muted)}
+.badge{background:#e1f1f4;color:var(--teal);border-radius:999px;padding:8px 13px;font-weight:650;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:19px;box-shadow:0 3px 12px #17324d0c}
+.label{font-size:13px;color:var(--muted);font-weight:650;text-transform:uppercase;letter-spacing:.04em}
+.value{font-size:27px;font-weight:760;line-height:1.2;margin:8px 0 3px}
+.sub{font-size:13px;color:var(--muted)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 9px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:650}tr:last-child td{border-bottom:0}
+.chart{margin-top:14px}.barrow{display:grid;grid-template-columns:140px 1fr 32px;align-items:center;gap:10px;margin:13px 0;font-size:14px}
+.track{height:13px;background:#e8eef3;border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--teal);border-radius:99px}.bar.ext{background:var(--blue)}
+.legend{font-size:13px;color:var(--muted);margin:6px 0}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 5px 0 12px}.dot:first-child{margin-left:0}
+.note{border-left:4px solid var(--teal);padding:12px 15px;background:#eaf3f6;border-radius:0 10px 10px 0;margin-top:16px;color:var(--ink)}
+footer{margin-top:20px;font-size:13px;color:var(--muted)}a{color:#146d86}
+@media(max-width:760px){header{display:block}.badge{display:inline-block;margin-top:12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:1fr}.barrow{grid-template-columns:105px 1fr 28px}}
+@media(max-width:420px){main{padding:24px 14px}.grid{gap:9px}.card{padding:14px}.value{font-size:23px}.barrow{grid-template-columns:88px 1fr 24px;font-size:12px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div><h1>DORA / CI Rehab</h1><p>Лабораторна робота 10 · 27.10–16.11.2026 · UTC</p></div>
+<div class="badge">Навчальні CI-проксі</div>
+</header>
+<section class="grid" aria-label="Основні метрики">
+<article class="card"><div class="label">Зелені коміти / тиждень</div><div class="value">17,67 / 17,00</div><div class="sub">CI Pipeline / CI + Code Quality</div></article>
+<article class="card"><div class="label">Lead time · медіана</div><div class="value">1,44 / 1,33 год</div><div class="sub">CI Pipeline / CI + Code Quality</div></article>
+<article class="card"><div class="label">Change fail rate</div><div class="value">0% / 3,77%</div><div class="sub">0/53 / 2/53 завершених комітів</div></article>
+<article class="card"><div class="label">Відновлення</div><div class="value">— / 20,48 год</div><div class="sub">Один інцидент у розширеній вибірці</div></article>
+</section>
+<div class="split">
+<section class="panel">
+<h2>Чотири метрики</h2>
+<table>
+<thead><tr><th>Метрика</th><th>CI Pipeline</th><th>+ Code Quality</th></tr></thead>
+<tbody>
+<tr><td>Частота / тиждень</td><td>17,67</td><td>17,00</td></tr>
+<tr><td>Lead time · медіана</td><td>1,44 год</td><td>1,33 год</td></tr>
+<tr><td>Lead time · середнє</td><td>15,91 год</td><td>14,03 год</td></tr>
+<tr><td>Change fail rate</td><td>0%</td><td>3,77%</td></tr>
+<tr><td>Відновлення</td><td>Не визначається</td><td>20,48 год*</td></tr>
+</tbody>
+</table>
+<div class="note">* Одне вимірювання відновлення, не середнє. У знімку: 54 коміти, з них 1 queued; queued не рахується як успіх чи збій.</div>
+</section>
+<section class="panel chart">
+<h2>Успішні коміти за тижнями</h2>
+<p class="legend"><span class="dot" style="background:var(--teal)"></span>CI Pipeline <span class="dot" style="background:var(--blue)"></span>CI Pipeline + Code Quality</p>
+<div class="barrow"><span>27.10–02.11</span><div class="track"><div class="bar" style="width:90%"></div></div><b>27</b></div>
+<div class="barrow"><span>27.10–02.11</span><div class="track"><div class="bar ext" style="width:83.33%"></div></div><b>25</b></div>
+<div class="barrow"><span>03.11–09.11</span><div class="track"><div class="bar" style="width:66.67%"></div></div><b>20</b></div>
+<div class="barrow"><span>03.11–09.11</span><div class="track"><div class="bar ext" style="width:66.67%"></div></div><b>20</b></div>
+<div class="barrow"><span>10.11–16.11</span><div class="track"><div class="bar" style="width:20%"></div></div><b>6</b></div>
+<div class="barrow"><span>10.11–16.11</span><div class="track"><div class="bar ext" style="width:20%"></div></div><b>6</b></div>
+<div class="note">Черга цілого CI-запуску: медіана 7 с. Виконання цілого запуску: медіана 113 с. Це інтервали запуску, окремо від lead time.</div>
+</section>
+</div>
+<section class="panel" style="margin-top:14px">
+<h2>Бонус №5 · публікація образу</h2>
+<p>Після успішного CI на <code>main</code> workflow збирає API-образ з того самого SHA і публікує його в GHCR.</p>
+<p><a href="https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/publish-ghcr.yml">Історія запусків workflow</a> · <a href="https://github.com/ukma-fin-ssdm-2026/Rehab/pkgs/container/rehab">Сторінка пакета</a></p>
+<div class="note">Публікація ще не виконувалась: workflow очікує злиття PR #275. У періоді 27.10–16.11.2026 GHCR-метрики не спостерігались; їх буде додано після першого успішного main-запуску.</div>
+</section>
+<footer>Успішний CI на main використано як визначене лабораторною наближення розгортання. Дані не є вимірюванням production-релізів. Джерело: <a href="./dora-summary.md">dora-summary.md</a> · <a href="./metrics-raw.md">metrics-raw.md</a> · <a href="./improvement-plan.md">план покращень</a>.</footer>
+</main>
+</body>
+</html>
