@@ -1,0 +1,12 @@
+{
+  "period_utc": [
+    "2026-10-27",
+    "2026-11-16"
+  ],
+  "workflow": "CI Pipeline",
+  "branch": "main",
+  "source": "main-ci-runs-api.json",
+  "successful_runs_with_attempt_gt_1": [],
+  "count": 0,
+  "interpretation": "No successful same-SHA reruns with attempt > 1 in this selected workflow and period; this does not assess other workflows or deleted history."
+}

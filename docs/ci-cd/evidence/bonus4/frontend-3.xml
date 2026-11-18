@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="administrator enters complaints without accessing legacy account list" time="0.001882" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: unset" time="0.002124" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: empty" time="0.000632" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: whitespace only" time="0.000474" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: one slash" time="0.000562" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: slashes only" time="0.000535" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: plain base" time="0.000470" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: one trailing slash" time="0.000580" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: many trailing slashes" time="0.000504" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: outer whitespace" time="0.000750" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: internal slashes" time="0.000737" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: internal whitespace" time="0.000566" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: backslash is retained" time="0.000477" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: unicode path" time="0.000429" classname="test"/>
+	<testcase name="API configuration preserves existing normalization: unvalidated text" time="0.000444" classname="test"/>
+	<testcase name="a long internal slash run followed by text is preserved" time="0.000484" classname="test"/>
+	<testcase name="calendar URL keeps its exact route after trimming the base" time="0.000492" classname="test"/>
+	<testcase name="statistics URL keeps its route and period: all" time="0.000426" classname="test"/>
+	<testcase name="statistics URL keeps its route and period: week" time="0.000491" classname="test"/>
+	<testcase name="statistics URL keeps its route and period: month" time="0.000436" classname="test"/>
+	<testcase name="statistics URL keeps its route and period: year" time="0.000420" classname="test"/>
+	<testcase name="deadline bounds stalled headers without retrying a write" time="0.078340" classname="test"/>
+	<testcase name="deadline bounds stalled body without retrying a write" time="0.017082" classname="test"/>
+	<testcase name="caller cancellation ends a pending request and cleans its deadline" time="0.018086" classname="test"/>
+	<testcase name="already cancelled request never reaches transport" time="0.014294" classname="test"/>
+	<testcase name="malformed JSON at HTTP 200 produces a controlled error" time="0.020855" classname="test"/>
+	<testcase name="malformed JSON at HTTP 401 produces a controlled error" time="0.011650" classname="test"/>
+	<testcase name="malformed JSON at HTTP 500 produces a controlled error" time="0.009417" classname="test"/>
+	<testcase name="late malformed 401 cannot invalidate a newer session" time="0.009529" classname="test"/>
+	<testcase name="a response arriving after timeout cannot invalidate the session" time="0.019374" classname="test"/>
+	<testcase name="network failure is preserved and clears the deadline" time="0.009638" classname="test"/>
+	<testcase name="successful JSON and empty 204 clear deadlines and caller listeners" time="0.033433" classname="test"/>
+	<testcase name="production UI never sends demo session tokens" time="0.003565" classname="test"/>
+	<testcase name="calendar write uses current JWT, one API prefix and JSON headers" time="0.082120" classname="test"/>
+	<testcase name="expired session invokes invalidation and displays the server message" time="0.025966" classname="test"/>
+	<testcase name="a role restriction does not clear an otherwise valid session" time="0.022507" classname="test"/>
+	<testcase name="late 401 from previous JWT does not revoke a newer login" time="0.107045" classname="test"/>
+	<testcase name="late account block from another session does not revoke current JWT" time="0.037431" classname="test"/>
+	<testcase name="only 401 revokes JWT; mentorship and legacy 403 keep the session" time="0.064962" classname="test"/>
+	<testcase name="invalid public login does not invalidate a concurrently restored session" time="0.014072" classname="test"/>
+	<testcase name="registration normalizes fields without changing the password" time="0.000953" classname="test"/>
+	<testcase name="registration rejects empty or whitespace names and nicknames" time="0.000164" classname="test"/>
+	<testcase name="registration accepts 100-character name and 50-character nickname" time="0.000177" classname="test"/>
+	<testcase name="registration checks email syntax and length" time="0.000234" classname="test"/>
+	<testcase name="registration accepts passwords of exactly 8 and 128 characters" time="0.000136" classname="test"/>
+	<testcase name="login normalizes email but preserves exact password" time="0.000130" classname="test"/>
+	<testcase name="login refuses empty credentials and invalid email before API request" time="0.000089" classname="test"/>
+	<testcase name="expired JWT on a record URL retains the record destination" time="0.089928" classname="test"/>
+	<testcase name="relogin after expiration can consume the stored record once" time="0.027922" classname="test"/>
+	<testcase name="an explicit logout discards the record destination" time="0.029390" classname="test"/>
+	<testcase name="invalidating a session on another screen clears a stale destination" time="0.029767" classname="test"/>
+	<testcase name="invalidating on an unsafe path never stores external navigation" time="0.023712" classname="test"/>
+	<testcase name="signed-in users return to the requested record once" time="0.026783" classname="test"/>
+	<testcase name="ordinary sign-in without saved link opens the home screen" time="0.011875" classname="test"/>
+	<testcase name="guests reach login instead of private routes" time="0.008117" classname="test"/>
+	<testcase name="pending onboarding takes precedence over saved links" time="0.008869" classname="test"/>
+	<testcase name="administrator routing cannot consume an entry destination" time="0.009880" classname="test"/>
+	<testcase name="a delayed first login cannot replace a newer login" time="0.013364" classname="test"/>
+	<testcase name="a completed login after logout does not restore a session" time="0.011719" classname="test"/>
+	<testcase name="registration completed after logout does not start an implicit login" time="0.011469" classname="test"/>
+	<testcase name="ordinary registration still signs in and enables onboarding" time="0.009401" classname="test"/>
+	<testcase name="a direct record link can be restored once after authentication" time="0.000787" classname="test"/>
+	<testcase name="a record path with a trailing slash is normalized" time="0.000112" classname="test"/>
+	<testcase name="login ignores arbitrary URLs and unsafe target paths" time="0.000165" classname="test"/>
+	<testcase name="tampered destinations are discarded instead of opened" time="0.000091" classname="test"/>
+	<testcase name="registration or logout can discard a pending record link" time="0.000168" classname="test"/>
+	<testcase name="a different browser tab cannot consume another independent tab link" time="0.000078" classname="test"/>
+	<testcase name="gallery cancellation does not upload or download" time="0.002439" classname="test"/>
+	<testcase name="gallery recognizes JPEG bytes when Safari provides no usable MIME or extension" time="0.001028" classname="test"/>
+	<testcase name="gallery accepts AVIF and JPEG MIME aliases" time="0.001551" classname="test"/>
+	<testcase name="web uploads the actual selected file without fetching a URI" time="0.000892" classname="test"/>
+	<testcase name="native loads the picked HEIC file before passing to the API client" time="0.001158" classname="test"/>
+	<testcase name="oversized image is rejected before reading its contents" time="0.001284" classname="test"/>
+	<testcase name="unknown and empty files cannot be saved" time="0.001702" classname="test"/>
+	<testcase name="actual file size is checked even if metadata reports a smaller file" time="0.002359" classname="test"/>
+	<testcase name="back navigation stays inside app, with safe role home when history is absent" time="0.040272" classname="test"/>
+	<testcase name="R3: valid calendar page passes unchanged" time="0.061970" classname="test"/>
+	<testcase name="R3 boundary: empty month is a valid page, not an error" time="0.013933" classname="test"/>
+	<testcase name="R3 fault injection: items null gives a controlled error instead of a render crash" time="0.012404" classname="test"/>
+	<testcase name="R3 fault injection: missing items or non-object body gives a controlled error" time="0.030374" classname="test"/>
+	<testcase name="R3: entry with wrong field types is rejected" time="0.062612" classname="test"/>
+	<testcase name="R3: single entry response is validated too" time="0.031430" classname="test"/>
+	<testcase name="calendar client keeps the API contract for list, detail, create and patch" time="0.064106" classname="test"/>
+	<testcase name="form allows sober and relapse without drinks, strips alcohol fields for sober" time="0.015883" classname="test"/>
+	<testcase name="form rejects impossible, future and pre-tracking dates, invalid volumes and long comments" time="0.011940" classname="test"/>
+	<testcase name="48 hours is inclusive and a second later editing is forbidden" time="0.020896" classname="test"/>
+	<testcase name="dates use Kyiv and missing records are calculated only inside tracking range" time="0.034683" classname="test"/>
+	<testcase name="changing months selects the first day of the new month, including year rollover" time="0.008923" classname="test"/>
+	<testcase name="navigation waits for session restore before mounting protected routes" time="0.017256" classname="test"/>
+	<testcase name="entry details do not fall back to black text" time="0.000436" classname="test"/>
+	<testcase name="sober days use mint backgrounds and readable dark numbers" time="0.000575" classname="test"/>
+	<testcase name="reporting a received comment passes the private notification ID to evidence lookup" time="0.088454" classname="test"/>
+	<testcase name="copy changes on login and Kyiv midnight, survives reload and isolates accounts" time="0.147654" classname="test"/>
+	<testcase name="pagination refreshes loaded pages and avoids duplicate arrivals" time="0.051289" classname="test"/>
+	<testcase name="inbox lifecycle polls while focused, drops old owners and cancels on blur" time="0.041602" classname="test"/>
+	<testcase name="messages navigation rejects guest, admin and pending onboarding" time="0.007608" classname="test"/>
+	<testcase name="mentorship API uses the real signed-token client and normalized code" time="0.118417" classname="test"/>
+	<testcase name="mentee data uses relationship-scoped read paths and cancellation signal" time="0.067120" classname="test"/>
+	<testcase name="calendar month has correct leap-day and Monday offsets" time="0.008651" classname="test"/>
+	<testcase name="direct mentee route waits for restore and rejects guest/admin/onboarding" time="0.012435" classname="test"/>
+	<testcase name="all four styles retain context as plain text for every key" time="0.048790" classname="test"/>
+	<testcase name="notification API keeps pagination, ownership and empty read body" time="0.010922" classname="test"/>
+	<testcase name="screen-scoped sender prevents double submit and releases after failure" time="0.004982" classname="test"/>
+	<testcase name="five goal labels are explicit calendar-day milestones" time="0.004454" classname="test"/>
+	<testcase name="new accounts have no pending onboarding" time="0.000735" classname="test"/>
+	<testcase name="pending onboarding belongs only to the registering account" time="0.000151" classname="test"/>
+	<testcase name="a same-tab reload can restore the pending onboarding" time="0.000096" classname="test"/>
+	<testcase name="independently opened tabs have separate onboarding state" time="0.000100" classname="test"/>
+	<testcase name="copied session storage has an independent pending marker" time="0.000179" classname="test"/>
+	<testcase name="finishing onboarding removes the pending flag" time="0.000104" classname="test"/>
+	<testcase name="private calendar details and onboarding have separate access rules" time="0.029382" classname="test"/>
+	<testcase name="profile data uses one authenticated client and the agreed path" time="0.001856" classname="test"/>
+	<testcase name="profile editing only sends permitted fields" time="0.000745" classname="test"/>
+	<testcase name="password change sends old and new password without trimming" time="0.000617" classname="test"/>
+	<testcase name="preferences use the shared profile endpoint" time="0.000780" classname="test"/>
+	<testcase name="binary avatar upload explicitly sets image content type" time="0.000745" classname="test"/>
+	<testcase name="avatar read and delete use the agreed private endpoint" time="0.000679" classname="test"/>
+	<testcase name="changing accounts hides old photo and preferences even before effects run" time="0.003891" classname="test"/>
+	<testcase name="late response for previous account never replaces current profile" time="0.000793" classname="test"/>
+	<testcase name="admin or signed-out sessions never request private profile data" time="0.000924" classname="test"/>
+	<testcase name="cancelled profile effect makes no request after switching accounts" time="0.000887" classname="test"/>
+	<testcase name="latest period wins; stale success and failure cannot overwrite it" time="0.041985" classname="test"/>
+	<testcase name="leaving screen ignores pending result and current errors are delivered" time="0.005688" classname="test"/>
+	<testcase name="calendar mutations notify only after success and unsubscribe stops refresh" time="0.031051" classname="test"/>
+	<testcase name="focused statistics refresh on writes and period changes; blur blocks late data" time="0.029320" classname="test"/>
+	<testcase name="humorous style requires confirmation, and cancellation does not change preferences" time="0.072213" classname="test"/>
+	<testcase name="join finishing while blurred does not leave support permanently disabled" time="0.090743" classname="test"/>
+	<testcase name="leave finishing while blurred does not leave support permanently disabled" time="0.057032" classname="test"/>
+	<testcase name="page finishing while blurred does not leave support permanently disabled" time="0.038619" classname="test"/>
+	<!-- tests 129 -->
+	<!-- suites 0 -->
+	<!-- pass 129 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 8230.531702 -->
+</testsuites>
