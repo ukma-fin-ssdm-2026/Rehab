@@ -29,6 +29,8 @@ class Api:
     def __init__(self, repo):
         self.repo = repo
         self.token = auth_token()
+        if not self.token:
+            raise RuntimeError("Немає авторизації GitHub API. Виконайте gh auth login та повторіть запуск або використайте --snapshot.")
 
     def get(self, path, params=None):
         url = "https://api.github.com/repos/" + self.repo + "/" + path
@@ -41,6 +43,13 @@ class Api:
             with urlopen(Request(url, headers=headers), timeout=45) as response:
                 return json.load(response)
         except HTTPError as error:
+            if error.code in (403, 429):
+                remaining = error.headers.get("X-RateLimit-Remaining")
+                if remaining == "0":
+                    detail = "Вичерпано ліміт GitHub API. Перевірте gh api rate_limit та дочекайтеся його відновлення."
+                else:
+                    detail = "Доступ обмежено. Перевірте gh auth status, права доступу й ліміти GitHub API."
+                raise RuntimeError(f"GitHub API: HTTP {error.code}, {path}. {detail}") from error
             raise RuntimeError(f"GitHub API: HTTP {error.code}, {path}") from error
         except URLError as error:
             raise RuntimeError(f"Немає доступу до GitHub API: {error}") from error
