@@ -3,8 +3,24 @@ name: Dependency Audit
 on:
   push:
     branches: [main]
+    # AI-GENERATED START
+    # Lab 10, бонус 2: зміни лише в документації не займають спільний раннер після злиття.
+    # Для pull_request фільтр не додано: обов'язкові перевірки PR мають завжди звітувати.
+    paths-ignore:
+      - 'docs/**'
+      - 'Labs/**'
+      - '**/*.md'
+    # AI-GENERATED END
   pull_request:
     branches: [main]
+
+# AI-GENERATED START
+# Lab 10, бонус 2: новий push у PR скасовує застарілий запуск цього PR.
+# Для push група містить SHA, тому запуски на main не скасовуються і не замінюються.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+# AI-GENERATED END
 
 permissions:
   contents: read
