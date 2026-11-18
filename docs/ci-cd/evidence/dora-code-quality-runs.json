@@ -735,7 +735,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41928727929",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-04T22:50:23Z",
+          "started_at": "2026-11-04T22:50:25Z",
+          "completed_at": "2026-11-04T22:50:49Z"
+        }
+      ]
     },
     {
       "id": 41929424568,
@@ -746,7 +755,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41929424568",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-04T22:55:20Z",
+          "started_at": "2026-11-04T22:55:21Z",
+          "completed_at": "2026-11-04T22:55:45Z"
+        }
+      ]
     },
     {
       "id": 41930632147,
@@ -757,7 +775,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41930632147",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-04T23:03:52Z",
+          "started_at": "2026-11-04T23:04:07Z",
+          "completed_at": "2026-11-04T23:04:29Z"
+        }
+      ]
     },
     {
       "id": 41934112360,
@@ -768,7 +795,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41934112360",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-04T23:29:29Z",
+          "started_at": "2026-11-04T23:30:04Z",
+          "completed_at": "2026-11-04T23:30:28Z"
+        }
+      ]
     },
     {
       "id": 41934129338,
@@ -779,7 +815,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41934129338",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-04T23:29:38Z",
+          "started_at": "2026-11-04T23:32:11Z",
+          "completed_at": "2026-11-04T23:32:34Z"
+        }
+      ]
     },
     {
       "id": 41941532289,
@@ -790,7 +835,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/41941532289",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-05T00:28:07Z",
+          "started_at": "2026-11-05T00:28:39Z",
+          "completed_at": "2026-11-05T00:29:02Z"
+        }
+      ]
     },
     {
       "id": 42198021999,
@@ -801,7 +855,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/42198021999",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-06T09:50:13Z",
+          "started_at": "2026-11-06T09:50:15Z",
+          "completed_at": "2026-11-06T09:50:39Z"
+        }
+      ]
     },
     {
       "id": 42198875696,
@@ -812,7 +875,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/42198875696",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-06T09:57:02Z",
+          "started_at": "2026-11-06T09:59:19Z",
+          "completed_at": "2026-11-06T09:59:42Z"
+        }
+      ]
     },
     {
       "id": 42199148157,
@@ -823,7 +895,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/42199148157",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-06T09:59:18Z",
+          "started_at": "2026-11-06T10:00:02Z",
+          "completed_at": "2026-11-06T10:00:26Z"
+        }
+      ]
     },
     {
       "id": 42610338102,
@@ -834,7 +915,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/42610338102",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-09T11:36:07Z",
+          "started_at": "2026-11-09T11:37:02Z",
+          "completed_at": "2026-11-09T11:37:26Z"
+        }
+      ]
     },
     {
       "id": 42611151531,
@@ -845,7 +935,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/42611151531",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-09T11:42:29Z",
+          "started_at": "2026-11-09T11:42:31Z",
+          "completed_at": "2026-11-09T11:42:54Z"
+        }
+      ]
     },
     {
       "id": 43080843749,
@@ -856,7 +955,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43080843749",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-11T18:45:55Z",
+          "started_at": "2026-11-11T18:45:57Z",
+          "completed_at": "2026-11-11T18:46:38Z"
+        }
+      ]
     },
     {
       "id": 43096573507,
@@ -878,7 +986,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43103657242",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-11T21:30:35Z",
+          "started_at": "2026-11-11T21:30:37Z",
+          "completed_at": "2026-11-11T21:31:02Z"
+        }
+      ]
     },
     {
       "id": 43104624331,
@@ -889,7 +1006,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43104624331",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-11T21:37:03Z",
+          "started_at": "2026-11-11T21:37:35Z",
+          "completed_at": "2026-11-11T21:37:58Z"
+        }
+      ]
     },
     {
       "id": 43262126373,
@@ -900,7 +1026,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43262126373",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-12T16:45:30Z",
+          "started_at": "2026-11-12T16:46:55Z",
+          "completed_at": "2026-11-12T16:47:20Z"
+        }
+      ]
     },
     {
       "id": 43262312038,
@@ -911,7 +1046,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43262312038",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-12T16:46:29Z",
+          "started_at": "2026-11-12T16:47:33Z",
+          "completed_at": "2026-11-12T16:47:55Z"
+        }
+      ]
     },
     {
       "id": 43262549670,
@@ -922,7 +1066,16 @@
       "conclusion": "success",
       "run_attempt": 1,
       "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43262549670",
-      "jobs": []
+      "jobs": [
+        {
+          "name": "quality-check",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-11-12T16:47:49Z",
+          "started_at": "2026-11-12T16:50:50Z",
+          "completed_at": "2026-11-12T16:51:12Z"
+        }
+      ]
     }
   ]
 }
