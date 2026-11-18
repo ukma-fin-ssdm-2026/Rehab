@@ -74,4 +74,4 @@ python scripts/dora_metrics.py --repo ukma-fin-ssdm-2026/Rehab --start 2026-10-2
 python scripts/dora_metrics.py --snapshot docs/ci-cd/evidence/dora-auto-api-snapshot.json --output docs/ci-cd/dora-auto-results.md
 ```
 
-Скрипт не запускає GitHub Actions і не займає раннер. Метрики є **навчальними CI-проксі**, а не свідченнями production deploy або production incident.
+Метрики є **навчальними CI-проксі**, а не свідченнями production deploy або production incident.
