@@ -1,0 +1,137 @@
+{
+  "run_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44313164492",
+  "run_id": 44313164492,
+  "event": "workflow_dispatch",
+  "head_branch": "main",
+  "head_sha": "34e3d8663765e14b106c055e99fbd4e9be5decaa",
+  "conclusion": "success",
+  "job": {
+    "id": 134832280068,
+    "name": "Five sequential full-suite repeats",
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 44313164492,
+    "logs_url": null,
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1
+      },
+      {
+        "name": "Initialize containers",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2
+      },
+      {
+        "name": "Checkout fixed workflow commit",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3
+      },
+      {
+        "name": "Set up Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Install existing locked dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6
+      },
+      {
+        "name": "Apply disposable test database migrations",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7
+      },
+      {
+        "name": "Verify flakiness report analyzer",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Repeat complete backend and frontend suites five times",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9
+      },
+      {
+        "name": "Publish experiment summary",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10
+      },
+      {
+        "name": "Upload all reports and command logs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19
+      },
+      {
+        "name": "Post Set up Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 20
+      },
+      {
+        "name": "Post Checkout fixed workflow commit",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21
+      },
+      {
+        "name": "Stop containers",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "id": 14431767247,
+      "name": "lab10-flaky-tests-34e3d8663765e14b106c055e99fbd4e9be5decaa-44313164492-1",
+      "size_in_bytes": 116803,
+      "url": "https://api.github.com/repos/ukma-fin-ssdm-2026/Rehab/actions/artifacts/14431767247",
+      "archive_download_url": "https://api.github.com/repos/ukma-fin-ssdm-2026/Rehab/actions/artifacts/14431767247/zip",
+      "expired": false,
+      "created_at": "2026-11-18T13:32:29Z",
+      "expires_at": "2026-12-02T13:32:28Z",
+      "updated_at": "2026-11-18T13:32:29Z",
+      "digest": "sha256:3031102ba196fda61f34d9d07ac402e962b58d65a1cdd4b67f596c7f2c1bde39",
+      "workflow_run": {
+        "id": 44313164492,
+        "repository_id": 1363215360,
+        "head_repository_id": 1363215360,
+        "head_branch": "main",
+        "head_sha": "34e3d8663765e14b106c055e99fbd4e9be5decaa"
+      }
+    }
+  ],
+  "archive_sha256_verified": "3031102ba196fda61f34d9d07ac402e962b58d65a1cdd4b67f596c7f2c1bde39",
+  "persistent_files": "summary.json, summary.md, and all ten original JUnit XML reports; command logs are retained in the GitHub artifact"
+}
