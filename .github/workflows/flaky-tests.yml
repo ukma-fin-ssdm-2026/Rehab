@@ -1,0 +1,91 @@
+name: Lab10 Flaky Test Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab10-flaky-tests
+  cancel-in-progress: false
+
+jobs:
+  repeat-full-suites:
+    name: Five sequential full-suite repeats
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: rehab_ci
+          POSTGRES_PASSWORD: ci-only-disposable-password
+          POSTGRES_DB: rehab_test
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U rehab_ci -d rehab_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout fixed workflow commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install existing locked dependencies
+        run: |
+          python -m pip install --only-binary=:all: -r requirements.lock
+          npm ci --ignore-scripts --prefix frontend
+
+      - name: Apply disposable test database migrations
+        env:
+          DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/rehab_dev
+          TEST_DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/rehab_test
+        run: python -m alembic -x test_db=true upgrade head
+
+      - name: Verify flakiness report analyzer
+        run: python -m unittest discover -s scripts -p test_check_flaky_tests.py -v
+
+      - name: Repeat complete backend and frontend suites five times
+        env:
+          REPORT_DIR: ${{ runner.temp }}/lab10-flaky-${{ github.run_id }}-${{ github.run_attempt }}
+          DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/rehab_dev
+          TEST_DATABASE_URL: postgresql+psycopg://rehab_ci:ci-only-disposable-password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/rehab_test
+        run: python scripts/check_flaky_tests.py --output "$REPORT_DIR"
+
+      - name: Publish experiment summary
+        if: always()
+        shell: bash
+        env:
+          REPORT_DIR: ${{ runner.temp }}/lab10-flaky-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          if [ -f "$REPORT_DIR/summary.md" ]; then
+            cat "$REPORT_DIR/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Experiment incomplete: no summary was produced; inspect setup logs.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload all reports and command logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab10-flaky-tests-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lab10-flaky-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: warn
+          retention-days: 14
