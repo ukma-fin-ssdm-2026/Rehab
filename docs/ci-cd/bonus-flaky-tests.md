@@ -7,6 +7,7 @@
 - Контрактні перевірки: [scripts/test_check_flaky_tests.py](../../scripts/test_check_flaky_tests.py).
 - Тільки workflow_dispatch, один job на одному self-hosted Linux раннері; matrix і schedule відсутні. Concurrency не допускає одночасних запусків цього експерименту.
 - Checkout фіксує github.sha. На тому самому checkout виконуються п'ять повних backend pytest-прогонів і п'ять повних frontend Node test-прогонів; кожний процес запускається після завершення попереднього. PostgreSQL — окремий disposable контейнер із міграціями, як у штатному CI.
+- Для Python використано окремий requirements-ci-hashes.lock: ті самі 52 точні версії, що в requirements.lock, із SHA256 wheel-файлів з офіційного PyPI release JSON. Встановлення виконується з --require-hashes і --only-binary=:all:; основний requirements.lock і штатний CI не змінені.
 - Падіння тесту не зупиняє подальші повтори. Для кожного повтору зберігаються JUnit, лог, exit code, тривалість і результат кожного тесту. Порівняння виявляє зміну pass/fail/skip і зниклі тести.
 - Неповний/пошкоджений звіт, помилка collection/setup або невідповідний exit code позначають експеримент неповним. Стабільні падіння наведені окремо від змінних результатів.
 - summary.md і summary.json разом з усіма XML/log завантажуються одним artifact. Кандидат на нестабільність — підстава для аналізу причини; автоматичне приховування чи карантин не виконуються.
