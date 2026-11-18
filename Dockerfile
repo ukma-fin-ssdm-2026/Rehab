@@ -5,12 +5,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
+COPY requirements.lock ./
+RUN python -m pip install --no-cache-dir --disable-pip-version-check --only-binary=:all: -r requirements.lock
 
 COPY backend/ ./backend/
 COPY alembic/ ./alembic/
 COPY alembic.ini ./
+
+RUN addgroup --system app && adduser --system --ingroup app app
+USER app
 
 EXPOSE 8000
 
