@@ -1,0 +1,88 @@
+tests/test_auth_schema_boundaries.py::test_overlong_after_trim_rejected[email-raw2]
+tests/test_auth_schema_boundaries.py::test_overlong_after_trim_rejected[name-raw0]
+tests/test_auth_schema_boundaries.py::test_overlong_after_trim_rejected[nickname- bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ]
+tests/test_auth_schema_boundaries.py::test_password_preserves_spaces
+tests/test_auth_schema_boundaries.py::test_role_prohibited
+tests/test_auth_schema_boundaries.py::test_trim_before_length_validation[email-  USER@EXAMPLE.COM  -user@example.com]
+tests/test_auth_schema_boundaries.py::test_trim_before_length_validation[name-raw0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+tests/test_auth_schema_boundaries.py::test_trim_before_length_validation[nickname-  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+tests/test_auth_schema_contract.py::test_login_normalizes_email_but_not_password
+tests/test_auth_schema_contract.py::test_register_normalizes_email_and_names
+tests/test_auth_schema_contract.py::test_registration_forbids_user_supplied_role
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[email-a@@example.com]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[email-bad-email]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[email-x @example.com]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[name- ]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[name-value2]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[nickname-   ]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[nickname-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[password-short]
+tests/test_auth_schema_contract.py::test_registration_rejects_invalid_fields[password-value8]
+tests/test_drink_summary.py::test_grouping_consumes_a_single_pass_iterable
+tests/test_drink_summary.py::test_grouping_preserves_empty_zero_and_arbitrary_types[drinks0-expected0]
+tests/test_drink_summary.py::test_grouping_preserves_empty_zero_and_arbitrary_types[drinks1-expected1]
+tests/test_drink_summary.py::test_grouping_preserves_empty_zero_and_arbitrary_types[drinks2-expected2]
+tests/test_drink_summary.py::test_summary_does_not_modify_input
+tests/test_drink_summary.py::test_total_accepts_a_single_pass_iterable[volumes0]
+tests/test_drink_summary.py::test_total_accepts_a_single_pass_iterable[volumes1]
+tests/test_drink_summary.py::test_total_accepts_a_single_pass_iterable[volumes2]
+tests/test_drink_summary.py::test_total_volume_of_multiple_drinks
+tests/test_drink_summary.py::test_volume_is_grouped_by_drink_type
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[1-1 \u0434\u0435\u043d\u044c]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[101-101 \u0434\u0435\u043d\u044c]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[11-11 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[111-111 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[12-12 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[2-2 \u0434\u043d\u0456]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[21-21 \u0434\u0435\u043d\u044c]
+tests/test_formatting.py::test_days_use_correct_ukrainian_form[5-5 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[-1--1 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[-11--11 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[-2--2 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[0-0 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[10-10 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[100-100 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[1000-1000 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[1001-1001 \u0434\u0435\u043d\u044c]
+tests/test_formatting.py::test_format_days_characterization[1011-1011 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[1021-1021 \u0434\u0435\u043d\u044c]
+tests/test_formatting.py::test_format_days_characterization[112-112 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[114-114 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[115-115 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[13-13 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[14-14 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[15-15 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[20-20 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[22-22 \u0434\u043d\u0456]
+tests/test_formatting.py::test_format_days_characterization[24-24 \u0434\u043d\u0456]
+tests/test_formatting.py::test_format_days_characterization[25-25 \u0434\u043d\u0456\u0432]
+tests/test_formatting.py::test_format_days_characterization[3-3 \u0434\u043d\u0456]
+tests/test_formatting.py::test_format_days_characterization[4-4 \u0434\u043d\u0456]
+tests/test_goal_progress.py::test_all_fixed_goals_are_completed_only_after_longest_reaches_365
+tests/test_goal_progress.py::test_five_milestone_boundaries_and_historical_badges[180]
+tests/test_goal_progress.py::test_five_milestone_boundaries_and_historical_badges[30]
+tests/test_goal_progress.py::test_five_milestone_boundaries_and_historical_badges[365]
+tests/test_goal_progress.py::test_five_milestone_boundaries_and_historical_badges[7]
+tests/test_goal_progress.py::test_five_milestone_boundaries_and_historical_badges[90]
+tests/test_goal_progress.py::test_goal_progress_rejects_invalid_streaks[-1-0]
+tests/test_goal_progress.py::test_goal_progress_rejects_invalid_streaks[0--1]
+tests/test_goal_progress.py::test_goal_progress_rejects_invalid_streaks[2-1]
+tests/test_goal_progress.py::test_historical_milestone_stays_completed_after_relapse
+tests/test_goal_progress.py::test_new_user_starts_with_first_fixed_goal
+tests/test_goal_progress.py::test_progress_uses_current_streak_and_fixed_targets
+tests/test_goal_schemas.py::test_fixed_goal_list_contains_read_only_milestones
+tests/test_goal_schemas.py::test_goal_milestone_rejects_invalid_progress[-1]
+tests/test_goal_schemas.py::test_goal_milestone_rejects_invalid_progress[31]
+tests/test_sobriety.py::test_all_days_are_sober
+tests/test_sobriety.py::test_duplicate_relapse_dates_count_once
+tests/test_sobriety.py::test_end_date_before_start_date
+tests/test_sobriety.py::test_invalid_period_error_message
+tests/test_sobriety.py::test_leap_year_february
+tests/test_sobriety.py::test_relapse_dates_from_generator
+tests/test_sobriety.py::test_relapse_days_are_excluded
+tests/test_sobriety.py::test_relapse_on_first_day
+tests/test_sobriety.py::test_relapse_on_last_day
+tests/test_sobriety.py::test_relapses_outside_period_are_ignored
+tests/test_sobriety.py::test_single_day_period
+tests/test_stubs_characterization.py::test_reset_preserves_shared_dictionaries_and_restarts_counter
+tests/test_stubs_characterization.py::test_reset_recreates_original_seed_data

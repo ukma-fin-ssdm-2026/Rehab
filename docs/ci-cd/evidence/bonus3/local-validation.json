@@ -1,0 +1,24 @@
+{
+  "all": {
+    "count": 538,
+    "sha256": "2907640a80d8da75720558ab5adb9bfea76c3a0c938c04c3cc55f83819cb245c"
+  },
+  "fast": {
+    "count": 88,
+    "sha256": "02682ace8f37dea30a732d25fac45524f33e2fe11d29a29af0d7397b12ff67d3"
+  },
+  "slow": {
+    "count": 450,
+    "sha256": "c0cfa1b44cd35604821b02781fe08661fa357234bcd643662e9228414e4c72e8"
+  },
+  "verification_date": "2026-11-18",
+  "environment": "Windows, Python3.12.10, pytest9.2.0, isolated local venv; uvloop omitted only from temporary Windows install copy",
+  "actual_fast_result": "88 passed in 0.59s",
+  "database_addresses": "localhost:1 (no CI PostgreSQL service)",
+  "union_matches_all": true,
+  "overlap_count": 0,
+  "selector_tests": 9,
+  "all_script_tests": 22,
+  "ci_evidence": "Not yet collected; local evidence does not replace PR/main runs",
+  "dependency_lock_pin_parity": "verified; mismatched version/add/remove/unpinned/empty regression cases pass"
+}
