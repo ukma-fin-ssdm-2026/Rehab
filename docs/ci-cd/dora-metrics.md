@@ -150,6 +150,7 @@
 - [Пошук Actions за періодом](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush).
 - [Приклад успішного CI #43262549761](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43262549761) та [приклад незавершеного CI #43096573477](https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43096573477).
 
+ШІ використано для технічної перевірки формул і форматування; джерелом дат, статусів та посилань є GitHub.
 
 ## Бонуси
 
