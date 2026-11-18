@@ -1,0 +1,10 @@
+Source: https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487244/job/134864807912
+Selected original log lines; setup/cleanup and unrelated lines omitted.
+
+2026-11-18T14:17:23.4147142Z ##[command]/usr/bin/docker pull postgres:16
+2026-11-18T14:17:46.4540685Z Dependency lock pins match
+2026-11-18T14:17:59.4617919Z TOTAL                                        1846   1399    24%
+2026-11-18T14:17:59.4618550Z 88 passed in 1.04s
+2026-11-18T14:18:00.2068812Z   --cov-append \
+2026-11-18T14:19:06.6799927Z TOTAL                                        2040    124    94%
+2026-11-18T14:19:06.6800380Z 450 passed, 1 warning in 64.94s (0:01:04)

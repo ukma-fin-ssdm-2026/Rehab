@@ -1,0 +1,65 @@
+{
+  "pr": {
+    "run_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44320372628",
+    "head_sha": "88e38e64c62df43722bc2d2f2ae294b9f7bf95fc",
+    "conclusion": "success",
+    "jobs_serialized": true,
+    "postgresql_initialized": false,
+    "step_timings": {
+      "backend_fast": {
+        "conclusion": "success",
+        "seconds": 3.0
+      },
+      "backend_slow": {
+        "conclusion": "skipped",
+        "seconds": 0.0
+      },
+      "frontend_fast": {
+        "conclusion": "success",
+        "seconds": 7.0
+      }
+    }
+  },
+  "main": {
+    "run_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487244",
+    "head_sha": "b6a8bf84badafd2e97b5e11f9d8c196681bc843f",
+    "conclusion": "success",
+    "jobs_serialized": true,
+    "postgresql_initialized": true,
+    "step_timings": {
+      "backend_fast": {
+        "conclusion": "success",
+        "seconds": 3.0
+      },
+      "backend_slow": {
+        "conclusion": "success",
+        "seconds": 66.0
+      },
+      "frontend_fast": {
+        "conclusion": "success",
+        "seconds": 7.0
+      }
+    }
+  },
+  "counts": {
+    "backend_fast": 88,
+    "backend_slow": 450,
+    "backend_union": 538,
+    "frontend_fast": 129
+  },
+  "fast_slow_overlap": 0,
+  "pr_and_main_fast_test_identities_match": true,
+  "main_backend_union_matches_baseline_full_538": true,
+  "baseline_run": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44313164492",
+  "integration_witness": "tests.test_auth_postgres::test_duplicate_email_is_rejected_by_real_database",
+  "main_backend_coverage_percent": 94,
+  "coverage_source": "main/backend-log-excerpt.txt; TOTAL 2040 statements, 124 missed, 94%",
+  "xml_sha256": {
+    "main\\backend-fast.xml": "e390dfa6e5d4e31b80b19bb939d9210a7eaa3accbf6445dd1d8a21f033ee525e",
+    "main\\backend-slow.xml": "ef8b8871c5dffb551317daa1f52878b9f6c23e7988aaee3e48c2bc7d64d4a10c",
+    "main\\frontend-fast.xml": "4ab6767bdd956e887ecf289e747aa811dd18c499e6a59448b97d4a7eafa1953a",
+    "pr\\backend-fast.xml": "49c649de4e710390da6b64a062f02b996f93f14bdf924c0db6fe845ec633bcb6",
+    "pr\\frontend-fast.xml": "98af772abf7b9c450ccd9693c70feceb5051eae7110561b669730b7025661939"
+  },
+  "remaining_for_award": "Integrate the prepared fragment into team dora-summary.md and explain bonus in Loom."
+}

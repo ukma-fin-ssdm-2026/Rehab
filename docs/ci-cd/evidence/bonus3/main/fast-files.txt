@@ -1,0 +1,8 @@
+tests/test_auth_schema_boundaries.py
+tests/test_auth_schema_contract.py
+tests/test_drink_summary.py
+tests/test_formatting.py
+tests/test_goal_progress.py
+tests/test_goal_schemas.py
+tests/test_sobriety.py
+tests/test_stubs_characterization.py
