@@ -139,6 +139,10 @@ def main() -> int:
     code = [r for r in rows if not r["docs_only"]]
     docs = [r for r in rows if r["docs_only"]]
     result = {
+        "ai_generated": (
+            "AI-GENERATED: файл створено скриптом scripts/lab10_bonus2_effect.py, "
+            "код якого згенеровано ШІ; дані взято з GitHub Actions API"
+        ),
         "repo": REPO,
         "period": f"{since}..{until}",
         "collected_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

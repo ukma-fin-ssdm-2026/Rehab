@@ -1,0 +1,474 @@
+{
+  "ai_generated": "AI-GENERATED: файл створено скриптом scripts/lab10_bonus2_effect.py, код якого згенеровано ШІ; дані взято з GitHub Actions API",
+  "repo": "ukma-fin-ssdm-2026/Rehab",
+  "period": "2026-11-18..2026-11-19",
+  "collected_at": "2026-11-18T19:39:50+00:00",
+  "workflows": [
+    "ci.yml",
+    "code-quality.yml",
+    "dependency-audit.yml",
+    "traceability.yml"
+  ],
+  "summary": {
+    "code_commits": 6,
+    "docs_only_commits": 5,
+    "ci_queue_min_code": {
+      "n": 6,
+      "mean": 0.5,
+      "median": 0.1
+    },
+    "ci_exec_min_code": {
+      "n": 6,
+      "mean": 4.2,
+      "median": 3.7
+    },
+    "runner_min_per_code_commit": {
+      "n": 6,
+      "mean": 5.4,
+      "median": 5.3
+    },
+    "runner_min_docs_only_total": 1.5
+  },
+  "commits": [
+    {
+      "sha": "34e3d86",
+      "message": "Merge pull request #269 from ukma-fin-ssdm-2026/lab10-kolesnyk-ci-data-flakiness",
+      "created": "2026-11-18T13:22:14Z",
+      "runs": [
+        {
+          "workflow": "CI Pipeline",
+          "run_id": 44313015240,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44313015240",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 2.4,
+          "runner_min": 4.3
+        },
+        {
+          "workflow": "Code Quality",
+          "run_id": 44313015017,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44313015017",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 0.4,
+          "runner_min": 0.4
+        },
+        {
+          "workflow": "Dependency Audit",
+          "run_id": 44313015739,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44313015739",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.6,
+          "exec_min": 0.6,
+          "runner_min": 0.6
+        },
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44313014966,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44313014966",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": false,
+      "ci_queue_min": 0.1,
+      "ci_exec_min": 2.4,
+      "runner_min": 5.6
+    },
+    {
+      "sha": "7abc09b",
+      "message": "Merge pull request #272 from ukma-fin-ssdm-2026/lab10-bonus2-ci-runners-sofiia",
+      "created": "2026-11-18T14:14:51Z",
+      "runs": [
+        {
+          "workflow": "CI Pipeline",
+          "run_id": 44322151284,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322151284",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 2.5,
+          "runner_min": 4.5
+        },
+        {
+          "workflow": "Code Quality",
+          "run_id": 44322151267,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322151267",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.6,
+          "exec_min": 0.4,
+          "runner_min": 0.4
+        },
+        {
+          "workflow": "Dependency Audit",
+          "run_id": 44322151153,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322151153",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.6,
+          "runner_min": 0.6
+        },
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44322151245,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322151245",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": false,
+      "ci_queue_min": 0.0,
+      "ci_exec_min": 2.5,
+      "runner_min": 5.8
+    },
+    {
+      "sha": "b6a8bf8",
+      "message": "Merge pull request #271 from ukma-fin-ssdm-2026/lab10-bonus3-test-tiers",
+      "created": "2026-11-18T14:16:38Z",
+      "runs": [
+        {
+          "workflow": "CI Pipeline",
+          "run_id": 44322487244,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487244",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.7,
+          "exec_min": 3.7,
+          "runner_min": 3.6
+        },
+        {
+          "workflow": "Code Quality",
+          "run_id": 44322487206,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487206",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.4,
+          "runner_min": 0.4
+        },
+        {
+          "workflow": "Dependency Audit",
+          "run_id": 44322487140,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487140",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.6,
+          "runner_min": 0.6
+        },
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44322487204,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487204",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.8,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": false,
+      "ci_queue_min": 0.7,
+      "ci_exec_min": 3.7,
+      "runner_min": 4.9
+    },
+    {
+      "sha": "da8538d",
+      "message": "Merge pull request #270 from ukma-fin-ssdm-2026/lab10-bonus4-results",
+      "created": "2026-11-18T14:38:29Z",
+      "runs": [
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44326474534,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44326474534",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": true,
+      "ci_queue_min": null,
+      "ci_exec_min": null,
+      "runner_min": 0.3
+    },
+    {
+      "sha": "e9ad8a0",
+      "message": "Merge pull request #274 from ukma-fin-ssdm-2026/lab10-bonus3-results",
+      "created": "2026-11-18T14:57:01Z",
+      "runs": [
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44329940937,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44329940937",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": true,
+      "ci_queue_min": null,
+      "ci_exec_min": null,
+      "runner_min": 0.3
+    },
+    {
+      "sha": "02a891f",
+      "message": "Merge pull request #273 from ukma-fin-ssdm-2026/lab10-improvement-plan-sofiia",
+      "created": "2026-11-18T14:57:15Z",
+      "runs": [
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44329984210,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44329984210",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.2,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": true,
+      "ci_queue_min": null,
+      "ci_exec_min": null,
+      "runner_min": 0.3
+    },
+    {
+      "sha": "4da0517",
+      "message": "Merge pull request #275 from ukma-fin-ssdm-2026/lab10-documentation",
+      "created": "2026-11-18T15:57:38Z",
+      "runs": [
+        {
+          "workflow": "CI Pipeline",
+          "run_id": 44341608994,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44341608994",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 2.2,
+          "exec_min": 8.9,
+          "runner_min": 4.7
+        },
+        {
+          "workflow": "Code Quality",
+          "run_id": 44341609170,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44341609170",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 7.6,
+          "exec_min": 0.5,
+          "runner_min": 0.5
+        },
+        {
+          "workflow": "Dependency Audit",
+          "run_id": 44341609012,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44341609012",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 6.3,
+          "exec_min": 0.6,
+          "runner_min": 0.6
+        },
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44341609018,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44341609018",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 5.8,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": false,
+      "ci_queue_min": 2.2,
+      "ci_exec_min": 8.9,
+      "runner_min": 6.1
+    },
+    {
+      "sha": "b2b77fa",
+      "message": "Merge pull request #276 from ukma-fin-ssdm-2026/lab10-maryxseee-video",
+      "created": "2026-11-18T16:22:00Z",
+      "runs": [
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44346387768,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44346387768",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.8,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": true,
+      "ci_queue_min": null,
+      "ci_exec_min": null,
+      "runner_min": 0.3
+    },
+    {
+      "sha": "7db1ec9",
+      "message": "Merge pull request #277 from ukma-fin-ssdm-2026/lab10-bonus5-evidence",
+      "created": "2026-11-18T16:23:42Z",
+      "runs": [
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44346722700,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44346722700",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": true,
+      "ci_queue_min": null,
+      "ci_exec_min": null,
+      "runner_min": 0.3
+    },
+    {
+      "sha": "0f6d6f1",
+      "message": "Merge pull request #268 from ukma-fin-ssdm-2026/analyst_DORA",
+      "created": "2026-11-18T16:41:17Z",
+      "runs": [
+        {
+          "workflow": "CI Pipeline",
+          "run_id": 44350103429,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44350103429",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 3.7,
+          "runner_min": 3.7
+        },
+        {
+          "workflow": "Code Quality",
+          "run_id": 44350103557,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44350103557",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 0.4,
+          "runner_min": 0.4
+        },
+        {
+          "workflow": "Dependency Audit",
+          "run_id": 44350103194,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44350103194",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.6,
+          "runner_min": 0.6
+        },
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44350103471,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44350103471",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.1,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": false,
+      "ci_queue_min": 0.1,
+      "ci_exec_min": 3.7,
+      "runner_min": 5.0
+    },
+    {
+      "sha": "740e79a",
+      "message": "Merge pull request #278 from ukma-fin-ssdm-2026/lab10-messages-validation-sofiia",
+      "created": "2026-11-18T19:35:24Z",
+      "runs": [
+        {
+          "workflow": "CI Pipeline",
+          "run_id": 44381979925,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44381979925",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 3.7,
+          "runner_min": 3.7
+        },
+        {
+          "workflow": "Code Quality",
+          "run_id": 44381979731,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44381979731",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.4,
+          "runner_min": 0.4
+        },
+        {
+          "workflow": "Dependency Audit",
+          "run_id": 44381979992,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44381979992",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.6,
+          "runner_min": 0.6
+        },
+        {
+          "workflow": "Lab07 Traceability",
+          "run_id": 44381979828,
+          "url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44381979828",
+          "status": "completed",
+          "conclusion": "success",
+          "attempt": 1,
+          "queue_min": 0.0,
+          "exec_min": 0.3,
+          "runner_min": 0.3
+        }
+      ],
+      "docs_only": false,
+      "ci_queue_min": 0.0,
+      "ci_exec_min": 3.7,
+      "runner_min": 5.0
+    }
+  ]
+}
