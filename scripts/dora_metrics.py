@@ -219,20 +219,23 @@ def main():
     parser.add_argument("--repo", default="ukma-fin-ssdm-2026/Rehab")
     parser.add_argument("--start", default="2026-10-27")
     parser.add_argument("--end", default="2026-11-16")
-    parser.add_argument("--output", default="docs/ci-cd/dora-auto-results.md")
-    parser.add_argument("--snapshot")
+    parser.add_argument("--output", default="docs/ci-cd/dora-auto-results.md", choices=["docs/ci-cd/dora-auto-results.md"])
+    parser.add_argument("--snapshot", choices=["docs/ci-cd/evidence/dora-auto-api-snapshot.json"])
     args = parser.parse_args()
+    root = Path(__file__).resolve().parent.parent
     if args.snapshot:
-        data = json.loads(Path(args.snapshot).read_text(encoding="utf-8"))
+        snapshot = root / "docs" / "ci-cd" / "evidence" / "dora-auto-api-snapshot.json"
+        data = json.loads(snapshot.read_text(encoding="utf-8"))
         if (data["repo"], data["start"], data["end"]) != (args.repo, args.start, args.end):
             parser.error("Період або репозиторій у знімку не збігаються з аргументами")
     else:
         data = collect(args.repo, args.start, args.end)
     results = calculate(data)
-    target = Path(args.output)
+    target = root / "docs" / "ci-cd" / "dora-auto-results.md"
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(render(data, results), encoding="utf-8")
-    print(render(data, results))
+    output = render(data, results)
+    target.write_text(output, encoding="utf-8")
+    print(output)
 
 
 if __name__ == "__main__":
