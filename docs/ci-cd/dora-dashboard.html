@@ -69,7 +69,7 @@ footer{margin-top:20px;font-size:13px;color:var(--muted)}a{color:#146d86}
 <h2>Бонус №5 · публікація образу</h2>
 <p>Після успішного CI на <code>main</code> workflow збирає API-образ з того самого SHA і публікує його в GHCR.</p>
 <p><a href="https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/publish-ghcr.yml">Історія запусків workflow</a> · <a href="https://github.com/ukma-fin-ssdm-2026/Rehab/pkgs/container/rehab">Сторінка пакета</a></p>
-<div class="note">Публікація ще не виконувалась: workflow очікує злиття PR #275. У періоді 27.10–16.11.2026 GHCR-метрики не спостерігались; їх буде додано після першого успішного main-запуску.</div>
+<div class="note">Перший випуск успішний: <a href="https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44343800119">workflow #44343800119</a> опублікував тег <code>4da0517428c806d70831f89dd1d9c8ef3c9f5ac6</code>, digest <code>sha256:1e28601b31bdb2d28c0ca01c31f3fb5dba996d4093570420bcf4877d97a3f451</code>. Для одного й того самого PR lead time: CI — 49 хв 07 с (0,82 год), публікація — 51 хв 05 с (0,85 год), різниця — 1 хв 58 с. Це початкове спостереження n=1, по одному успішному запуску; CFR 0/1 для обох, час відновлення не визначається. У періоді 27.10–16.11.2026 workflow ще не діяв, GHCR-метрики за нього не вимірювались.</div>
 </section>
 <footer>Успішний CI на main використано як визначене лабораторною наближення розгортання. Дані не є вимірюванням production-релізів. Джерело: <a href="./dora-summary.md">dora-summary.md</a> · <a href="./metrics-raw.md">metrics-raw.md</a> · <a href="./improvement-plan.md">план покращень</a>.</footer>
 </main>
