@@ -92,6 +92,13 @@ def median(values):
     return statistics.median(values) if values else None
 
 
+def finished_at(run, job_map):
+    completed = [job["completed_at"] for job in job_map.get(str(run["id"]), []) if job.get("completed_at")]
+    if completed:
+        return max(completed)
+    return run.get("updated_at") if run.get("status") == "completed" else None
+
+
 def calculate(data):
     start, end = date.fromisoformat(data["start"]), date.fromisoformat(data["end"])
     if end < start:
@@ -111,19 +118,20 @@ def calculate(data):
         first = data["first_commits"].get(str(pr["number"]))
         green = sorted(
             (r for r in mapped.get(pr.get("merge_commit_sha"), []) if r["status"] == "completed" and r["conclusion"] == "success"),
-            key=lambda r: dt(r["updated_at"]),
+            key=lambda r: dt(finished_at(r, data["jobs"])),
         )
         if first and green:
-            hours = (dt(green[0]["updated_at"]) - dt(first)).total_seconds() / 3600
+            hours = (dt(finished_at(green[0], data["jobs"])) - dt(first)).total_seconds() / 3600
             if hours >= 0:
                 lead.append(hours)
     incidents = []
     failed_at = None
-    for run in sorted(success + failures, key=lambda r: dt(r["updated_at"])):
+    finished_runs = [(dt(moment), run) for run in success + failures if (moment := finished_at(run, data["jobs"]))]
+    for ended, run in sorted(finished_runs, key=lambda item: item[0]):
         if run["conclusion"] != "success" and failed_at is None:
-            failed_at = dt(run["updated_at"])
+            failed_at = ended
         elif run["conclusion"] == "success" and failed_at is not None:
-            hours = (dt(run["updated_at"]) - failed_at).total_seconds() / 3600
+            hours = (ended - failed_at).total_seconds() / 3600
             if hours > 0:
                 incidents.append(hours)
             failed_at = None
@@ -179,7 +187,8 @@ def render(data, m):
         f"| Time to Restore Service (CI-проксі) | {pretty(m['recovery'], ' год')} |",
         "",
         f"Вибірка: {m['runs']} запусків CI Pipeline на main; {m['success']} успішних, {m['failures']} невдалих, {m['pending']} незавершених, {m['excluded']} з іншими завершеними статусами. Lead Time обчислено для {m['leads']} PR.",
-        "Незавершені запуски не вважаються невдалими; відсутність збоїв не дорівнює нульовому часу відновлення.",
+        "Для завершення CI взято останній jobs.completed_at, а якщо завершених jobs немає — run.updated_at завершеного запуску.",
+        "Статуси наведені на момент отримання даних; незавершені запуски не вважаються невдалими. Відсутність збоїв не дорівнює нульовому часу відновлення.",
         "",
         "## Очікування в черзі та виконання",
         "",
