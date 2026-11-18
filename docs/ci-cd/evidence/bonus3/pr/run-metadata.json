@@ -1,0 +1,275 @@
+{
+  "source": "GitHub Actions REST API selected fields",
+  "run": {
+    "id": 44320372628,
+    "name": "CI Pipeline",
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "success",
+    "head_branch": "lab10-bonus3-test-tiers",
+    "head_sha": "88e38e64c62df43722bc2d2f2ae294b9f7bf95fc",
+    "run_attempt": 1,
+    "created_at": "2026-11-18T14:04:59Z",
+    "updated_at": "2026-11-18T14:07:33Z",
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44320372628"
+  },
+  "jobs": [
+    {
+      "id": 134857411477,
+      "name": "Backend tests and coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-18T14:05:12Z",
+      "completed_at": "2026-11-18T14:05:48Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-18T14:05:14Z",
+          "completed_at": "2026-11-18T14:05:16Z"
+        },
+        {
+          "name": "Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-18T14:05:16Z",
+          "completed_at": "2026-11-18T14:05:18Z"
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-18T14:05:18Z",
+          "completed_at": "2026-11-18T14:05:26Z"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-18T14:05:26Z",
+          "completed_at": "2026-11-18T14:05:36Z"
+        },
+        {
+          "name": "Verify test tier selection",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-18T14:05:36Z",
+          "completed_at": "2026-11-18T14:05:37Z"
+        },
+        {
+          "name": "Fast unit tests without database",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-18T14:05:37Z",
+          "completed_at": "2026-11-18T14:05:40Z"
+        },
+        {
+          "name": "Apply test database migrations",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-11-18T14:05:40Z",
+          "completed_at": "2026-11-18T14:05:40Z"
+        },
+        {
+          "name": "Slow tests with PostgreSQL after merge",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-11-18T14:05:40Z",
+          "completed_at": "2026-11-18T14:05:40Z"
+        },
+        {
+          "name": "Upload backend tier evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-18T14:05:40Z",
+          "completed_at": "2026-11-18T14:05:42Z"
+        },
+        {
+          "name": "Upload HTML coverage report",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-18T14:05:42Z",
+          "completed_at": "2026-11-18T14:05:44Z"
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-18T14:05:44Z",
+          "completed_at": "2026-11-18T14:05:44Z"
+        },
+        {
+          "name": "Post Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-11-18T14:05:44Z",
+          "completed_at": "2026-11-18T14:05:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-18T14:05:45Z",
+          "completed_at": "2026-11-18T14:05:45Z"
+        }
+      ]
+    },
+    {
+      "id": 134857920890,
+      "name": "Frontend lint, types and web export",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-18T14:05:50Z",
+      "completed_at": "2026-11-18T14:07:32Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-18T14:05:51Z",
+          "completed_at": "2026-11-18T14:05:53Z"
+        },
+        {
+          "name": "Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-18T14:05:53Z",
+          "completed_at": "2026-11-18T14:05:55Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-18T14:05:55Z",
+          "completed_at": "2026-11-18T14:06:10Z"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-18T14:06:10Z",
+          "completed_at": "2026-11-18T14:06:52Z"
+        },
+        {
+          "name": "Lint",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-18T14:06:52Z",
+          "completed_at": "2026-11-18T14:06:58Z"
+        },
+        {
+          "name": "Type check",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-18T14:06:58Z",
+          "completed_at": "2026-11-18T14:07:01Z"
+        },
+        {
+          "name": "Frontend tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-18T14:07:01Z",
+          "completed_at": "2026-11-18T14:07:08Z"
+        },
+        {
+          "name": "Upload frontend fast test evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-18T14:07:08Z",
+          "completed_at": "2026-11-18T14:07:11Z"
+        },
+        {
+          "name": "Web export",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-18T14:07:11Z",
+          "completed_at": "2026-11-18T14:07:28Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-18T14:07:28Z",
+          "completed_at": "2026-11-18T14:07:28Z"
+        },
+        {
+          "name": "Post Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-18T14:07:28Z",
+          "completed_at": "2026-11-18T14:07:29Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-18T14:07:29Z",
+          "completed_at": "2026-11-18T14:07:29Z"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "name": "Frontend lint, types and web export",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "SonarCloud",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "SonarCloud Code Analysis",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Backend tests and coverage",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "RTM and test IDs",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "dependency-audit",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "quality-check",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

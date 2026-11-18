@@ -1,0 +1,25 @@
+{
+  "source_run": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/44322487244",
+  "verified_archives": [
+    {
+      "artifact_id": 14435622709,
+      "name": "backend-test-tiers-44322487244-1",
+      "sha256": "d1046db54b170f164122e363ecb24949b70085b22fa768630c5f06ed5efa471c",
+      "downloaded_zip_matches_github_digest": true,
+      "expires_at": "2027-02-16T14:16:38Z"
+    },
+    {
+      "artifact_id": 14434887863,
+      "name": "frontend-test-tiers-44322487244-1",
+      "sha256": "366fe66852e70b4e3106a4770bd8a0d6be9fb16f8ba214532468ed04d1cc3c8e",
+      "downloaded_zip_matches_github_digest": true,
+      "expires_at": "2027-02-16T14:16:38Z"
+    }
+  ],
+  "persistent_xml": [
+    "backend-fast.xml",
+    "backend-slow.xml",
+    "frontend-fast.xml"
+  ],
+  "note": "Original XML bytes retained; filenames prefixed to distinguish backend and frontend. Checksums were verified before extraction."
+}
