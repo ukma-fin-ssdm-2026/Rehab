@@ -1,5 +1,5 @@
 # Same versions as requirements.lock; wheel SHA256 from official PyPI release JSON.
-# Used only by the manual Lab10 experiment with --require-hashes --only-binary=:all:.
+# Used by Lab10 CI checks with --require-hashes --only-binary=:all:.
 alembic==1.20.1 \
     --hash=sha256:9970712cfb81ea26c8658d378aaa5b8f6ff9146e5bb111d70497c164016cf598
 annotated-doc==0.0.5 \
