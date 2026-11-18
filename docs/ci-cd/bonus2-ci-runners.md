@@ -54,7 +54,7 @@
 ## Як повторити вимірювання
 
 ~~~bash
-python scripts/lab10_bonus2_effect.py --since 2026-10-28 --until 2026-11-18 --out docs/ci-cd/evidence/bonus2/before.json
+python scripts/lab10_bonus2_effect.py --since 2026-10-28 --until 2026-11-18 --label before
 ~~~
 
-Для «після» — той самий скрипт з періодом від дати злиття і файлом `after.json`. Потрібен `gh` CLI з доступом до репозиторію.
+Результат записується в `docs/ci-cd/evidence/bonus2/before.json`. Для «після» — той самий скрипт з періодом від дати злиття і `--label after`. Потрібен `gh` CLI з доступом до репозиторію.

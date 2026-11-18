@@ -7,26 +7,35 @@
 Позначає коміти, що змінили лише документацію (docs/, Labs/, *.md).
 
 Потрібен gh CLI з доступом до репозиторію:
-    python scripts/lab10_bonus2_effect.py --since 2026-11-04 --until 2026-11-18 \\
-        --out docs/ci-cd/evidence/bonus2/before.json
+    python scripts/lab10_bonus2_effect.py --since 2026-10-28 --until 2026-11-18 --label before
+
+Результат завжди записується в docs/ci-cd/evidence/bonus2/<label>.json.
 """
 
 import argparse
 import json
+import shutil
 import statistics
 import subprocess
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from fnmatch import fnmatch
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+OUT_DIR = ROOT / "docs" / "ci-cd" / "evidence" / "bonus2"
+LABELS = ("before", "after")
 REPO = "ukma-fin-ssdm-2026/Rehab"
 WORKFLOWS = ["ci.yml", "code-quality.yml", "dependency-audit.yml", "traceability.yml"]
 DOC_PATTERNS = ["docs/*", "Labs/*", "*.md"]
 
 
 def gh(path: str):
-    out = subprocess.run(
-        ["gh", "api", path], check=True, capture_output=True, text=True
+    # Шлях API складається лише з констант, перевірених дат, числових id і SHA.
+    executable = shutil.which("gh")
+    if executable is None:
+        raise SystemExit("Потрібен gh CLI")
+    out = subprocess.run(  # nosec B603
+        [executable, "api", path], check=True, capture_output=True, text=True
     ).stdout
     return json.loads(out)
 
@@ -117,17 +126,21 @@ def stats(values: list[float]) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--since", required=True, help="YYYY-MM-DD")
-    parser.add_argument("--until", required=True, help="YYYY-MM-DD")
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--since", required=True, type=date.fromisoformat)
+    parser.add_argument("--until", required=True, type=date.fromisoformat)
+    parser.add_argument("--label", required=True, choices=LABELS)
     args = parser.parse_args()
+    if args.since > args.until:
+        parser.error("--since має бути не пізніше за --until")
+    since, until = args.since.isoformat(), args.until.isoformat()
+    out = OUT_DIR / f"{LABELS[LABELS.index(args.label)]}.json"
 
-    rows = collect(args.since, args.until)
+    rows = collect(since, until)
     code = [r for r in rows if not r["docs_only"]]
     docs = [r for r in rows if r["docs_only"]]
     result = {
         "repo": REPO,
-        "period": f"{args.since}..{args.until}",
+        "period": f"{since}..{until}",
         "collected_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "workflows": WORKFLOWS,
         "summary": {
@@ -140,8 +153,8 @@ def main() -> int:
         },
         "commits": rows,
     }
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
 
     print("| Коміт | Зміни | Черга CI, хв | Виконання CI, хв | Хв раннерів (усі wf) |")
     print("|---|---|---|---|---|")
