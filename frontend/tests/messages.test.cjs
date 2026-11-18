@@ -26,7 +26,10 @@ test('all four styles retain context as plain text for every key', () => {
 });
 test('notification API keeps pagination, ownership and empty read body', async () => {
   const calls=[];
-  const api=load('api/notifications.ts',{'./client':{apiRequest:async(...args)=>{calls.push(args);return {}; }},'../messages/rotation':{getMessageVariation:()=>2}});
+  const api=load('api/notifications.ts',{'./client':{apiRequest:async(...args)=>{calls.push(args);
+    if(args[0].startsWith('/notifications?')) return {items:[],total:0,limit:30,offset:60};
+    return args[0].endsWith('unread-count') ? {count:0} : {};
+  }},'../messages/rotation':{getMessageVariation:()=>2}});
   await api.listNotifications(30,60); await api.getUnreadCount(); await api.getNotification(3); await api.markNotificationRead(3);
   await api.sendSupport(3,'  <b>Поруч</b>  ');
   assert.equal(calls[0][0],'/notifications?limit=30&offset=60&variant=2');
