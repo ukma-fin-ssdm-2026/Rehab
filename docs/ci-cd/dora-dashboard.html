@@ -65,6 +65,12 @@ footer{margin-top:20px;font-size:13px;color:var(--muted)}a{color:#146d86}
 <div class="note">Черга цілого CI-запуску: медіана 7 с. Виконання цілого запуску: медіана 113 с. Це інтервали запуску, окремо від lead time.</div>
 </section>
 </div>
+<section class="panel" style="margin-top:14px">
+<h2>Бонус №5 · публікація образу</h2>
+<p>Після успішного CI на <code>main</code> workflow збирає API-образ з того самого SHA і публікує його в GHCR.</p>
+<p><a href="https://github.com/ukma-fin-ssdm-2026/Rehab/actions/workflows/publish-ghcr.yml">Історія запусків workflow</a> · <a href="https://github.com/ukma-fin-ssdm-2026/Rehab/pkgs/container/rehab">Сторінка пакета</a></p>
+<div class="note">Публікація ще не виконувалась: workflow очікує злиття PR #275. У періоді 27.10–16.11.2026 GHCR-метрики не спостерігались; їх буде додано після першого успішного main-запуску.</div>
+</section>
 <footer>Успішний CI на main використано як визначене лабораторною наближення розгортання. Дані не є вимірюванням production-релізів. Джерело: <a href="./dora-summary.md">dora-summary.md</a> · <a href="./metrics-raw.md">metrics-raw.md</a> · <a href="./improvement-plan.md">план покращень</a>.</footer>
 </main>
 </body>
