@@ -114,6 +114,7 @@ def calculate(data):
     for run in runs:
         mapped.setdefault(run["head_sha"], []).append(run)
     lead = []
+    lead_parts = []
     for pr in data["prs"]:
         first = data["first_commits"].get(str(pr["number"]))
         green = sorted(
@@ -124,6 +125,16 @@ def calculate(data):
             hours = (dt(finished_at(green[0], data["jobs"])) - dt(first)).total_seconds() / 3600
             if hours >= 0:
                 lead.append(hours)
+                chosen = green[0]
+                selected_jobs = data["jobs"].get(str(chosen["id"]), [])
+                starts = [dt(job["started_at"]) for job in selected_jobs if job.get("started_at")]
+                ends = [dt(job["completed_at"]) for job in selected_jobs if job.get("completed_at")]
+                if starts and ends:
+                    before = (dt(chosen["created_at"]) - dt(first)).total_seconds()
+                    queued = (min(starts) - dt(chosen["created_at"])).total_seconds()
+                    running = (max(ends) - min(starts)).total_seconds()
+                    if min(before, queued, running) >= 0:
+                        lead_parts.append((before, queued, running))
     incidents = []
     failed_at = None
     finished_runs = [(dt(moment), run) for run in success + failures if (moment := finished_at(run, data["jobs"]))]
@@ -147,6 +158,18 @@ def calculate(data):
                 seconds = (dt(job["completed_at"]) - dt(job["started_at"])).total_seconds()
                 if seconds >= 0:
                     execution.append(seconds)
+    run_parts = []
+    for run in completed:
+        selected_jobs = data["jobs"].get(str(run["id"]), [])
+        starts = [dt(job["started_at"]) for job in selected_jobs if job.get("started_at")]
+        ends = [dt(job["completed_at"]) for job in selected_jobs if job.get("completed_at")]
+        if starts and ends:
+            queued = (min(starts) - dt(run["created_at"])).total_seconds()
+            running = (max(ends) - min(starts)).total_seconds()
+            if queued >= 0 and running >= 0:
+                run_parts.append((queued, running))
+    total_ci = sum(queue + running for queue, running in run_parts)
+    total_lead = sum(sum(parts) for parts in lead_parts)
     weeks = []
     current = start
     while current <= end:
@@ -162,7 +185,17 @@ def calculate(data):
         "failure_rate": len(failures) / (len(success) + len(failures)) * 100 if success or failures else None,
         "recovery": median(incidents), "recoveries": len(incidents),
         "unresolved": failed_at is not None, "wait": median(waiting), "execute": median(execution),
-        "wait_count": len(waiting), "execute_count": len(execution), "weeks": weeks,
+        "wait_count": len(waiting), "execute_count": len(execution),
+        "run_wait": median([parts[0] for parts in run_parts]),
+        "run_execute": median([parts[1] for parts in run_parts]),
+        "run_count": len(run_parts),
+        "ci_queue_pct": 100 * sum(parts[0] for parts in run_parts) / total_ci if total_ci else None,
+        "ci_execute_pct": 100 * sum(parts[1] for parts in run_parts) / total_ci if total_ci else None,
+        "lead_parts_count": len(lead_parts),
+        "lead_before_pct": 100 * sum(parts[0] for parts in lead_parts) / total_lead if total_lead else None,
+        "lead_queue_pct": 100 * sum(parts[1] for parts in lead_parts) / total_lead if total_lead else None,
+        "lead_execute_pct": 100 * sum(parts[2] for parts in lead_parts) / total_lead if total_lead else None,
+        "weeks": weeks,
     }
 
 
@@ -181,7 +214,7 @@ def render(data, m):
         "",
         "| Метрика | Результат |",
         "| --- | ---: |",
-        f"| Deployment Frequency (CI-проксі) | {pretty(m['frequency'])} успішних CI/день |",
+        f"| Deployment Frequency (CI-проксі) | {pretty(m['frequency'])} успішних CI/день; {pretty(m['frequency'] * 7)} на тиждень |",
         f"| Lead Time for Changes (CI-проксі) | Медіана {pretty(m['lead_median'])} год; середнє {pretty(m['lead_mean'])} год |",
         f"| Change Failure Rate (CI-проксі) | {pretty(m['failure_rate'], '%')} |",
         f"| Time to Restore Service (CI-проксі) | {pretty(m['recovery'], ' год')} |",
@@ -190,14 +223,27 @@ def render(data, m):
         "Для завершення CI взято останній jobs.completed_at, а якщо завершених jobs немає — run.updated_at завершеного запуску.",
         "Статуси наведені на момент отримання даних; незавершені запуски не вважаються невдалими. Відсутність збоїв не дорівнює нульовому часу відновлення.",
         "",
-        "## Очікування в черзі та виконання",
+        "## Черга та виконання CI-запусків",
         "",
-        "Для кожного job очікування = started_at − created_at; виконання = completed_at − started_at.",
+        "Черга: від створення запуску до початку першого job. Виконання: від початку першого job до завершення останнього.",
         "",
-        "| Показник | Медіана | Кількість job |",
+        "| Показник | Медіана | Завершених запусків |",
         "| --- | ---: | ---: |",
-        f"| Черга | {pretty(m['wait'], ' с')} | {m['wait_count']} |",
-        f"| Виконання | {pretty(m['execute'], ' с')} | {m['execute_count']} |",
+        f"| Черга | {pretty(m['run_wait'], ' с')} | {m['run_count']} |",
+        f"| Виконання | {pretty(m['run_execute'], ' с')} | {m['run_count']} |",
+        "",
+        f"У сумарній тривалості CI-запусків черга займає {pretty(m['ci_queue_pct'], '%')}, а виконання — {pretty(m['ci_execute_pct'], '%')}.",
+        "",
+        "## Структура часу проходження змін",
+        "",
+        f"За {m['lead_parts_count']} успішними PR: до запуску CI — {pretty(m['lead_before_pct'], '%')}, черга CI — {pretty(m['lead_queue_pct'], '%')}, виконання CI — {pretty(m['lead_execute_pct'], '%')}.",
+        "",
+        "## Додаткова деталізація окремих jobs",
+        "",
+        "| Показник | Медіана | Кількість jobs |",
+        "| --- | ---: | ---: |",
+        f"| Черга jobs | {pretty(m['wait'], ' с')} | {m['wait_count']} |",
+        f"| Виконання jobs | {pretty(m['execute'], ' с')} | {m['execute_count']} |",
         "",
         "## Успішні CI за тижнями",
         "",
