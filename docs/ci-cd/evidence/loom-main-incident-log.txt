@@ -1,0 +1,7 @@
+Source: https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/40691892474/job/122828543794
+Excerpt fetched via GitHub job logs; unrelated setup/cleanup lines omitted.
+
+2026-10-28T12:56:20.1432265Z ##[group]Run python -m black --check backend
+2026-10-28T12:56:20.4698301Z would reformat /home/runner/actions-runner/_work/Rehab/Rehab/backend/app/services/progress.py
+2026-10-28T12:56:20.4884735Z 1 file would be reformatted, 16 files would be left unchanged.
+2026-10-28T12:56:20.5136328Z ##[error]Process completed with exit code 1.

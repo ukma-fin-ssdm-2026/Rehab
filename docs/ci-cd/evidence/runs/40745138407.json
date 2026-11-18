@@ -1,0 +1,47 @@
+{
+  "provenance": {
+    "source_pr": 268,
+    "source_commit": "246850ad875c2216e397efa013a7fa047dc8fb99",
+    "source_file": "docs/ci-cd/evidence/dora-auto-api-snapshot.json",
+    "kind": "Extracted from colleague API snapshot; derived intervals added, not a new API response"
+  },
+  "index": 15,
+  "run": {
+    "id": 40745138407,
+    "name": "CI Pipeline",
+    "event": "push",
+    "head_branch": "main",
+    "head_sha": "e5afd109bf9001fafcd9f088a1c7cbc14fd181dc",
+    "created_at": "2026-10-28T18:26:29Z",
+    "run_started_at": "2026-10-28T18:26:29Z",
+    "updated_at": "2026-10-28T18:28:28Z",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/40745138407"
+  },
+  "pr": {
+    "number": 169,
+    "merged_at": "2026-10-28T18:26:26Z",
+    "merge_commit_sha": "e5afd109bf9001fafcd9f088a1c7cbc14fd181dc",
+    "base": {
+      "ref": "main"
+    },
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/pull/169"
+  },
+  "first_commit": "2026-10-28T18:18:58Z",
+  "first_job_started_at": "2026-10-28T18:27:59Z",
+  "last_job_completed_at": "2026-10-28T18:28:27Z",
+  "queue_minutes": 1.5,
+  "execution_minutes": 0.4666666666666667,
+  "jobs": [
+    {
+      "name": "Backend tests and coverage",
+      "created_at": "2026-10-28T18:26:30Z",
+      "started_at": "2026-10-28T18:27:59Z",
+      "completed_at": "2026-10-28T18:28:27Z",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

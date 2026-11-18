@@ -1,0 +1,38 @@
+{
+  "provenance": {
+    "source_pr": 268,
+    "source_commit": "246850ad875c2216e397efa013a7fa047dc8fb99",
+    "source_file": "docs/ci-cd/evidence/dora-auto-api-snapshot.json",
+    "kind": "Extracted from colleague API snapshot; derived intervals added, not a new API response"
+  },
+  "index": 49,
+  "run": {
+    "id": 43096573477,
+    "name": "CI Pipeline",
+    "event": "push",
+    "head_branch": "main",
+    "head_sha": "59d90af61a75842d027008fd2150208c06da7406",
+    "created_at": "2026-11-11T20:31:36Z",
+    "run_started_at": "2026-11-11T20:31:36Z",
+    "updated_at": "2026-11-11T20:31:36Z",
+    "status": "queued",
+    "conclusion": null,
+    "run_attempt": 1,
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/43096573477"
+  },
+  "pr": {
+    "number": 261,
+    "merged_at": "2026-11-11T20:31:33Z",
+    "merge_commit_sha": "59d90af61a75842d027008fd2150208c06da7406",
+    "base": {
+      "ref": "main"
+    },
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/pull/261"
+  },
+  "first_commit": "2026-11-11T18:38:31Z",
+  "first_job_started_at": null,
+  "last_job_completed_at": null,
+  "queue_minutes": null,
+  "execution_minutes": null,
+  "jobs": []
+}
