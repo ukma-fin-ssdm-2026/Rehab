@@ -5,8 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.lock ./
-RUN python -m pip install --no-cache-dir --disable-pip-version-check --only-binary=:all: -r requirements.lock
+COPY requirements-ci-hashes.lock ./
+RUN python -m pip install --no-cache-dir --disable-pip-version-check --require-hashes --only-binary=:all: -r requirements-ci-hashes.lock
 
 COPY backend/ ./backend/
 COPY alembic/ ./alembic/
