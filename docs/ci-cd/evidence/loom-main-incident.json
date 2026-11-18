@@ -1,0 +1,30 @@
+{
+  "scope": "Supplemental Loom example: Code Quality, excluded from the CI Pipeline DORA sample",
+  "red": {
+    "id": 40691892474,
+    "name": "Code Quality",
+    "head_sha": "1d263798fcec16dda5e6a422de4cfc8b4840f8c9",
+    "head_branch": "main",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T12:55:41Z",
+    "updated_at": "2026-10-28T12:56:24Z",
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/40691892474"
+  },
+  "green": {
+    "id": 40691992239,
+    "name": "Code Quality",
+    "head_sha": "56af4e68f56f8ecc038def7a8ed9668d25e8f90a",
+    "head_branch": "main",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T12:56:24Z",
+    "updated_at": "2026-10-28T12:56:53Z",
+    "html_url": "https://github.com/ukma-fin-ssdm-2026/Rehab/actions/runs/40691992239"
+  },
+  "fix_pr": 157,
+  "cause": "Black --check backend reports backend/app/services/progress.py would be reformatted",
+  "job_id": 122828543794
+}
