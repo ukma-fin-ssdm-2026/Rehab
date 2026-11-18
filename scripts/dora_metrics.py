@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import os
 import statistics
 import subprocess
@@ -198,7 +199,7 @@ def render(data, m):
     comparable = data["start"] == "2026-10-27" and data["end"] == "2026-11-16" and data["repo"] == "ukma-fin-ssdm-2026/Rehab"
     rows.extend(["", "## Порівняння з ручним підрахунком", ""])
     if comparable:
-        matched = (m["runs"] == 54 and m["success"] == 53 and m["failures"] == 0 and m["pending"] == 1 and m["leads"] == 53 and round(m["frequency"], 2) == 2.52 and m["lead_median"] is not None and round(m["lead_median"], 2) == 1.44 and m["lead_mean"] is not None and round(m["lead_mean"], 2) == 15.91)
+        matched = (m["runs"] == 54 and m["success"] == 53 and m["failures"] == 0 and m["pending"] == 1 and m["leads"] == 53 and math.isclose(m["frequency"], 2.52, rel_tol=0, abs_tol=0.005) and m["lead_median"] is not None and math.isclose(m["lead_median"], 1.44, rel_tol=0, abs_tol=0.005) and m["lead_mean"] is not None and math.isclose(m["lead_mean"], 15.91, rel_tol=0, abs_tol=0.005))
         rows.append("Автоматичний підрахунок збігається з ручним для всіх чотирьох метрик." if matched else "Автоматичний підрахунок відрізняється від ручного знімка: історія запусків або їхні статуси могли змінитися.")
         rows.append("Ручний знімок: 53 успішні CI, 2,52 CI/день, Lead Time 1,44 год (медіана) і 15,91 год (середнє), 0% невдалих завершених CI, без вимірювань відновлення.")
     else:
